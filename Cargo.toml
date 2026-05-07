@@ -1,0 +1,30 @@
+[package]
+name = "stepper"
+version = "0.3.0"
+authors = ["Sergey Zubkov <ksevelyar@protonmail.com>"]
+edition = "2024"
+resolver = "2"
+rust-version = "1.96"
+
+[[bin]]
+name = "stepper"
+harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true    # Symbols are nice and they don't increase the size on Flash
+opt-level = "z"
+
+[dependencies]
+log = "0.4"
+esp-idf-svc = { version = "0.52.1", features = ["critical-section", "embassy-time-driver", "embassy-sync"] }
+embassy-time = { version = "0.5", features = ["generic-queue-8"] }
+anyhow = "1.0"
+embedded-graphics = "0.8"
+ssd1306 = { version = "0.8", features = ["graphics"] }
+sh1122 = "0.1"
+
+[build-dependencies]
+embuild = "0.33.1"
