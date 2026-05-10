@@ -82,28 +82,32 @@ fn main() -> Result<(), EspError> {
     let reed = PinDriver::input(peripherals.pins.gpio2, Pull::Up)?;
 
     let mut steps: u32 = 0;
-    let mut _last_trigger_ms: u64 = 0;
-    let mut _last_reed_high: bool = true;
+    let mut last_trigger_ms: u64 = 0;
+    let mut last_reed_high: bool = true;
 
     loop {
-        display.fill(0);
-        let _now_ms = get_now_ms();
-        let _current_low = reed.is_low();
+        let now_ms = get_now_ms();
+        let current_low = reed.is_low();
+        if current_low && last_reed_high {
+            if now_ms.saturating_sub(last_trigger_ms) > 50 {
+                last_trigger_ms = now_ms;
+                steps = steps.wrapping_add(1);
+            }
+        }
 
+        display.fill(0);
+        // TODO: minutes
         draw_digit(&mut display, DIGIT_SEGMENTS[0], 0, BRIGHTNESS);
         draw_colon(&mut display, 26, BRIGHTNESS);
         draw_digit(&mut display, DIGIT_SEGMENTS[0], 40, BRIGHTNESS);
         draw_digit(&mut display, DIGIT_SEGMENTS[0], 70, BRIGHTNESS);
 
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 136, BRIGHTNESS);
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 166, BRIGHTNESS);
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 196, BRIGHTNESS);
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 226, BRIGHTNESS);
+        draw_steps(&mut display, steps);
 
         display.flush().ok();
 
-        steps = steps.wrapping_add(1);
-        FreeRtos::delay_ms(1000);
+        last_reed_high = !current_low;
+        FreeRtos::delay_ms(50);
     }
 }
 
@@ -112,6 +116,18 @@ fn get_now_ms() -> u64 {
         .duration_since(SystemTime::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0)
+}
+
+fn draw_steps<D: Sh1122Interface>(display: &mut Sh1122Device<D>, value: u32) {
+    let d0 = (value / 1000) as usize;
+    let d1 = ((value / 100) % 10) as usize;
+    let d2 = ((value / 10) % 10) as usize;
+    let d3 = (value % 10) as usize;
+
+    draw_digit(display, DIGIT_SEGMENTS[d0], 136, BRIGHTNESS);
+    draw_digit(display, DIGIT_SEGMENTS[d1], 166, BRIGHTNESS);
+    draw_digit(display, DIGIT_SEGMENTS[d2], 196, BRIGHTNESS);
+    draw_digit(display, DIGIT_SEGMENTS[d3], 226, BRIGHTNESS);
 }
 
 fn draw_digit<D: Sh1122Interface>(display: &mut Sh1122Device<D>, bits: u8, x: usize, color: u8) {
