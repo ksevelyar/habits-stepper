@@ -1,11 +1,22 @@
+mod sessions;
+
+use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_svc::hal::delay::FreeRtos;
 use esp_idf_svc::hal::gpio::{AnyIOPin, AnyOutputPin, Output, PinDriver, Pull};
 use esp_idf_svc::hal::peripherals::Peripherals;
-use esp_idf_svc::hal::spi::{SpiDeviceDriver, SpiDriver, config::DriverConfig};
+use esp_idf_svc::hal::spi::{config::DriverConfig, SpiDeviceDriver, SpiDriver};
 use esp_idf_svc::log::EspLogger;
+use esp_idf_svc::nvs::EspDefaultNvsPartition;
+use esp_idf_svc::sntp;
 use esp_idf_svc::sys::EspError;
+use esp_idf_svc::wifi::{BlockingWifi, ClientConfiguration, Configuration, EspWifi};
+use log::info;
+use sessions::{new_storage, Sessions};
 use sh1122::{Framebuffer, Sh1122Device, Sh1122Interface};
 use std::time::SystemTime;
+
+const SSID: &str = env!("SSID");
+const PASSWORD: &str = env!("PASS");
 
 const DISPLAY_WIDTH: usize = 256;
 const DISPLAY_HEIGHT: usize = 64;
@@ -56,15 +67,23 @@ impl Sh1122Interface for HardSpi {
     }
 }
 
-fn main() -> Result<(), EspError> {
+fn main() -> anyhow::Result<()> {
     esp_idf_svc::sys::link_patches();
     EspLogger::initialize_default();
 
+    let utc_offset: i32 = env!("UTC_OFFSET").parse().unwrap_or(180);
     let peripherals = Peripherals::take()?;
+    let sysloop = EspSystemEventLoop::take()?;
+    let nvs_partition = EspDefaultNvsPartition::take()?;
+    let _wifi = wifi_create(SSID, PASSWORD, peripherals.modem, sysloop)?;
+    let _sntp = sntp::EspSntp::new_default()?;
+    info!("SNTP initialized");
+
+    let storage = new_storage(nvs_partition)?;
+    let mut sm = Sessions::new(storage);
 
     let mut pin_reset = PinDriver::output(peripherals.pins.gpio3)?;
     pin_reset.set_high()?;
-
     let spi_driver = SpiDriver::new(
         peripherals.spi2,
         peripherals.pins.gpio6,
@@ -81,28 +100,30 @@ fn main() -> Result<(), EspError> {
     display.init_display().ok();
     let reed = PinDriver::input(peripherals.pins.gpio2, Pull::Up)?;
 
-    let mut steps: u32 = 0;
     let mut last_trigger_ms: u64 = 0;
     let mut last_reed_high: bool = true;
 
     loop {
         let now_ms = get_now_ms();
         let current_low = reed.is_low();
+
         if current_low && last_reed_high {
             if now_ms.saturating_sub(last_trigger_ms) > 50 {
                 last_trigger_ms = now_ms;
-                steps = steps.wrapping_add(1);
+                sm.trigger(now_ms);
+                info!("today minutes: {}", sm.today_minutes(now_ms));
             }
         }
 
-        display.fill(0);
-        // TODO: minutes
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 0, BRIGHTNESS);
-        draw_colon(&mut display, 26, BRIGHTNESS);
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 40, BRIGHTNESS);
-        draw_digit(&mut display, DIGIT_SEGMENTS[0], 70, BRIGHTNESS);
+        sm.tick(now_ms);
 
-        draw_steps(&mut display, steps);
+        display.fill(0);
+        let mins = sm.today_minutes(now_ms);
+        let tens = (mins / 10) as usize;
+        let ones = (mins % 10) as usize;
+        draw_digit(&mut display, DIGIT_SEGMENTS[tens.min(9)], 0, BRIGHTNESS);
+        draw_colon(&mut display, 26, BRIGHTNESS);
+        draw_digit(&mut display, DIGIT_SEGMENTS[ones.min(9)], 40, BRIGHTNESS);
 
         display.flush().ok();
 
@@ -116,18 +137,6 @@ fn get_now_ms() -> u64 {
         .duration_since(SystemTime::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0)
-}
-
-fn draw_steps<D: Sh1122Interface>(display: &mut Sh1122Device<D>, value: u32) {
-    let d0 = (value / 1000) as usize;
-    let d1 = ((value / 100) % 10) as usize;
-    let d2 = ((value / 10) % 10) as usize;
-    let d3 = (value % 10) as usize;
-
-    draw_digit(display, DIGIT_SEGMENTS[d0], 136, BRIGHTNESS);
-    draw_digit(display, DIGIT_SEGMENTS[d1], 166, BRIGHTNESS);
-    draw_digit(display, DIGIT_SEGMENTS[d2], 196, BRIGHTNESS);
-    draw_digit(display, DIGIT_SEGMENTS[d3], 226, BRIGHTNESS);
 }
 
 fn draw_digit<D: Sh1122Interface>(display: &mut Sh1122Device<D>, bits: u8, x: usize, color: u8) {
@@ -172,4 +181,26 @@ fn draw_rect<D: Sh1122Interface>(
             display.set_pixel(xi, yi, color);
         }
     }
+}
+
+fn wifi_create(
+    ssid: &str,
+    pass: &str,
+    modem: esp_idf_svc::hal::modem::Modem<'static>,
+    sysloop: EspSystemEventLoop,
+) -> Result<EspWifi<'static>, EspError> {
+    let mut esp_wifi = EspWifi::new(modem, sysloop.clone(), None)?;
+    let mut wifi = BlockingWifi::wrap(&mut esp_wifi, sysloop.clone())?;
+    wifi.set_configuration(&Configuration::Client(ClientConfiguration {
+        ssid: ssid.try_into().unwrap(),
+        password: pass.try_into().unwrap(),
+        ..Default::default()
+    }))?;
+    wifi.start()?;
+    wifi.connect()?;
+    wifi.wait_netif_up()?;
+
+    let ip_info = wifi.wifi().sta_netif().get_ip_info()?;
+    info!("Wifi DHCP info: {:?}", ip_info);
+    Ok(esp_wifi)
 }
