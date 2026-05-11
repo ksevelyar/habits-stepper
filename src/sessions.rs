@@ -2,7 +2,7 @@ use esp_idf_svc::nvs::{EspKeyValueStorage, EspNvs, NvsDefault};
 use log::info;
 use postcard::{from_bytes, to_slice};
 
-const SESSION_TIMEOUT_MS: u64 = 1 * 60 * 1000;
+const SESSION_TIMEOUT_MS: u64 = 60 * 1000;
 const MAX_SESSIONS: usize = 1024;
 const SESSIONS_KEY: &str = "sessions";
 const HEAD_KEY: &str = "head";
@@ -134,10 +134,10 @@ impl Sessions {
         let today_start = Self::today_start(now);
         let mut total: u32 = 0;
 
-        if let Some(session) = &self.current {
-            if session.start_time >= today_start {
-                total += ((session.end_time - session.start_time) / 60000) as u32;
-            }
+        if let Some(session) = &self.current
+            && session.start_time >= today_start
+        {
+            total += ((session.end_time - session.start_time) / 60000) as u32;
         }
 
         let ring = self.load_ring();
