@@ -78,38 +78,33 @@ pub fn create_display<'d>(
     Ok(display)
 }
 
-pub fn draw_digit<D: Sh1122Interface>(
-    display: &mut Sh1122Device<D>,
-    bits: u8,
-    x: usize,
-    color: u8,
-) {
+pub fn draw_digit<D: Sh1122Interface>(display: &mut Sh1122Device<D>, bits: u8, x: usize) {
     if bits & 1 != 0 {
-        draw_rect(display, x + 10, 0, 14, 4, color);
+        draw_rect(display, x + 10, 0, 14, 4);
     }
     if bits & 2 != 0 {
-        draw_rect(display, x + 24, 4, 4, 26, color);
+        draw_rect(display, x + 24, 4, 4, 26);
     }
     if bits & 4 != 0 {
-        draw_rect(display, x + 24, 34, 4, 26, color);
+        draw_rect(display, x + 24, 34, 4, 26);
     }
     if bits & 8 != 0 {
-        draw_rect(display, x + 10, 60, 14, 4, color);
+        draw_rect(display, x + 10, 60, 14, 4);
     }
     if bits & 16 != 0 {
-        draw_rect(display, x + 8, 34, 4, 26, color);
+        draw_rect(display, x + 8, 34, 4, 26);
     }
     if bits & 32 != 0 {
-        draw_rect(display, x + 8, 4, 4, 26, color);
+        draw_rect(display, x + 8, 4, 4, 26);
     }
     if bits & 64 != 0 {
-        draw_rect(display, x + 10, 30, 14, 4, color);
+        draw_rect(display, x + 10, 30, 14, 4);
     }
 }
 
-pub fn draw_colon<D: Sh1122Interface>(display: &mut Sh1122Device<D>, x: usize, color: u8) {
-    draw_rect(display, x + 10, 26, 4, 4, color);
-    draw_rect(display, x + 10, 34, 4, 4, color);
+pub fn draw_colon<D: Sh1122Interface>(display: &mut Sh1122Device<D>, x: usize) {
+    draw_rect(display, x + 10, 26, 4, 4);
+    draw_rect(display, x + 10, 34, 4, 4);
 }
 
 pub fn draw_rect<D: Sh1122Interface>(
@@ -118,19 +113,23 @@ pub fn draw_rect<D: Sh1122Interface>(
     y: usize,
     width: usize,
     height: usize,
-    color: u8,
 ) {
     for xi in x..x + width {
         for yi in y..y + height {
-            display.set_pixel(xi, yi, color);
+            display.set_pixel(xi, yi, BRIGHTNESS);
         }
     }
 }
 
-pub fn render_time<D: Sh1122Interface>(display: &mut Sh1122Device<D>, minutes: u32, color: u8) {
+pub fn render_time<D: Sh1122Interface>(display: &mut Sh1122Device<D>, minutes: u32, x: usize) {
+    let hours = (minutes / 60) as usize;
+
+    let minutes = minutes % 60;
     let tens = (minutes / 10) as usize;
     let ones = (minutes % 10) as usize;
-    draw_digit(display, DIGIT_SEGMENTS[tens.min(9)], 0, color);
-    draw_colon(display, 26, color);
-    draw_digit(display, DIGIT_SEGMENTS[ones.min(9)], 40, color);
+
+    draw_digit(display, DIGIT_SEGMENTS[hours], x);
+    draw_colon(display, x + 26);
+    draw_digit(display, DIGIT_SEGMENTS[tens], x + 40);
+    draw_digit(display, DIGIT_SEGMENTS[ones], x + 70);
 }

@@ -1,7 +1,7 @@
 mod display;
 mod sessions;
 
-use display::{BRIGHTNESS, create_display, init_spi, render_time};
+use display::{create_display, init_spi, render_time};
 use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_svc::hal::delay::FreeRtos;
 use esp_idf_svc::hal::gpio::{AnyIOPin, PinDriver, Pull};
@@ -10,6 +10,7 @@ use esp_idf_svc::log::EspLogger;
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
 use esp_idf_svc::sntp;
 use esp_idf_svc::sys::EspError;
+use esp_idf_svc::sys::esp_wifi_set_max_tx_power;
 use esp_idf_svc::wifi::{BlockingWifi, ClientConfiguration, Configuration, EspWifi};
 use log::info;
 use sessions::{Sessions, new_storage};
@@ -63,7 +64,10 @@ fn main() -> anyhow::Result<()> {
         sm.tick(now_ms);
 
         display.fill(0);
-        render_time(&mut display, sm.today_minutes(now_ms), BRIGHTNESS);
+
+        render_time(&mut display, sm.today_minutes(now_ms), 0);
+        render_time(&mut display, sm.week_minutes(now_ms), 156);
+
         display.flush().ok();
 
         last_reed_high = !current_low;
@@ -78,6 +82,14 @@ fn get_now_ms() -> u64 {
         .unwrap_or(0)
 }
 
+// NOTE: reddit.com/r/arduino/comments/1dl6atc/esp32c3_boards_cant_connect_to_wifi_when_plugged
+fn fix_breadboard_wifi() {
+    unsafe {
+        esp_wifi_set_max_tx_power(34);
+        esp_idf_svc::hal::sys::esp_wifi_set_ps(esp_idf_svc::hal::sys::wifi_ps_type_t_WIFI_PS_NONE);
+    }
+}
+
 fn wifi_create(
     ssid: &str,
     pass: &str,
@@ -86,16 +98,25 @@ fn wifi_create(
 ) -> Result<EspWifi<'static>, EspError> {
     let mut esp_wifi = EspWifi::new(modem, sysloop.clone(), None)?;
     let mut wifi = BlockingWifi::wrap(&mut esp_wifi, sysloop.clone())?;
+
     wifi.set_configuration(&Configuration::Client(ClientConfiguration {
         ssid: ssid.try_into().unwrap(),
         password: pass.try_into().unwrap(),
         ..Default::default()
     }))?;
+
+    info!("start...");
+
     wifi.start()?;
+    fix_breadboard_wifi();
+
+    info!("connect...");
     wifi.connect()?;
+    info!("wait netif...");
     wifi.wait_netif_up()?;
 
     let ip_info = wifi.wifi().sta_netif().get_ip_info()?;
     info!("Wifi DHCP info: {:?}", ip_info);
+
     Ok(esp_wifi)
 }

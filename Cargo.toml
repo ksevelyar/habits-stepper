@@ -1,6 +1,6 @@
 [package]
 name = "stepper"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Sergey Zubkov <ksevelyar@protonmail.com>"]
 edition = "2024"
 resolver = "2"
