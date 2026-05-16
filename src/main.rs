@@ -105,14 +105,10 @@ fn wifi_create(
         ..Default::default()
     }))?;
 
-    info!("start...");
-
     wifi.start()?;
     fix_breadboard_wifi();
 
-    info!("connect...");
     wifi.connect()?;
-    info!("wait netif...");
     wifi.wait_netif_up()?;
 
     let ip_info = wifi.wifi().sta_netif().get_ip_info()?;
