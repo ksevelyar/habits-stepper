@@ -85,7 +85,7 @@ fn get_now_ms() -> u64 {
 // NOTE: reddit.com/r/arduino/comments/1dl6atc/esp32c3_boards_cant_connect_to_wifi_when_plugged
 fn fix_breadboard_wifi() {
     unsafe {
-        esp_wifi_set_max_tx_power(34);
+        esp_wifi_set_max_tx_power(52);
         esp_idf_svc::hal::sys::esp_wifi_set_ps(esp_idf_svc::hal::sys::wifi_ps_type_t_WIFI_PS_NONE);
     }
 }
