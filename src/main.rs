@@ -1,5 +1,7 @@
 mod display;
 mod sessions;
+mod switch;
+use switch::{Switch, SwitchConfig};
 
 use display::{create_display, init_spi, render_time};
 use esp_idf_svc::eventloop::EspSystemEventLoop;
@@ -37,7 +39,6 @@ fn main() -> anyhow::Result<()> {
 
     let mut pin_reset = PinDriver::output(peripherals.pins.gpio3)?;
     pin_reset.set_high()?;
-
     let spi = init_spi(
         peripherals.spi2,
         peripherals.pins.gpio6,
@@ -46,19 +47,24 @@ fn main() -> anyhow::Result<()> {
     )?;
     let mut display = create_display(spi, peripherals.pins.gpio10, peripherals.pins.gpio4)?;
 
-    let reed = PinDriver::input(peripherals.pins.gpio2, Pull::Up)?;
+    let reed_config = SwitchConfig {
+        debounce_ms: 50,
+        pull: Pull::Down,
+    };
+    let mut reed_switch = Switch::new(peripherals.pins.gpio2, reed_config.clone(), true)?;
 
-    let mut last_trigger_ms: u64 = 0;
-    let mut last_reed_high: bool = true;
+    let mut history_button = Switch::new(peripherals.pins.gpio1, reed_config, true)?;
 
     loop {
         let now_ms = get_now_ms();
-        let current_low = reed.is_low();
 
-        if current_low && last_reed_high && now_ms.saturating_sub(last_trigger_ms) > 50 {
-            last_trigger_ms = now_ms;
+        if reed_switch.poll(now_ms) {
             sm.trigger(now_ms);
             info!("today minutes: {}", sm.today_minutes(now_ms));
+        }
+
+        if history_button.poll(now_ms) {
+            info!("history button pressed");
         }
 
         sm.tick(now_ms);
@@ -70,7 +76,6 @@ fn main() -> anyhow::Result<()> {
 
         display.flush().ok();
 
-        last_reed_high = !current_low;
         FreeRtos::delay_ms(50);
     }
 }
