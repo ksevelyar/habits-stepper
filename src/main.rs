@@ -70,7 +70,7 @@ fn main() -> anyhow::Result<()> {
         sm.tick(now_ms);
 
         display.fill(0);
-
+        // TODO: move x coordinates to display
         render_time(&mut display, sm.today_minutes(now_ms), 0);
         render_time(&mut display, sm.week_minutes(now_ms), 156);
 
