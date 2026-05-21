@@ -2,8 +2,8 @@
 
 ## Overview
 * detect steps via magnet trigger
-* manages workout sessions (start on first trigger, stops after 2 minutes from last trigger)
-* tracks and displays total training time (today + current week).
+* manages workout sessions (start on first trigger, stops after one minute from last trigger)
+* tracks and displays total training time (today + current week)
 * sends single session record to backend on session end via json POST
 
 ## Session
@@ -17,18 +17,15 @@
 * 18650: 4.2V-3V
 * mcu + oled + 2-4 http post requests per day
 
-## Session structure?
+## Session structure
 ```json
-{
-  "steps": u32,
-  "started_at": i64,
-  "ended_at": i64,
-  "synced": false
+pub struct Session {
+    pub time: Range<u64>,
+    pub steps: u32,
 }
 ```
 
 ## Build & Flash
-
 ```fish
 nix develop
 
