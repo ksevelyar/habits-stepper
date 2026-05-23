@@ -1,5 +1,5 @@
 diameter = 71.4;
-height = 24;
+height = 25;
 
 display_length = 76;
 display_width = 19.1;
@@ -7,6 +7,10 @@ display_width = 19.1;
 esp32c3_width = 18.5;
 esp32c3_length = 24;
 wall = 2.3;
+
+module debug_inserts() {
+  cube(size=[8.4, 21, 15], center=false);
+}
 
 module esp32c3_mini_rails() {
   half_width = esp32c3_width / 2;
@@ -58,12 +62,8 @@ module button_cutout() {
   translate([-7, -24.5, -1]) cube(size=14);
 }
 
-module charger_led_cutout() {
-  translate([0, 27.5, 0.32]) cylinder(h = wall, d = 10);
-}
-
 module display_cutout() {
-  translate([-67 / 2, 0, 0.2]) cube([67, display_width, 100]);
+  translate([-67 / 2, 0, 0.32]) cube([67, display_width, 100]);
 }
 
 module display() {
@@ -110,19 +110,31 @@ module battery() {
   translate([-12.7, 27.4, 0]) leg(height - wall);
 }
 
-esp32c3_mini_rails();
-tp4057_rails();
-battery();
+module debug_usb_type_c() {
+  intersection() {
+    union() {
+      esp32c3_mini_rails();
+      tp4057_rails();
+      difference() {
+        union() {
+          display();
+        }
+        type_c_cutout();
+        button_cutout();
+        display_cutout();
 
-difference() {
-  display();
-  type_c_cutout();
-  button_cutout();
-  charger_led_cutout();
-  display_cutout();
+        translate([display_length / 2 - 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+        translate([-display_length / 2 + 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+        translate([display_length / 2 - 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+        translate([-display_length / 2 + 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+      }
 
-  translate([display_length / 2 - 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([display_length / 2 - 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+      battery();
+    }
+
+    translate([-20, -43, 0]) cube(size=[40, 40, 20], center=false);
+  }
 }
+
+// debug_usb_type_c();
+// debug_inserts();
