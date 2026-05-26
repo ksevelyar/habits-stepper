@@ -6,7 +6,7 @@ display_width = 19.1;
 
 esp32c3_width = 18.5;
 esp32c3_length = 24;
-wall = 2.3;
+wall = 2;
 
 module esp32c3_mini_rails() {
   half_width = esp32c3_width / 2;
@@ -59,11 +59,12 @@ module button_cutout() {
 }
 
 module charger_led_cutout() {
-  translate([0, 27.5, 0.32]) cylinder(h = wall, d = 10);
+  translate([0, 27.5, 0.5]) cylinder(h = wall, d = 10);
 }
 
 module display_cutout() {
   translate([-67 / 2, 0, 0.2]) cube([67, display_width, 100]);
+  translate([-56 / 2, (display_width-18)/2, -0.1]) cube([56, 18, 100]);
 }
 
 module display() {
@@ -73,7 +74,7 @@ module display() {
       width = display_width + wall * 2 + 0.5;
       translate([-length / 2, 0, 0]) cube(size=[length, width, height]);
 
-      cylinder(h=height, d=diameter + wall * 2, $fn=128);
+      cylinder(h=height, d=diameter + wall * 2, $fn=256);
     }
 
     hull() {
@@ -81,7 +82,7 @@ module display() {
       width = display_width + 3.5;
       translate([-length / 2, 0, wall]) cube(size=[length, width, height + wall]);
 
-      translate([0, 0, wall]) cylinder(h=height, d=diameter + 0.3, $fn=128);
+      translate([0, 0, wall]) cylinder(h=height, d=diameter + 0.3, $fn=256);
     }
   }
 }
@@ -102,7 +103,7 @@ module leg(leg_height) {
   }
 }
 
-module battery() {
+module battery_mounts() {
   translate([12.7, -8.8, 0]) leg(height - wall);
   translate([-12.7, -8.8, 0]) leg(height - wall);
 
@@ -112,7 +113,7 @@ module battery() {
 
 esp32c3_mini_rails();
 tp4057_rails();
-battery();
+battery_mounts();
 
 difference() {
   display();
