@@ -1,40 +1,15 @@
 # Stepper
 
 ## Overview
+* offline first: works without backend or wi-fi, stores permanently 1024 sessions
 * detect steps via magnet trigger
 * manages workout sessions (start on first trigger, stops after one minute from last trigger)
 * tracks and displays total training time (today + current week)
-* sends single session record to backend on session end via json POST
-
-## Session
-* mcu wakes up from deep sleep via reed switch
-* ended_at updates after 2 minutes of inactivity
-* json data sends to backend via POST
-* deep sleep
-* use nvs to store last 10 sessions?
-
-## Battery
-* 18650: 4.2V-3V
-* mcu + oled + 2-4 http post requests per day
-
-## Session structure
-```json
-pub struct Session {
-    pub time: Range<u64>,
-    pub steps: u32,
-}
-```
+* the history button displays 3 previous weeks
 
 ## Build & Flash
 ```fish
 nix develop
 
 SSID="WiFi" PASS="Password" UTC_OFFSET=180 cargo run --release
-```
-
-## Update deps
-The simplest way is to regenerate a dummy project and copy the dependencies from it:
-
-```
-cargo generate esp-rs/esp-idf-template cargo
 ```
