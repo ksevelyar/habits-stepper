@@ -20,5 +20,5 @@ dc  - gpio4
 cs  - gpio10
 
 ## buttons
-reed - gpio2 + gnd
-history - gpio1 + gnd
+reed - gpio1 + gnd
+history - gpio2 + gnd

@@ -49,11 +49,11 @@ fn main() -> anyhow::Result<()> {
 
     let reed_config = SwitchConfig {
         debounce_ms: 50,
-        pull: Pull::Down,
+        pull: Pull::Up,
     };
-    let mut reed_switch = Switch::new(peripherals.pins.gpio2, reed_config.clone(), true)?;
+    let mut reed_switch = Switch::new(peripherals.pins.gpio1, reed_config.clone(), true)?;
 
-    let mut history_button = Switch::new(peripherals.pins.gpio1, reed_config, true)?;
+    let mut history_button = Switch::new(peripherals.pins.gpio2, reed_config, true)?;
 
     loop {
         let now_ms = get_now_ms();
