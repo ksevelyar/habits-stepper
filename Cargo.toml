@@ -1,32 +1,69 @@
 [package]
-name = "stepper"
-version = "0.4.0"
-authors = ["Sergey Zubkov <ksevelyar@protonmail.com>"]
-edition = "2024"
-resolver = "2"
-rust-version = "1.96"
+edition      = "2024"
+name         = "habits-stepper"
+rust-version = "1.95"
+version      = "0.5.0"
 
 [[bin]]
-name = "stepper"
-harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
-
-[profile.release]
-opt-level = "s"
-
-[profile.dev]
-debug = true    # Symbols are nice and they don't increase the size on Flash
-opt-level = "z"
+name = "habits-stepper"
+path = "./src/bin/main.rs"
 
 [dependencies]
-log = "0.4"
-esp-idf-svc = { version = "0.52.1", features = ["critical-section", "embassy-time-driver", "embassy-sync"] }
-embassy-time = { version = "0.5", features = ["generic-queue-8"] }
-anyhow = "1.0"
-postcard = { version = "1.0", features = ["alloc"] }
-serde = { version = "1.0", default-features = false, features = ["derive"] }
-embedded-graphics = "0.8"
-ssd1306 = { version = "0.8", features = ["graphics"] }
-sh1122 = "0.1"
+esp-hal = { version = "=1.0.0", features = ["esp32c3", "unstable"] }
+esp-rtos = { version = "0.2.0", features = [
+  "embassy",
+  "esp-alloc",
+  "esp-radio",
+  "esp32c3",
+] }
 
-[build-dependencies]
-embuild = "0.33.1"
+esp-bootloader-esp-idf = { version = "0.4.0", features = ["esp32c3"] }
+
+embassy-net = { version = "0.7.1", features = [
+  "dhcpv4",
+  "medium-ethernet",
+  "tcp",
+  "udp",
+] }
+embedded-io = "0.7.1"
+embedded-io-async = "0.6.1"
+esp-alloc = "0.9.0"
+rtt-target = "0.6.2"
+embassy-executor = { version = "0.9.1", features = [] }
+embassy-time = "0.5.0"
+esp-radio = { version = "0.17.0", features = [
+  "esp-alloc",
+  "esp32c3",
+  "smoltcp",
+  "unstable",
+  "wifi",
+] }
+smoltcp = { version = "0.12.0", default-features = false, features = [
+  "medium-ethernet",
+  "multicast",
+  "proto-dhcpv4",
+  "proto-dns",
+  "proto-ipv4",
+  "socket-dns",
+  "socket-icmp",
+  "socket-raw",
+  "socket-tcp",
+  "socket-udp",
+] }
+
+critical-section = "1.2.0"
+static_cell      = "2.1.1"
+
+[profile.dev]
+# Rust debug is too slow.
+# For debug builds always builds with some optimization
+opt-level = "s"
+
+[profile.release]
+codegen-units    = 1     # LLVM can perform better optimizations using a single thread
+debug            = 2
+debug-assertions = false
+incremental      = false
+lto              = 'fat'
+opt-level        = 's'
+overflow-checks  = false

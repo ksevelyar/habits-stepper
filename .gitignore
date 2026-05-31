@@ -1,4 +1,3 @@
-/.embuild
-/target
-/.direnv
+target/
+.direnv
 result
