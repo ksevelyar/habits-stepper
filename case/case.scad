@@ -1,57 +1,34 @@
 diameter = 71.4;
-height = 24;
+height = 14;
+// height = 24;
 
-display_length = 76;
-display_width = 19.1;
+display_length = 76.5;
+display_width = 19;
 
 esp32c3_width = 18.5;
 esp32c3_length = 24;
 wall = 2;
 
-module esp32c3_mini_rails() {
-  half_width = esp32c3_width / 2;
-
-  // TODO: refactor to rail()
-  translate([-half_width - 2, -33, 0]) cube([2, esp32c3_length, 11]);
+module rail_side(half_width, length, y) {
+  translate([-half_width - 2, y, 2]) cube([2, length, 9]);
   hull() {
-    translate([-half_width - 0.15, -33, 7.5]) rotate([0, -40, 0]) cube([1.5, esp32c3_length, 1]);
-
-    translate([-half_width - 0.5, -33, 8.4]) cube([1.5, esp32c3_length, 1]);
+    translate([-half_width - 0.15, y, 7.5]) rotate([0, -40, 0]) cube([1.5, length, 1]);
+    translate([-half_width - 0.5, y, 8.4]) cube([1.5, length, 1]);
   }
-  translate([-half_width - 0.35, -33, 10]) rotate([0, -40, 0]) cube([1.3, esp32c3_length, 1]);
+  translate([-half_width - 0.35, y, 10]) rotate([0, -40, 0]) cube([1.3, length, 1]);
+}
 
-  mirror([1, 0, 0]) {
-    translate([-half_width - 2, -33, 0]) cube([2, esp32c3_length, 11]);
-    hull() {
-      translate([-half_width - 0.15, -33, 7.5]) rotate([0, -40, 0]) cube([1.5, esp32c3_length, 1]);
+module rail(half_width, length, y) {
+  rail_side(half_width, length, y);
+  mirror([1, 0, 0]) rail_side(half_width, length, y);
+}
 
-      translate([-half_width - 0.5, -33, 8.4]) cube([1.5, esp32c3_length, 1]);
-    }
-    translate([-half_width - 0.35, -33, 10]) rotate([0, -40, 0]) cube([1.3, esp32c3_length, 1]);
-  }
+module esp32c3_mini_rails() {
+  rail(esp32c3_width / 2, esp32c3_length-8, 19);
 }
 
 module tp4057_rails() {
-  half_width = 13 / 2;
-  tp4057_length = 14;
-
-  translate([-half_width - 2, 20, 0]) cube([2, tp4057_length, 11]);
-  hull() {
-    translate([-half_width - 0.15, 20, 7.5]) rotate([0, -40, 0]) cube([1.5, tp4057_length, 1]);
-
-    translate([-half_width - 0.5, 20, 8.4]) cube([1.5, tp4057_length, 1]);
-  }
-  translate([-half_width - 0.35, 20, 10]) rotate([0, -40, 0]) cube([1.3, tp4057_length, 1]);
-
-  mirror([1, 0, 0]) {
-    translate([-half_width - 2, 20, 0]) cube([2, tp4057_length, 11]);
-    hull() {
-      translate([-half_width - 0.15, 20, 7.5]) rotate([0, -40, 0]) cube([1.5, tp4057_length, 1]);
-
-      translate([-half_width - 0.5, 20, 8.4]) cube([1.5, tp4057_length, 1]);
-    }
-    translate([-half_width - 0.35, 20, 10]) rotate([0, -40, 0]) cube([1.3, tp4057_length, 1]);
-  }
+  rail(13 / 2, 14, -36);
 }
 
 module button_cutout() {
@@ -59,11 +36,11 @@ module button_cutout() {
 }
 
 module charger_led_cutout() {
-  translate([0, 27.5, 0.5]) cylinder(h = wall, d = 10);
+  translate([0, -30.1, 0.2]) cylinder(h = wall, d = 10);
 }
 
 module display_cutout() {
-  translate([-67 / 2, 0, 0.2]) cube([67, display_width, 100]);
+  translate([-67 / 2, 0, 0.4]) cube([67, display_width, 100]);
   translate([-56 / 2, (display_width-18)/2, -0.1]) cube([56, 18, 100]);
 }
 
@@ -88,7 +65,7 @@ module display() {
 }
 
 module type_c_cutout() {
-  translate([0, -diameter / 2 + 4, 8.5]) rotate([90, 0, 0])
+  translate([0, diameter / 2 + 4, 8.5]) rotate([90, 0, 0])
       hull() {
         translate([-2.9, 0, 0]) cylinder(h=10, d=3.7, $fn=64);
 
