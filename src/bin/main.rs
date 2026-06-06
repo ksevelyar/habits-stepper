@@ -11,8 +11,9 @@ use esp_hal::{
     time::Rate,
     timer::timg::TimerGroup,
 };
-use habits_stepper::{display, sessions, storage, time, user_input, wifi};
 use habits_stepper::sessions::FlashMutex;
+use habits_stepper::sessions::storage;
+use habits_stepper::{display, sessions, time, user_input, wifi};
 use panic_rtt_target as _;
 
 use defmt::info;
