@@ -11,7 +11,7 @@ test = false
 
 [[test]]
 harness = false
-name    = "hello_test"
+name    = "storage_test"
 
 [lib]
 test = false

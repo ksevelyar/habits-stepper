@@ -1,12 +1,14 @@
+pub mod storage;
+
 use defmt::info;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, Timer, with_timeout};
 
-use crate::storage::{FlashRing, SLOT_COUNT};
 use crate::{DISPLAY_CHANNEL, GpioEvent, USER_INPUT_CHANNEL};
+use storage::{FlashRing, SLOT_COUNT};
 
-const MAX_SESSIONS: usize = 256;
+const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
 const SYNC_INTERVAL: Duration = Duration::from_secs(60);
 

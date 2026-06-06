@@ -6,7 +6,6 @@ use embassy_sync::channel::Channel;
 
 pub mod display;
 pub mod sessions;
-pub mod storage;
 pub mod time;
 pub mod user_input;
 pub mod wifi;
