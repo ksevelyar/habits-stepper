@@ -15,29 +15,25 @@ nix develop
 cargo run --release
     Finished `release` profile [optimized + debuginfo] target(s) in 0.10s
      Running `probe-rs run --chip=esp32c3 --preverify --always-print-stacktrace --no-location target/riscv32imc-unknown-none-elf/release/habits-stepper`
-    Verifying ✔ 100% [####################] 321.10 KiB @  74.58 KiB/s (took 4s)           Finished in 4.54s
-[INFO ] Embassy initialized!
-[INFO ] starting wifi
-[INFO ] IPv4: DOWN
-[INFO ] flash capacity: 4194304B
-[INFO ] loaded 3 sessions from flash (head=3)
-[INFO ] RTC seeded: Europe/Moscow 2026-06-07 10:30:06
-[INFO ] start connection task
-[INFO ] About to connect...
-[INFO ] link_up = true
-[INFO ] IPv4: DOWN
-[INFO ] Connected to "fellowship-of-the-ring-2" (channel: 4)
-[INFO ] time: synced (-1s)
-[INFO ] Europe/Moscow 2026-06-07 10:30:09
-[INFO ] time: NTP sync done
-[INFO ] time: waiting 90s for inactivity
+    Verifying ✔ 100% [####################] 359.17 KiB @ 772.58 KiB/s (took 0s)            Erasing ✔ 100% [####################] 704.00 KiB @ 682.35 KiB/s (took 1s)
+  Programming ✔ 100% [####################] 359.17 KiB @  84.37 KiB/s (took 4s)           Finished in 6.11s
+03:00:00 [INFO ] init: embassy initialized
+03:00:00 [INFO ] storage: flash capacity: 4194304B
+03:00:00 [INFO ] storage: loaded 0 sessions from flash (head=0)
+03:00:00 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
+03:00:00 [WARN ] wifi: connection attempt 1 failed
+03:00:00 [ERROR] wifi: disconnected: SSID: "fellowship-of-the-ring-2", reason: NoAccessPointFound, RSSI: -128
+03:00:00 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
+03:00:00 [INFO ] wifi: connected to "fellowship-of-the-ring-2"
+17:49:12 [INFO ] time: synced (+0s)
+17:49:12 [INFO ] time: Europe/Moscow 2026-06-07 17:49:12
+17:49:12 [INFO ] time: waiting 90s for inactivity
 ```
 
 ## udev setup for ESP32-C3 with probe-rs
 
 ```nix
 services.udev.extraRules = ''
-  # NOTE: esp32c3
   SUBSYSTEM=="usb", ATTR{idVendor}=="303a", ATTR{idProduct}=="1001", MODE="0660", GROUP="dialout"
 '';
 ```
