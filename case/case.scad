@@ -2,8 +2,8 @@ diameter = 71.4;
 height = 14;
 // height = 24;
 
-display_length = 76.5;
-display_width = 19;
+display_length = 76.7;
+display_width = 19.1;
 
 esp32c3_width = 18.5;
 esp32c3_length = 24;
@@ -41,7 +41,7 @@ module charger_led_cutout() {
 
 module display_cutout() {
   translate([-67 / 2, 0, 0.4]) cube([67, display_width, 100]);
-  translate([-56 / 2, (display_width-18)/2, -0.1]) cube([56, 18, 100]);
+  translate([-56 / 2, 0.7, -0.1]) cube([56, 17.8, 100]);
 }
 
 module display() {
