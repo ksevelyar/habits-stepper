@@ -26,7 +26,7 @@
           PASS = "pass";
           JWT_TOKEN = "very secret";
           SYNC_HOST = "192.168.1.13:3003";
-          DEFMT_LOG = "info";
+          DEFMT_LOG = "info,embassy_net=warn";
           TIMEZONE = "Europe/Moscow";
           # NOTE: Valid range: 2–20 dBm
           WIFI_TRANSMIT_POWER = "16";

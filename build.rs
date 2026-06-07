@@ -1,8 +1,7 @@
 fn main() {
     let timezone = std::env::var("TIMEZONE").unwrap();
 
-    let power_str = std::env::var("WIFI_TRANSMIT_POWER")
-        .expect("WIFI_TRANSMIT_POWER must be set");
+    let power_str = std::env::var("WIFI_TRANSMIT_POWER").expect("WIFI_TRANSMIT_POWER must be set");
     let power: i8 = power_str
         .parse()
         .expect("WIFI_TRANSMIT_POWER must be a valid integer");

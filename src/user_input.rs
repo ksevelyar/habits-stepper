@@ -28,7 +28,7 @@ pub async fn task(reed: Input<'static>, history: Input<'static>) {
             Timer::after(DEBOUNCE).await;
         }
         if reed_falling_edge && reed.is_low() {
-            info!("user_input: reed closed -> signal activity");
+            info!("input: reed closed -> signal activity");
             ACTIVITY.signal(());
             USER_INPUT_CHANNEL.send(GpioEvent::StepDetected).await;
             while reed.is_low() {
@@ -48,7 +48,7 @@ pub async fn task(reed: Input<'static>, history: Input<'static>) {
                 GpioEvent::HistoryReleased
             };
             info!(
-                "user_input: history {} -> signal activity",
+                "input: history {} -> signal activity",
                 if pressed { "pressed" } else { "released" }
             );
             ACTIVITY.signal(());

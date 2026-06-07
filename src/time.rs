@@ -53,7 +53,7 @@ fn seed_from_rtc(rtc: &Rtc) {
         let ts = Timestamp::new(secs as i64, 0).unwrap();
         let z = ts.to_zoned(TIMEZONE);
         info!(
-            "RTC seeded: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
+            "time: rtc seeded: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
             TIMEZONE.iana_name().unwrap(),
             z.year(),
             z.month(),
@@ -77,7 +77,7 @@ fn log_sync(correction: Option<i64>) {
         let ts = Timestamp::new(epoch as i64, 0).unwrap();
         let z = ts.to_zoned(TIMEZONE);
         info!(
-            "{=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
+            "time: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
             TIMEZONE.iana_name().unwrap(),
             z.year(),
             z.month(),
@@ -166,7 +166,7 @@ pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
     let mut tx_meta = [PacketMetadata::EMPTY; 16];
     let mut tx_buffer = [0; 4096];
 
-    match with_timeout(Duration::from_secs(15), async {
+    match with_timeout(INACTIVITY, async {
         stack.wait_config_up().await;
         sync_with_ntp(
             &rtc,
@@ -180,8 +180,8 @@ pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
     })
     .await
     {
-        Ok(()) => info!("time: NTP sync done"),
-        Err(_) => warn!("time: NTP sync skipped (no network within 15s)"),
+        Ok(()) => (),
+        Err(_) => warn!("time: NTP sync skipped"),
     }
 
     loop {

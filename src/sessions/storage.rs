@@ -53,7 +53,7 @@ impl<'a> FlashRing<'a> {
     }
 
     pub fn init(&mut self) {
-        info!("flash capacity: {}B", self.flash.capacity());
+        info!("storage: flash capacity: {}B", self.flash.capacity());
 
         let mut first_empty = None;
         let mut count = 0u16;
@@ -71,7 +71,7 @@ impl<'a> FlashRing<'a> {
         self.count = count;
 
         info!(
-            "loaded {} sessions from flash (head={})",
+            "storage: loaded {} sessions from flash (head={})",
             self.count, self.head
         );
     }
@@ -85,7 +85,7 @@ impl<'a> FlashRing<'a> {
         let mut buf = [0u8; 16];
         if let Err(e) = self.flash.read(offset, &mut buf) {
             error!(
-                "slot_at[{}] read failed: {}",
+                "storage: slot_at[{}] read failed: {}",
                 index,
                 defmt::Debug2Format(&e)
             );
@@ -103,11 +103,11 @@ impl<'a> FlashRing<'a> {
             // Both sectors full — erase the oldest (sector 0), keep sector 1 as archive
             if let Err(e) = self.flash.erase(SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE) {
                 error!(
-                    "write_session: erase sector 0 failed: {}",
+                    "storage: erase sector 0 failed: {}",
                     defmt::Debug2Format(&e)
                 );
             } else {
-                info!("write_session: sector 0 erased, wrapping head");
+                info!("storage: sector 0 erased, wrapping head");
             }
             self.head = 0;
             self.count = SLOTS_PER_SECTOR;
@@ -115,16 +115,19 @@ impl<'a> FlashRing<'a> {
             // Crossing from sector 0 into sector 1 — erase sector 1 for clean slate
             if let Err(e) = self.flash.erase(SECTOR1_ADDR, SECTOR1_ADDR + SECTOR_SIZE) {
                 error!(
-                    "write_session: erase sector 1 failed: {}",
+                    "storage: erase sector 1 failed: {}",
                     defmt::Debug2Format(&e)
                 );
             } else {
-                info!("write_session: sector 1 erased, crossing boundary");
+                info!("storage: sector 1 erased, crossing boundary");
             }
         }
 
         if self.is_occupied(self.head) {
-            error!("head={} unexpectedly occupied, full erase", self.head);
+            error!(
+                "storage: head={} unexpectedly occupied, full erase",
+                self.head
+            );
             let _ = self.flash.erase(SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE);
             let _ = self.flash.erase(SECTOR1_ADDR, SECTOR1_ADDR + SECTOR_SIZE);
             self.head = 0;
@@ -140,7 +143,7 @@ impl<'a> FlashRing<'a> {
 
         let offset = Self::slot_offset(index);
         if let Err(e) = self.flash.write(offset, &buf) {
-            info!("write failed: {}", defmt::Debug2Format(&e));
+            info!("storage: write failed: {}", defmt::Debug2Format(&e));
         }
 
         self.head += 1;
@@ -150,9 +153,9 @@ impl<'a> FlashRing<'a> {
     pub fn mark_synced(&mut self, index: u16) {
         let offset = Self::slot_offset(index) + 12;
         if let Err(e) = self.flash.write(offset, &SlotFlags::Synced.to_bytes()) {
-            info!("mark_synced failed: {}", defmt::Debug2Format(&e));
+            info!("storage: mark synced failed: {}", defmt::Debug2Format(&e));
         } else {
-            info!("session {} marked synced", index);
+            info!("storage: session {} marked synced", index);
         }
     }
 
@@ -165,7 +168,7 @@ impl<'a> FlashRing<'a> {
         let mut buf = [0u8; 4];
         if let Err(e) = self.flash.read(offset, &mut buf) {
             error!(
-                "slot_flags[{}] read failed: {:?}",
+                "storage: slot_flags[{}] read failed: {:?}",
                 index,
                 defmt::Debug2Format(&e)
             );
@@ -184,10 +187,16 @@ impl<'a> FlashRing<'a> {
 
     pub fn erase_all(&mut self) {
         if let Err(e) = self.flash.erase(SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE) {
-            error!("erase_all sector 0 failed: {}", defmt::Debug2Format(&e));
+            error!(
+                "storage: erase_all sector 0 failed: {}",
+                defmt::Debug2Format(&e)
+            );
         }
         if let Err(e) = self.flash.erase(SECTOR1_ADDR, SECTOR1_ADDR + SECTOR_SIZE) {
-            error!("erase_all sector 1 failed: {}", defmt::Debug2Format(&e));
+            error!(
+                "storage: erase_all sector 1 failed: {}",
+                defmt::Debug2Format(&e)
+            );
         }
         self.head = 0;
         self.count = 0;
@@ -197,7 +206,7 @@ impl<'a> FlashRing<'a> {
         let mut result = heapless::Vec::new();
         for i in 0..SLOT_COUNT {
             if self.slot_flags(i) == SlotFlags::Unsynced && result.push(i).is_err() {
-                error!("unsynced_indices push failed (vec full)");
+                error!("storage: unsynced_indices push failed (vec full)");
             }
         }
         result

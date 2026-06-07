@@ -80,7 +80,7 @@ impl Sessions {
         if timed_out {
             let session = self.current.take().unwrap();
             info!(
-                "session ended: {} steps, {}min duration",
+                "session: ended: {} steps, {}min duration",
                 session.steps,
                 (session.end_epoch - session.start_epoch) / 60
             );

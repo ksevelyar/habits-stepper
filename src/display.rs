@@ -243,14 +243,14 @@ pub async fn display_task(
         match event {
             SessionEvent::Update(update) => {
                 info!(
-                    "SessionUpdate: today={}min({}steps) week={}min",
+                    "display: session update: today={}min({}steps) week={}min",
                     update.today_minutes, update.today_steps, update.week_minutes
                 );
                 render_time(&mut device, update.today_minutes, 80);
             }
             SessionEvent::History(history) => {
                 info!(
-                    "SessionHistory: w1={}min w2={}min w3={}min",
+                    "display: session history: w1={}min w2={}min w3={}min",
                     history.week1_minutes, history.week2_minutes, history.week3_minutes
                 );
                 render_time(&mut device, history.week1_minutes, 10);
