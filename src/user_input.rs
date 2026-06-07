@@ -1,3 +1,6 @@
+use defmt::info;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::signal::Signal;
 use embassy_time::{Duration, Timer};
 use esp_hal::gpio::Input;
 
@@ -5,6 +8,8 @@ use crate::{GpioEvent, USER_INPUT_CHANNEL};
 
 const POLL: Duration = Duration::from_millis(10);
 const DEBOUNCE: Duration = Duration::from_millis(50);
+
+pub static ACTIVITY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 
 #[embassy_executor::task]
 pub async fn task(reed: Input<'static>, history: Input<'static>) {
@@ -23,6 +28,8 @@ pub async fn task(reed: Input<'static>, history: Input<'static>) {
             Timer::after(DEBOUNCE).await;
         }
         if reed_falling_edge && reed.is_low() {
+            info!("user_input: reed closed -> signal activity");
+            ACTIVITY.signal(());
             USER_INPUT_CHANNEL.send(GpioEvent::StepDetected).await;
             while reed.is_low() {
                 Timer::after(POLL).await;
@@ -40,6 +47,11 @@ pub async fn task(reed: Input<'static>, history: Input<'static>) {
             } else {
                 GpioEvent::HistoryReleased
             };
+            info!(
+                "user_input: history {} -> signal activity",
+                if pressed { "pressed" } else { "released" }
+            );
+            ACTIVITY.signal(());
             USER_INPUT_CHANNEL.send(event).await;
         }
 
