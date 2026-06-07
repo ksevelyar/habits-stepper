@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "habits-stepper"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "critical-section",
  "defmt 1.1.0",

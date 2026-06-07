@@ -2,7 +2,7 @@
 edition      = "2024"
 name         = "habits-stepper"
 rust-version = "1.96"
-version      = "0.2.0"
+version      = "0.3.0"
 
 [[bin]]
 name = "habits-stepper"

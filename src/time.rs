@@ -1,13 +1,18 @@
 use core::net::{IpAddr, SocketAddr};
 use core::sync::atomic::{AtomicU32, Ordering};
+use embassy_time::with_timeout;
+use esp_hal::gpio::RtcPinWithResistors;
+use esp_hal::rtc_cntl::sleep::{RtcioWakeupSource, WakeupLevel};
 
-use defmt::{error, info};
+use defmt::{error, info, warn};
 use embassy_net::{
     Stack,
     dns::DnsQueryType,
     udp::{PacketMetadata, UdpSocket},
 };
-use embassy_time::{Duration, Instant, Timer};
+use embassy_time::{Duration, Instant};
+
+use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
 use jiff::{Timestamp, tz::TimeZone};
 
@@ -17,6 +22,7 @@ use sntpc_net_embassy::UdpSocketWrapper;
 const NTP_SERVER: &str = "pool.ntp.org";
 const MIN_VALID_EPOCH: u32 = 1_700_000_000;
 const USEC_IN_SEC: u64 = 1_000_000;
+const INACTIVITY: Duration = Duration::from_secs(90);
 
 // FIXME use IANA timezone from env var
 const TZ_NAME: &str = env!("TIMEZONE");
@@ -154,7 +160,7 @@ async fn sync_with_ntp(
 }
 
 #[embassy_executor::task]
-pub async fn task(rtc: Rtc<'static>, stack: Stack<'static>) {
+pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
     seed_from_rtc(&rtc);
 
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
@@ -162,7 +168,7 @@ pub async fn task(rtc: Rtc<'static>, stack: Stack<'static>) {
     let mut tx_meta = [PacketMetadata::EMPTY; 16];
     let mut tx_buffer = [0; 4096];
 
-    loop {
+    match with_timeout(Duration::from_secs(15), async {
         stack.wait_config_up().await;
         sync_with_ntp(
             &rtc,
@@ -173,6 +179,33 @@ pub async fn task(rtc: Rtc<'static>, stack: Stack<'static>) {
             &mut tx_buffer,
         )
         .await;
-        Timer::after(Duration::from_secs(86400)).await;
+    })
+    .await
+    {
+        Ok(()) => info!("time: NTP sync done"),
+        Err(_) => warn!("time: NTP sync skipped (no network within 15s)"),
+    }
+
+    loop {
+        info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
+        match with_timeout(INACTIVITY, ACTIVITY.wait()).await {
+            Ok(()) => {
+                info!("time: activity before timeout, resetting");
+                continue;
+            }
+            Err(_) => {
+                info!("time: user input timeout -> entering deep sleep");
+
+                let mut gpio1 = unsafe { esp_hal::peripherals::GPIO1::steal() };
+                let mut gpio2 = unsafe { esp_hal::peripherals::GPIO2::steal() };
+                let mut wake_pins = [
+                    (&mut gpio1 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
+                    (&mut gpio2 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
+                ];
+                let wake = RtcioWakeupSource::new(&mut wake_pins);
+
+                rtc.sleep_deep(&[&wake]);
+            }
+        }
     }
 }
