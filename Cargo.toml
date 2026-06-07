@@ -2,7 +2,7 @@
 edition      = "2024"
 name         = "habits-stepper"
 rust-version = "1.96"
-version      = "0.3.0"
+version      = "0.4.0"
 
 [[bin]]
 name = "habits-stepper"
@@ -54,7 +54,7 @@ esp-radio = { version = "0.18.0", features = [
   "wifi",
 ] }
 
-jiff = { version = "0.2", default-features = false, features = ["static", "perf-inline"] }
+jiff = { version = "0.2", default-features = false, features = ["static"] }
 static_cell      = {version = "2.1.1", features = ["nightly"]}
 
 sntpc = { version = "0.9", default-features = false }

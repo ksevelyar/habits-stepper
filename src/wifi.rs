@@ -10,6 +10,7 @@ extern crate alloc;
 
 const SSID: &str = env!("SSID");
 const PASSWORD: &str = env!("PASS");
+const WIFI_TRANSMIT_POWER: &str = env!("WIFI_TRANSMIT_POWER");
 
 pub async fn init(
     wifi: esp_hal::peripherals::WIFI<'static>,
@@ -31,9 +32,12 @@ pub async fn init(
     )
     .expect("Failed to initialize Wi-Fi controller");
 
-    // NOTE: Power unit is 0.25dBm, range is [8, 84] corresponding to 2dBm - 20dBm.
+    let max_tx_power_dbm: i8 = WIFI_TRANSMIT_POWER
+        .parse()
+        .expect("WIFI_TRANSMIT_POWER must be a valid integer");
     controller
-        .set_max_tx_power(60)
+        // NOTE: Power unit is 0.25dBm, range is [8, 84] corresponding to 2dBm - 20dBm.
+        .set_max_tx_power(max_tx_power_dbm * 4)
         .expect("Failed to set max TX power");
 
     let config = embassy_net::Config::dhcpv4(Default::default());

@@ -14,7 +14,9 @@ use embassy_time::{Duration, Instant};
 
 use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
-use jiff::{Timestamp, tz::TimeZone};
+use jiff::Timestamp;
+
+include!(concat!(env!("OUT_DIR"), "/timezone.rs"));
 
 use sntpc::{NtpContext, NtpTimestampGenerator, get_time};
 use sntpc_net_embassy::UdpSocketWrapper;
@@ -23,10 +25,6 @@ const NTP_SERVER: &str = "pool.ntp.org";
 const MIN_VALID_EPOCH: u32 = 1_700_000_000;
 const USEC_IN_SEC: u64 = 1_000_000;
 const INACTIVITY: Duration = Duration::from_secs(90);
-
-// FIXME use IANA timezone from env var
-const TZ_NAME: &str = env!("TIMEZONE");
-const TZ: TimeZone = jiff::tz::get!("Europe/Moscow");
 
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
@@ -53,10 +51,10 @@ fn seed_from_rtc(rtc: &Rtc) {
     if secs > MIN_VALID_EPOCH {
         set_epoch(secs);
         let ts = Timestamp::new(secs as i64, 0).unwrap();
-        let z = ts.to_zoned(TZ.clone());
+        let z = ts.to_zoned(TIMEZONE);
         info!(
             "RTC seeded: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
-            TZ_NAME,
+            TIMEZONE.iana_name().unwrap(),
             z.year(),
             z.month(),
             z.day(),
@@ -77,10 +75,10 @@ fn log_sync(correction: Option<i64>) {
 
     if let Some(epoch) = epoch_secs() {
         let ts = Timestamp::new(epoch as i64, 0).unwrap();
-        let z = ts.to_zoned(TZ);
+        let z = ts.to_zoned(TIMEZONE);
         info!(
             "{=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
-            TZ_NAME,
+            TIMEZONE.iana_name().unwrap(),
             z.year(),
             z.month(),
             z.day(),
