@@ -1,5 +1,5 @@
 diameter = 71.4;
-height = 14;
+height = 5;
 // height = 24;
 
 display_length = 76.7;
@@ -88,8 +88,8 @@ module battery_mounts() {
   translate([-12.7, 27.4, 0]) leg(height - wall);
 }
 
-esp32c3_mini_rails();
-tp4057_rails();
+// esp32c3_mini_rails();
+// tp4057_rails();
 battery_mounts();
 
 difference() {

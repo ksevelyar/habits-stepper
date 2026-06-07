@@ -46,6 +46,7 @@
             websocat
             probe-rs-tools
             esp-generate
+            cargo-udeps
             rust-analyzer
           ];
         };

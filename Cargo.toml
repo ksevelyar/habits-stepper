@@ -40,8 +40,6 @@ embassy-net = { version = "0.9.1", features = [
   "udp",
   "dns"
 ] }
-embedded-io = { version = "0.7.1", features = ["defmt"] }
-embedded-io-async = { version = "0.7.0", features = ["defmt"] }
 esp-alloc = { version = "0.10.0", features = ["defmt"] }
 panic-rtt-target = { version = "0.2.0", features = ["defmt"] }
 rtt-target = { version = "0.6.2", features = ["defmt"] }
@@ -55,32 +53,13 @@ esp-radio = { version = "0.18.0", features = [
   "unstable",
   "wifi",
 ] }
-smoltcp = { version = "0.13.0", default-features = false, features = [
-  "defmt",
-  "medium-ethernet",
-  "multicast",
-  "proto-dhcpv4",
-  "proto-dns",
-  "proto-ipv4",
-  "socket-dns",
-  "socket-icmp",
-  "socket-raw",
-  "socket-tcp",
-  "socket-udp",
-] }
 
-critical-section = "1.2.0"
 jiff = { version = "0.2", default-features = false, features = ["static", "perf-inline"] }
 static_cell      = {version = "2.1.1", features = ["nightly"]}
 
 sntpc = { version = "0.9", default-features = false }
 sntpc-net-embassy = { version = "0.9", default-features = false }
 
-edge-ws = { version = "0.7", default-features = false, features = ["io", "defmt"] }
-
-embedded-graphics = "0.8"
-embedded-hal-bus = "0.3"
-mipidsi = "0.10"
 embassy-sync = { version = "0.8.0", features = ["defmt"] }
 heapless = { version = "0.9", default-features = false }
 
