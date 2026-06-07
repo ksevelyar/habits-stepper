@@ -29,6 +29,13 @@ const INACTIVITY: Duration = Duration::from_secs(90);
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
 
+defmt::timestamp!(
+    "{=u8:02}:{=u8:02}:{=u8:02}",
+    { local_time().hour() as u8 },
+    { local_time().minute() as u8 },
+    { local_time().second() as u8 },
+);
+
 pub fn epoch_secs() -> Option<u32> {
     let base = EPOCH_BASE.load(Ordering::Acquire);
     if base == 0 {
@@ -38,6 +45,13 @@ pub fn epoch_secs() -> Option<u32> {
     let ibase = INSTANT_BASE.load(Ordering::Relaxed) as u64;
     let delta = now.saturating_sub(ibase) as u32;
     Some(base + delta)
+}
+
+fn local_time() -> jiff::Zoned {
+    let epoch_secs = epoch_secs().unwrap_or(0);
+    let timestamp = jiff::Timestamp::new(epoch_secs as i64, 0).unwrap();
+
+    timestamp.to_zoned(crate::time::TIMEZONE)
 }
 
 fn set_epoch(epoch_secs: u32) {
