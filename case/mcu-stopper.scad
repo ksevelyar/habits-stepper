@@ -1,6 +1,5 @@
 diameter = 71.4;
-// height = 5;
-height = 24;
+height = 15;
 
 display_length = 77;
 display_width = 19.1;
@@ -37,12 +36,12 @@ module button_cutout() {
 }
 
 module charger_led_cutout() {
-  translate([0, -30.1, 0.2]) cylinder(h=wall, d=8);
+  translate([0, -30.1, 0.2]) cylinder(h=wall, d=10);
 }
 
 module display_cutout() {
   translate([-67 / 2, 0, 0.4]) cube([67, display_width, 100]);
-  translate([-56 / 2, (display_width - 17.4) / 2, -0.1]) cube([56, 17.4, 100]);
+  translate([-56 / 2, 0.7, -0.1]) cube([56, 17.8, 100]);
 }
 
 module display() {
@@ -81,32 +80,42 @@ module leg(leg_height) {
   }
 }
 
-module mounts() {
+module battery_mounts() {
   translate([12.7, -8.8, 0]) leg(height - wall);
   translate([-12.7, -8.8, 0]) leg(height - wall);
 
-  translate([12.7, 23.4, 0]) leg(height - wall);
-  translate([-12.7, 23.4, 0]) leg(height - wall);
-
-  translate([display_length / 2 - 15, display_width + 3.2, 0]) leg(10);
-  translate([-display_length / 2 + 15, display_width + 3.2, 0]) leg(10);
+  translate([12.7, 27.4, 0]) leg(height - wall);
+  translate([-12.7, 27.4, 0]) leg(height - wall);
 }
 
-difference() {
-  union() {
-    display();
-    esp32c3_mini_rails();
-    tp4057_rails();
-    mounts();
+module stopper() {
+  translate([0, 0, wall]) {
+
+    difference() {
+      union() {
+        hull() {
+          translate([11, display_width - 13, 7]) leg(wall);
+
+          translate([display_length / 2 - 15, display_width + 3.2, 7]) leg(wall);
+        }
+
+        hull() {
+          translate([-11, display_width - 13, 11 - wall * 2]) leg(wall);
+          translate([-display_length / 2 + 15, display_width + 3.2, 11 - wall * 2]) leg(wall);
+        }
+      }
+
+      translate([display_length / 2 - 15, display_width + 3.2, 6]) cylinder(10, d=3.12, $fn=32);
+
+      translate([-display_length / 2 + 15, display_width + 3.2, 6]) cylinder(10, d=3.12, $fn=32);
+    }
+
+    difference() {
+      length = 33;
+      translate([-length / 2, display_width - 10.8, height - wall * 4]) cube([length, 6, wall]);
+      translate([-length / 2, display_width - 5, height - wall * 4 - 0.2]) rotate([45, 0, 0]) cube([length, wall, wall]);
+    }
   }
-
-  type_c_cutout();
-  button_cutout();
-  charger_led_cutout();
-  display_cutout();
-
-  translate([display_length / 2 - 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([display_length / 2 - 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.5, display_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
 }
+
+stopper();

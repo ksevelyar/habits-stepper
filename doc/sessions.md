@@ -18,6 +18,3 @@ session state, and sends session events to display.
 * on load should log amount of loaded sessions for current week adn previous 3 weeks.
 * on session end it should be synced to backend and saved into permanent storage, also should be logged
 * esp32c3 NOR flash wear should be minimased
-
-## Deep sleep
-* after session synced the device go to deep sleep and wait user input to wake up
