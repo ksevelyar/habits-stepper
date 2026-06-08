@@ -54,12 +54,12 @@ async fn main(spawner: Spawner) -> ! {
             .with_mode(Mode::_0),
     )
     .unwrap()
-    .with_sck(peripherals.GPIO6)
-    .with_mosi(peripherals.GPIO7);
+    .with_sck(peripherals.GPIO5)
+    .with_mosi(peripherals.GPIO6);
 
     let display_cs = Output::new(peripherals.GPIO10, Level::High, OutputConfig::default());
-    let display_dc = Output::new(peripherals.GPIO4, Level::Low, OutputConfig::default());
-    let display_rst = Output::new(peripherals.GPIO3, Level::High, OutputConfig::default());
+    let display_dc = Output::new(peripherals.GPIO9, Level::Low, OutputConfig::default());
+    let display_rst = Output::new(peripherals.GPIO7, Level::High, OutputConfig::default());
 
     let reed = Input::new(
         peripherals.GPIO1,
