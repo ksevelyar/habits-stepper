@@ -1,17 +1,6 @@
+include <mixin.scad>;
+
 height = 85;
-
-diameter = 71.4;
-display_length = 77;
-display_width = 19.1;
-
-wall = 2.3;
-
-module leg(leg_height) {
-  difference() {
-    cylinder(h=leg_height, d=6.24, $fn=32);
-    cylinder(h=leg_height + 1, d=3.12, $fn=32);
-  }
-}
 
 module walls() {
   difference() {
@@ -54,18 +43,3 @@ module battery() {
 
 battery();
 walls();
-
-
-// module battery() {
-//   translate([12.7, -8.8, 0]) leg(height - wall);
-//   translate([-12.7, -8.8, 0]) leg(height - wall);
-//
-//   translate([12.7, 27.4, 0]) leg(height - wall);
-//   translate([-12.7, 27.4, 0]) leg(height - wall);
-// }
-
-  // translate([12.7, -8.8, 0]) leg(height - wall);
-  // translate([-12.7, -8.8, 0]) leg(height - wall);
-  //
-  // translate([12.7, 23.4, 0]) leg(height - wall);
-  // translate([-12.7, 23.4, 0]) leg(height - wall);
