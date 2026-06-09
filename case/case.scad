@@ -1,7 +1,7 @@
-diameter = 71.4;
 // height = 5;
 height = 24;
 
+diameter = 71.4;
 display_length = 77;
 display_width = 19.1;
 
@@ -82,8 +82,8 @@ module leg(leg_height) {
 }
 
 module mounts() {
-  translate([12.7, -8.8, 0]) leg(height - wall);
-  translate([-12.7, -8.8, 0]) leg(height - wall);
+  translate([12.7, -23.4, 0]) leg(height - wall);
+  translate([-12.7, -23.4, 0]) leg(height - wall);
 
   translate([12.7, 23.4, 0]) leg(height - wall);
   translate([-12.7, 23.4, 0]) leg(height - wall);
