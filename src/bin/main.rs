@@ -70,7 +70,8 @@ async fn main(spawner: Spawner) -> ! {
         InputConfig::default().with_pull(Pull::Up),
     );
 
-    spawner.spawn(user_input::task(reed, history).unwrap());
+    spawner.spawn(user_input::reed_task(reed).unwrap());
+    spawner.spawn(user_input::history_task(history).unwrap());
     spawner.spawn(display::display_task(display_spi, display_cs, display_dc, display_rst).unwrap());
     static FLASH_RING: StaticCell<FlashMutex> = StaticCell::new();
     let flash_mutex = FLASH_RING.init(Mutex::new(storage::FlashRing::new(peripherals.FLASH)));
