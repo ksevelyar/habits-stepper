@@ -5,18 +5,18 @@ display_width = 19.1;
 esp32c3_width = 18.5;
 esp32c3_length = 24;
 
-module rail_side(half_width, length, y) {
-  translate([-half_width - 2, y, 2]) cube([2, length, 9]);
+module rail_side(half_width, length, y, rail_height=9) {
+  translate([-half_width - 2, y, 2]) cube([2, length, rail_height]);
   hull() {
-    translate([-half_width - 0.15, y, 7.5]) rotate([0, -40, 0]) cube([1.5, length, 1]);
-    translate([-half_width - 0.5, y, 8.4]) cube([1.5, length, 1]);
+    translate([-half_width - 0.15, y, 2 + rail_height - 3.5]) rotate([0, -40, 0]) cube([1.5, length, 1]);
+    translate([-half_width - 0.5, y, 2 + rail_height - 2.6]) cube([1.5, length, 1]);
   }
-  translate([-half_width - 0.35, y, 10]) rotate([0, -40, 0]) cube([1.3, length, 1]);
+  translate([-half_width - 0.35, y, 2 + rail_height - 1.0]) rotate([0, -40, 0]) cube([1.3, length, 1]);
 }
 
-module rail(half_width, length, y) {
-  rail_side(half_width, length, y);
-  mirror([1, 0, 0]) rail_side(half_width, length, y);
+module rail(half_width, length, y, rail_height=9) {
+  rail_side(half_width, length, y, rail_height);
+  mirror([1, 0, 0]) rail_side(half_width, length, y, rail_height);
 }
 
 module esp32c3_mini_rails() {
@@ -24,12 +24,12 @@ module esp32c3_mini_rails() {
 }
 
 module tp4057_rails() {
-  rail(13 / 2, 14, -36);
+  rail(13 / 2, 14, -36, 13);
 }
 
 module button_cutout() {
   size = 14.1;
-  translate([-size / 2, -24.5, -1]) cube(size=size);
+  translate([-size / 2, -24.5, -2.5]) cube(size=size);
 }
 
 module display() {
@@ -63,6 +63,6 @@ module type_c_cutout() {
 module leg(leg_height) {
   difference() {
     cylinder(h=leg_height, d=6.24, $fn=32);
-    cylinder(h=leg_height + 1, d=3.12, $fn=32);
+    cylinder(h=leg_height + 1, d=3.06, $fn=32);
   }
 }

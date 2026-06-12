@@ -38,9 +38,9 @@ module stopper() {
     }
 
     difference() {
-      length = 33;
-      translate([-length / 2, display_width - 10.8, height - wall * 4]) cube([length, 6, wall]);
-      translate([-length / 2, display_width - 5, height - wall * 4 - 0.2]) rotate([45, 0, 0]) cube([length, wall, wall]);
+      length = 30;
+      translate([-length / 2, display_width - 11.8, height - wall * 4]) cube([length, 6, wall]);
+      translate([-length / 2, display_width - 6, height - wall * 4 - 0.2]) rotate([45, 0, 0]) cube([length, wall, wall]);
     }
   }
 }

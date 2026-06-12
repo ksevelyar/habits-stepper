@@ -10,8 +10,8 @@ module walls() {
     translate([-30 / 2, -50, 0]) cube(size=[30, 100, height + 5], center=false);
   }
 
-  translate([-diameter / 2 + 1.9, -20.5/2, 0]) cube(size=[8.2, 20.5, height + 8], center=false);
-  translate([diameter / 2 - 10.3, -20.5/2, 0]) cube(size=[8.2, 20.5, height + 8], center=false);
+  translate([-diameter / 2 + 2, -20/2, 0]) cube(size=[7, 20, height + 8], center=false);
+  translate([diameter / 2 - 9, -20/2, 0]) cube(size=[7, 20, height + 8], center=false);
 }
 
 module battery() {
