@@ -15,6 +15,11 @@ const PIXEL_SHIFT: usize = 8 - PIXEL_BITS;
 const PIXEL_MASK: u8 = 0xf;
 const FB_SIZE: usize = DISPLAY_WIDTH * DISPLAY_HEIGHT * PIXEL_BITS / 8;
 
+const DIGIT_WIDTH: usize = 28;
+const DIGIT_PITCH: usize = 30;
+const TIME_WIDTH: usize = 100;
+const STEPS_WIDTH: usize = DIGIT_PITCH * 3 + DIGIT_WIDTH;
+
 pub const DIGIT_SEGMENTS: [u8; 10] = [
     0b0111111, 0b0000110, 0b1011011, 0b1001111, 0b1100110, 0b1101101, 0b1111101, 0b0000111,
     0b1111111, 0b1101111,
@@ -222,6 +227,20 @@ pub fn render_time(display: &mut Sh1122Device, minutes: u32, x: usize) {
     draw_digit(display, DIGIT_SEGMENTS[ones], x + 70);
 }
 
+pub fn render_steps(display: &mut Sh1122Device, value: u32, x: usize) {
+    let value = value.min(9999);
+
+    let thousands = ((value / 1000) % 10) as usize;
+    let hundreds = ((value / 100) % 10) as usize;
+    let tens = ((value / 10) % 10) as usize;
+    let ones = (value % 10) as usize;
+
+    draw_digit(display, DIGIT_SEGMENTS[thousands], x);
+    draw_digit(display, DIGIT_SEGMENTS[hundreds], x + 30);
+    draw_digit(display, DIGIT_SEGMENTS[tens], x + 60);
+    draw_digit(display, DIGIT_SEGMENTS[ones], x + 90);
+}
+
 #[embassy_executor::task]
 pub async fn display_task(
     spi: Spi<'static, esp_hal::Blocking>,
@@ -246,16 +265,20 @@ pub async fn display_task(
                     "display: session update: today={}min({}steps) week={}min",
                     update.today_minutes, update.today_steps, update.week_minutes
                 );
-                render_time(&mut device, update.today_minutes, 80);
+                render_time(&mut device, update.today_minutes, 0);
+                render_steps(&mut device, update.today_steps, DISPLAY_WIDTH - STEPS_WIDTH);
             }
             SessionEvent::History(history) => {
                 info!(
-                    "display: session history: w1={}min w2={}min w3={}min",
-                    history.week1_minutes, history.week2_minutes, history.week3_minutes
+                    "display: session history: cur={}min prev={}min",
+                    history.current_week_minutes, history.prev_week_minutes
                 );
-                render_time(&mut device, history.week1_minutes, 10);
-                render_time(&mut device, history.week2_minutes, 90);
-                render_time(&mut device, history.week3_minutes, 170);
+                render_time(&mut device, history.current_week_minutes, 0);
+                render_time(
+                    &mut device,
+                    history.prev_week_minutes,
+                    DISPLAY_WIDTH - TIME_WIDTH,
+                );
             }
         }
         device.flush().ok();

@@ -1,6 +1,6 @@
 include <mixin.scad>;
 
-height = 85;
+height = 82;
 
 module walls() {
   difference() {

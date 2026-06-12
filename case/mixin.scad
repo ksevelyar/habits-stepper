@@ -1,7 +1,7 @@
 wall = 2;
-diameter = 71.4;
+diameter = 71.5;
 display_length = 77;
-display_width = 19.1;
+display_width = 19.2;
 esp32c3_width = 18.5;
 esp32c3_length = 24;
 

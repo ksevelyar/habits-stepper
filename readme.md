@@ -1,12 +1,18 @@
 # Habits Display
 
+![](stepper.jpg)
+
+## Why
+Automatically tracks stepping sessions without requiring any button presses to start or reset workouts. Time is synced via NTP so new day and week boundaries are handled automatically — no need to remember to reset counts on Monday. Just start stepping and sessions are tracked correctly.
+
 ## Overview
-* async runtime with embassy
-* deep sleep 
-* 18650 battery + tp4057 charger
-* upload firmware and charge from one usb type c port
-* ring buffer with nor flash
-* embedded_test to run tests directly on the mcu
+* auto-track stepping sessions for the last 2 weeks, time-synced via NTP with a compile-time IANA timezone
+* async embassy runtime; display updates only on input events via channels
+* deep sleep after 90s of inactivity; 18650 battery + TP4057 charger gives ~1 month uptime
+* firmware upload (probe-rs), defmt logs (RTT), and battery charging over a single USB-C port
+* ring buffer in NOR flash (512 sessions); data survives deep sleep and reboots
+* on-MCU tests via embedded_test
+* 3D-printed case (OpenSCAD) with SH1122 256x64 OLED display
 
 ## Build & Flash
 ```
@@ -15,25 +21,22 @@ nix develop
 cargo run --release
     Finished `release` profile [optimized + debuginfo] target(s) in 0.10s
      Running `probe-rs run --chip=esp32c3 --preverify --always-print-stacktrace --no-location target/riscv32imc-unknown-none-elf/release/habits-stepper`
-    Verifying ✔ 100% [####################] 359.17 KiB @ 772.58 KiB/s (took 0s)            Erasing ✔ 100% [####################] 704.00 KiB @ 682.35 KiB/s (took 1s)
-  Programming ✔ 100% [####################] 359.17 KiB @  84.37 KiB/s (took 4s)           Finished in 6.11s
+    Verifying ✔ 100% [####################] 360.25 KiB @  74.20 KiB/s (took 5s)           Finished in 5.09s
 03:00:00 [INFO ] init: embassy initialized
 03:00:00 [INFO ] storage: flash capacity: 4194304B
-03:00:00 [INFO ] storage: loaded 0 sessions from flash (head=0)
-03:00:00 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
-03:00:00 [WARN ] wifi: connection attempt 1 failed
-03:00:00 [ERROR] wifi: disconnected: SSID: "fellowship-of-the-ring-2", reason: NoAccessPointFound, RSSI: -128
-03:00:00 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
-03:00:00 [INFO ] wifi: connected to "fellowship-of-the-ring-2"
-17:49:12 [INFO ] time: synced (+0s)
-17:49:12 [INFO ] time: Europe/Moscow 2026-06-07 17:49:12
-17:49:12 [INFO ] time: waiting 90s for inactivity
-```
-
-## udev setup for ESP32-C3 with probe-rs
-
-```nix
-services.udev.extraRules = ''
-  SUBSYSTEM=="usb", ATTR{idVendor}=="303a", ATTR{idProduct}=="1001", MODE="0660", GROUP="dialout"
-'';
+03:00:00 [INFO ] storage: loaded 18 sessions from flash (head=18)
+13:57:03 [INFO ] time: rtc seeded: Europe/Moscow 2026-06-13 13:57:03
+13:57:03 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
+13:57:04 [INFO ] wifi: connected to "fellowship-of-the-ring-2"
+13:57:18 [INFO ] time: synced (+4s)
+13:57:18 [INFO ] time: Europe/Moscow 2026-06-13 13:57:18
+13:57:18 [INFO ] time: waiting 90s for inactivity
+13:57:26 [INFO ] input: reed closed
+13:57:26 [INFO ] time: activity before timeout, resetting
+13:57:26 [INFO ] time: waiting 90s for inactivity
+13:57:26 [INFO ] display: session update: today=50min(1036steps) week=50min
+13:57:29 [INFO ] input: reed closed
+13:57:29 [INFO ] time: activity before timeout, resetting
+13:57:29 [INFO ] time: waiting 90s for inactivity
+13:57:29 [INFO ] display: session update: today=50min(1037steps) week=50min
 ```

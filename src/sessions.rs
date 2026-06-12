@@ -112,9 +112,8 @@ pub struct SessionUpdate {
 
 #[derive(Clone)]
 pub struct SessionHistory {
-    pub week1_minutes: u32,
-    pub week2_minutes: u32,
-    pub week3_minutes: u32,
+    pub current_week_minutes: u32,
+    pub prev_week_minutes: u32,
 }
 
 #[derive(Clone)]
@@ -183,12 +182,9 @@ fn make_session_history(
     let week_seconds: u32 = 604800;
     let week0_start = now.saturating_sub(week_seconds);
     let week1_start = week0_start.saturating_sub(week_seconds);
-    let week2_start = week1_start.saturating_sub(week_seconds);
-    let week3_start = week2_start.saturating_sub(week_seconds);
 
-    let mut week1_minutes: u32 = 0;
-    let mut week2_minutes: u32 = 0;
-    let mut week3_minutes: u32 = 0;
+    let mut current_week_minutes: u32 = 0;
+    let mut prev_week_minutes: u32 = 0;
 
     for session in sessions
         .ring
@@ -196,9 +192,8 @@ fn make_session_history(
         .flatten()
         .chain(sessions.current.as_ref())
     {
-        week1_minutes += minutes_in_range(session, week1_start, week0_start);
-        week2_minutes += minutes_in_range(session, week2_start, week1_start);
-        week3_minutes += minutes_in_range(session, week3_start, week2_start);
+        current_week_minutes += minutes_in_range(session, week0_start, now);
+        prev_week_minutes += minutes_in_range(session, week1_start, week0_start);
     }
 
     let changed = match prev {
@@ -208,9 +203,8 @@ fn make_session_history(
 
     changed.then_some({
         SessionEvent::History(SessionHistory {
-            week1_minutes,
-            week2_minutes,
-            week3_minutes,
+            current_week_minutes,
+            prev_week_minutes,
         })
     })
 }
