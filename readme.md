@@ -1,5 +1,4 @@
-# Habits Display
-
+# Habits Stepper
 ![](stepper.jpg)
 
 ## Why
