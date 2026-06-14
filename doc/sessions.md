@@ -9,8 +9,8 @@ session state, and sends session events to display.
 - `HistoryReleased` — switches display back to SessionUpdate view
 
 ## Output
-- `SessionUpdate{today_minutes, week_minutes, today_steps}` — sent on step or history toggle
-- `SessionHistory{current_week_minutes, prev_week_minutes}` — sent on HistoryPressed
+- `SessionUpdate{week_minutes, week_steps}` — sent on step or history toggle
+- `SessionHistory{prev_week_minutes, prev_week_steps}` — sent on HistoryPressed
 
 ## Permanent storage
 * Sessions should load sessions from permanent storage and log error on fail to load them
