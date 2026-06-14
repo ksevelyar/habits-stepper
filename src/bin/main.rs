@@ -46,7 +46,9 @@ async fn main(spawner: Spawner) -> ! {
 
     spawner.spawn(wifi::connection(controller).unwrap());
     spawner.spawn(wifi::net_task(runner).unwrap());
-    spawner.spawn(time::task(rtc, stack).unwrap());
+    let rtc = time::RTC.init(Mutex::new(rtc));
+    spawner.spawn(time::ntp_task(stack, rtc).unwrap());
+    spawner.spawn(time::sleep_task(rtc).unwrap());
     let display_spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()
