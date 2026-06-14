@@ -72,10 +72,14 @@ impl Sessions {
     }
 
     fn tick(&mut self, now: u32, flash: &mut FlashRing<'static>) {
-        let timed_out = self
-            .current
-            .as_ref()
-            .is_some_and(|s| now.saturating_sub(s.end_epoch) >= 60);
+        // TODO: add test to the case when ntp time jumps backward
+        let timed_out = self.current.as_ref().is_some_and(|session| {
+            if now < session.end_epoch {
+                true
+            } else {
+                now - session.end_epoch >= 60
+            }
+        });
 
         if timed_out {
             let session = self.current.take().unwrap();
@@ -105,15 +109,14 @@ fn minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 
 
 #[derive(Clone)]
 pub struct SessionUpdate {
-    pub today_minutes: u32,
     pub week_minutes: u32,
-    pub today_steps: u32,
+    pub week_steps: u32,
 }
 
 #[derive(Clone)]
 pub struct SessionHistory {
-    pub current_week_minutes: u32,
     pub prev_week_minutes: u32,
+    pub prev_week_steps: u32,
 }
 
 #[derive(Clone)]
@@ -127,14 +130,11 @@ fn make_session_update(
     now: u32,
     prev: Option<&SessionEvent>,
 ) -> Option<SessionEvent> {
-    let day_seconds: u32 = 86400;
     let week_seconds: u32 = 604800;
-    let today_start = now.saturating_sub(day_seconds);
     let week_start = now.saturating_sub(week_seconds);
 
-    let mut today_minutes: u32 = 0;
     let mut week_minutes: u32 = 0;
-    let mut today_steps: u32 = 0;
+    let mut week_steps: u32 = 0;
 
     for session in sessions
         .ring
@@ -142,34 +142,26 @@ fn make_session_update(
         .flatten()
         .chain(sessions.current.as_ref())
     {
-        let today_overlap_start = session.start_epoch.max(today_start);
-        let today_overlap_end = session.end_epoch.min(now);
-        if today_overlap_end >= today_overlap_start {
-            today_minutes += (today_overlap_end - today_overlap_start) / 60;
-            today_steps += session.steps;
-        }
         let week_overlap_start = session.start_epoch.max(week_start);
         let week_overlap_end = session.end_epoch.min(now);
         if week_overlap_end >= week_overlap_start {
             week_minutes += (week_overlap_end - week_overlap_start) / 60;
+            week_steps += session.steps;
         }
     }
 
     let changed = match prev {
         None => true,
         Some(SessionEvent::Update(update)) => {
-            today_minutes != update.today_minutes
-                || week_minutes != update.week_minutes
-                || today_steps != update.today_steps
+            week_minutes != update.week_minutes || week_steps != update.week_steps
         }
         Some(SessionEvent::History(_)) => true,
     };
 
     changed.then_some({
         SessionEvent::Update(SessionUpdate {
-            today_minutes,
             week_minutes,
-            today_steps,
+            week_steps,
         })
     })
 }
@@ -183,8 +175,8 @@ fn make_session_history(
     let week0_start = now.saturating_sub(week_seconds);
     let week1_start = week0_start.saturating_sub(week_seconds);
 
-    let mut current_week_minutes: u32 = 0;
     let mut prev_week_minutes: u32 = 0;
+    let mut prev_week_steps: u32 = 0;
 
     for session in sessions
         .ring
@@ -192,8 +184,12 @@ fn make_session_history(
         .flatten()
         .chain(sessions.current.as_ref())
     {
-        current_week_minutes += minutes_in_range(session, week0_start, now);
         prev_week_minutes += minutes_in_range(session, week1_start, week0_start);
+        let overlap_start = session.start_epoch.max(week1_start);
+        let overlap_end = session.end_epoch.min(week0_start);
+        if overlap_end > overlap_start {
+            prev_week_steps += session.steps;
+        }
     }
 
     let changed = match prev {
@@ -203,8 +199,8 @@ fn make_session_history(
 
     changed.then_some({
         SessionEvent::History(SessionHistory {
-            current_week_minutes,
             prev_week_minutes,
+            prev_week_steps,
         })
     })
 }

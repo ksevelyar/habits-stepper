@@ -1,9 +1,3 @@
-//! NOTE: storage ring-buffer tests (two-sector design).
-//!
-//! ```sh
-//! cargo test --test storage_test
-//! ```
-
 #![no_std]
 #![no_main]
 
@@ -70,9 +64,7 @@ mod tests {
         }
         info!("step 2 OK");
 
-        // --------------------------------------------------------------------
         // Step 3 — fill sector 1 (255 more, total 512), verify archive intact
-        // --------------------------------------------------------------------
         info!("--- step 3: fill sector 1 with 255 more sessions (steps=2) ---");
         for i in 257..512u16 {
             ring.write_session(i as u32, i as u32 + 1, 2);
@@ -94,9 +86,7 @@ mod tests {
         }
         info!("step 3 OK");
 
-        // --------------------------------------------------------------------
         // Step 4 — write session 512 (steps=3) → wraps, erases sector 0
-        // --------------------------------------------------------------------
         info!("--- step 4: write session 512 (steps=3, triggers wrap) ---");
         ring.write_session(512, 513, 3);
 

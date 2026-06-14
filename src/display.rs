@@ -8,22 +8,16 @@ use crate::sessions::SessionEvent;
 
 pub const DISPLAY_WIDTH: usize = 256;
 pub const DISPLAY_HEIGHT: usize = 64;
-pub const BRIGHTNESS: u8 = 0x60;
+pub const PIXEL_COLOR: u8 = 0x60;
 
 const PIXEL_BITS: usize = 4;
 const PIXEL_SHIFT: usize = 8 - PIXEL_BITS;
 const PIXEL_MASK: u8 = 0xf;
 const FB_SIZE: usize = DISPLAY_WIDTH * DISPLAY_HEIGHT * PIXEL_BITS / 8;
 
-const DIGIT_WIDTH: usize = 28;
-const DIGIT_PITCH: usize = 30;
-const TIME_WIDTH: usize = 100;
-const STEPS_WIDTH: usize = DIGIT_PITCH * 3 + DIGIT_WIDTH;
+mod symbol;
 
-pub const DIGIT_SEGMENTS: [u8; 10] = [
-    0b0111111, 0b0000110, 0b1011011, 0b1001111, 0b1100110, 0b1101101, 0b1111101, 0b0000111,
-    0b1111111, 0b1101111,
-];
+use symbol::Symbol;
 
 mod cmd {
     pub const SET_COL_ADR_LSB: u8 = 0x00;
@@ -76,15 +70,15 @@ impl<'d> HardSpi<'d> {
 }
 
 pub struct Sh1122Device<'d> {
-    iface: HardSpi<'d>,
-    buf: [u8; FB_SIZE],
+    interface: HardSpi<'d>,
+    buffer: [u8; FB_SIZE],
 }
 
 impl<'d> Sh1122Device<'d> {
-    pub fn new(iface: HardSpi<'d>) -> Self {
+    pub fn new(interface: HardSpi<'d>) -> Self {
         Self {
-            iface,
-            buf: [0; FB_SIZE],
+            interface,
+            buffer: [0; FB_SIZE],
         }
     }
 
@@ -107,138 +101,112 @@ impl<'d> Sh1122Device<'d> {
     pub fn flush(&mut self) -> Result<(), DisplayError> {
         self.set_col_adr(0)?;
         self.set_row_adr(0)?;
-        self.iface.write_data(&self.buf)?;
+        self.interface.write_data(&self.buffer)?;
         Ok(())
     }
 
     pub fn clear(&mut self) {
-        self.buf.fill(0);
+        self.buffer.fill(0);
     }
 
     pub fn set_pixel(&mut self, x: usize, y: usize, pixel: u8) {
         if x >= DISPLAY_WIDTH || y >= DISPLAY_HEIGHT {
             return;
         }
-        let idx = x + y * DISPLAY_WIDTH;
-        let byte_idx = idx * PIXEL_BITS / 8;
-        let bit_idx = 8 - PIXEL_BITS - PIXEL_BITS * (idx - byte_idx * 8 / PIXEL_BITS);
-        let mask = PIXEL_MASK << bit_idx;
-        self.buf[byte_idx] = (self.buf[byte_idx] & !mask) | ((pixel >> PIXEL_SHIFT) << bit_idx);
+        let index = x + y * DISPLAY_WIDTH;
+        let byte_index = index * PIXEL_BITS / 8;
+        let bit_index = 8 - PIXEL_BITS - PIXEL_BITS * (index - byte_index * 8 / PIXEL_BITS);
+        let mask = PIXEL_MASK << bit_index;
+        self.buffer[byte_index] =
+            (self.buffer[byte_index] & !mask) | ((pixel >> PIXEL_SHIFT) << bit_index);
     }
 
     fn display_off(&mut self) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_DISP, &[])
+        self.interface.write_cmd(cmd::SET_DISP, &[])
     }
 
     fn display_on(&mut self) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_DISP | 0x01, &[])
+        self.interface.write_cmd(cmd::SET_DISP | 0x01, &[])
     }
 
-    fn set_col_adr(&mut self, col: u8) -> Result<(), DisplayError> {
-        self.iface
-            .write_cmd(cmd::SET_COL_ADR_LSB | (col & 0x0f), &[])?;
-        self.iface
-            .write_cmd(cmd::SET_COL_ADR_MSB | ((col >> 4) & 0x0f), &[])?;
+    fn set_col_adr(&mut self, column: u8) -> Result<(), DisplayError> {
+        self.interface
+            .write_cmd(cmd::SET_COL_ADR_LSB | (column & 0x0f), &[])?;
+        self.interface
+            .write_cmd(cmd::SET_COL_ADR_MSB | ((column >> 4) & 0x0f), &[])?;
         Ok(())
     }
 
     fn set_row_adr(&mut self, row: u8) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_ROW_ADR, &[row])
+        self.interface.write_cmd(cmd::SET_ROW_ADR, &[row])
     }
 
     fn set_start_line(&mut self, line: u8) -> Result<(), DisplayError> {
-        self.iface
+        self.interface
             .write_cmd(cmd::SET_DISP_START_LINE | (line & 0x3f), &[])
     }
 
     fn set_mux_ratio(&mut self, ratio: u8) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_MUX_RATIO, &[ratio])
+        self.interface.write_cmd(cmd::SET_MUX_RATIO, &[ratio])
     }
 
-    fn set_com_output_scan_dir(&mut self, dir: u8) -> Result<(), DisplayError> {
-        self.iface
-            .write_cmd(cmd::SET_COM_OUT_DIR | (dir & 0x01), &[])
+    fn set_com_output_scan_dir(&mut self, direction: u8) -> Result<(), DisplayError> {
+        self.interface
+            .write_cmd(cmd::SET_COM_OUT_DIR | (direction & 0x01), &[])
     }
 
     fn set_display_offset(&mut self, offset: u8) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_DISP_OFFSET, &[offset])
+        self.interface.write_cmd(cmd::SET_DISP_OFFSET, &[offset])
     }
 
     pub fn set_contrast(&mut self, contrast: u8) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_CONTRAST, &[contrast])
+        self.interface.write_cmd(cmd::SET_CONTRAST, &[contrast])
     }
 
     fn set_entire_on(&mut self) -> Result<(), DisplayError> {
-        self.iface.write_cmd(cmd::SET_ENTIRE_ON, &[])
+        self.interface.write_cmd(cmd::SET_ENTIRE_ON, &[])
     }
 
     pub fn set_inverted(&mut self, inverted: bool) -> Result<(), DisplayError> {
-        self.iface
+        self.interface
             .write_cmd(cmd::SET_NORM_INV | u8::from(inverted), &[])
     }
 }
 
-pub fn draw_digit(display: &mut Sh1122Device, bits: u8, x: usize) {
-    if bits & 1 != 0 {
-        draw_rect(display, x + 10, 0, 14, 4);
+fn draw_symbol(display: &mut Sh1122Device, symbol: &Symbol) {
+    for rectangle in symbol.rects() {
+        draw_rect(
+            display,
+            symbol.x + rectangle.x,
+            rectangle.y,
+            rectangle.width,
+            rectangle.height,
+        );
     }
-    if bits & 2 != 0 {
-        draw_rect(display, x + 24, 4, 4, 26);
-    }
-    if bits & 4 != 0 {
-        draw_rect(display, x + 24, 34, 4, 26);
-    }
-    if bits & 8 != 0 {
-        draw_rect(display, x + 10, 60, 14, 4);
-    }
-    if bits & 16 != 0 {
-        draw_rect(display, x + 8, 34, 4, 26);
-    }
-    if bits & 32 != 0 {
-        draw_rect(display, x + 8, 4, 4, 26);
-    }
-    if bits & 64 != 0 {
-        draw_rect(display, x + 10, 30, 14, 4);
-    }
-}
-
-pub fn draw_colon(display: &mut Sh1122Device, x: usize) {
-    draw_rect(display, x + 10, 26, 4, 4);
-    draw_rect(display, x + 10, 34, 4, 4);
 }
 
 pub fn draw_rect(display: &mut Sh1122Device, x: usize, y: usize, width: usize, height: usize) {
     for xi in x..x + width {
         for yi in y..y + height {
-            display.set_pixel(xi, yi, BRIGHTNESS);
+            display.set_pixel(xi, yi, PIXEL_COLOR);
         }
     }
 }
 
-pub fn render_time(display: &mut Sh1122Device, minutes: u32, x: usize) {
-    let hours = (minutes / 60) as usize;
-    let minutes = minutes % 60;
-    let tens = (minutes / 10) as usize;
-    let ones = (minutes % 10) as usize;
+pub fn render_time(display: &mut Sh1122Device, total_minutes: u32) {
+    let word = symbol::build_time_word(total_minutes, 0);
 
-    draw_digit(display, DIGIT_SEGMENTS[hours], x);
-    draw_colon(display, x + 26);
-    draw_digit(display, DIGIT_SEGMENTS[tens], x + 40);
-    draw_digit(display, DIGIT_SEGMENTS[ones], x + 70);
+    for i in 0..word.count {
+        draw_symbol(display, &word.symbols[i]);
+    }
 }
 
-pub fn render_steps(display: &mut Sh1122Device, value: u32, x: usize) {
-    let value = value.min(9999);
+pub fn render_steps(display: &mut Sh1122Device, value: u32) {
+    let word = symbol::build_number_word(value, DISPLAY_WIDTH);
 
-    let thousands = ((value / 1000) % 10) as usize;
-    let hundreds = ((value / 100) % 10) as usize;
-    let tens = ((value / 10) % 10) as usize;
-    let ones = (value % 10) as usize;
-
-    draw_digit(display, DIGIT_SEGMENTS[thousands], x);
-    draw_digit(display, DIGIT_SEGMENTS[hundreds], x + 30);
-    draw_digit(display, DIGIT_SEGMENTS[tens], x + 60);
-    draw_digit(display, DIGIT_SEGMENTS[ones], x + 90);
+    for i in 0..word.count {
+        draw_symbol(display, &word.symbols[i]);
+    }
 }
 
 #[embassy_executor::task]
@@ -246,11 +214,11 @@ pub async fn display_task(
     spi: Spi<'static, esp_hal::Blocking>,
     cs: Output<'static>,
     dc: Output<'static>,
-    mut rst: Output<'static>,
+    mut reset: Output<'static>,
 ) {
-    rst.set_low();
+    reset.set_low();
     Timer::after(Duration::from_millis(10)).await;
-    rst.set_high();
+    reset.set_high();
     Timer::after(Duration::from_millis(10)).await;
 
     let mut device = Sh1122Device::new(HardSpi::new(spi, cs, dc));
@@ -262,23 +230,19 @@ pub async fn display_task(
         match event {
             SessionEvent::Update(update) => {
                 info!(
-                    "display: session update: today={}min({}steps) week={}min",
-                    update.today_minutes, update.today_steps, update.week_minutes
+                    "display: session update: week={}min({}steps)",
+                    update.week_minutes, update.week_steps
                 );
-                render_time(&mut device, update.today_minutes, 0);
-                render_steps(&mut device, update.today_steps, DISPLAY_WIDTH - STEPS_WIDTH);
+                render_time(&mut device, update.week_minutes);
+                render_steps(&mut device, update.week_steps);
             }
             SessionEvent::History(history) => {
                 info!(
-                    "display: session history: cur={}min prev={}min",
-                    history.current_week_minutes, history.prev_week_minutes
+                    "display: session history: prev={}min({}steps)",
+                    history.prev_week_minutes, history.prev_week_steps
                 );
-                render_time(&mut device, history.current_week_minutes, 0);
-                render_time(
-                    &mut device,
-                    history.prev_week_minutes,
-                    DISPLAY_WIDTH - TIME_WIDTH,
-                );
+                render_time(&mut device, history.prev_week_minutes);
+                render_steps(&mut device, history.prev_week_steps);
             }
         }
         device.flush().ok();
