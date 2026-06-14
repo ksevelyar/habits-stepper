@@ -4,13 +4,13 @@ use embassy_time::with_timeout;
 use esp_hal::gpio::RtcPinWithResistors;
 use esp_hal::rtc_cntl::sleep::{RtcioWakeupSource, WakeupLevel};
 
-use defmt::{error, info, warn};
+use defmt::{error, info};
 use embassy_net::{
     Stack,
     dns::DnsQueryType,
     udp::{PacketMetadata, UdpSocket},
 };
-use embassy_time::{Duration, Instant};
+use embassy_time::{Duration, Instant, Timer};
 
 use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
@@ -125,12 +125,12 @@ async fn sync_with_ntp(
     rx_buffer: &mut [u8; 4096],
     tx_meta: &mut [PacketMetadata; 16],
     tx_buffer: &mut [u8; 4096],
-) {
+) -> bool {
     let ntp_addrs = match stack.dns_query(NTP_SERVER, DnsQueryType::A).await {
         Ok(addrs) if !addrs.is_empty() => addrs,
         _ => {
             error!("time: DNS failed");
-            return;
+            return false;
         }
     };
 
@@ -164,40 +164,54 @@ async fn sync_with_ntp(
             set_epoch(new_epoch);
 
             log_sync(correction);
+            true
         }
         Err(_e) => {
             error!("time: NTP failed");
+            false
         }
     }
 }
 
 #[embassy_executor::task]
-pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
+pub async fn ntp_task(rtc: Rtc<'static>, stack: Stack<'static>) {
     seed_from_rtc(&rtc);
+
+    stack.wait_config_up().await;
 
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
     let mut rx_buffer = [0; 4096];
     let mut tx_meta = [PacketMetadata::EMPTY; 16];
     let mut tx_buffer = [0; 4096];
 
-    match with_timeout(INACTIVITY, async {
-        stack.wait_config_up().await;
-        sync_with_ntp(
-            &rtc,
-            &stack,
-            &mut rx_meta,
-            &mut rx_buffer,
-            &mut tx_meta,
-            &mut tx_buffer,
+    loop {
+        let synced = with_timeout(
+            Duration::from_secs(30),
+            sync_with_ntp(
+                &rtc,
+                &stack,
+                &mut rx_meta,
+                &mut rx_buffer,
+                &mut tx_meta,
+                &mut tx_buffer,
+            ),
         )
         .await;
-    })
-    .await
-    {
-        Ok(()) => (),
-        Err(_) => warn!("time: NTP sync skipped"),
+
+        match synced {
+            Ok(true) => break,
+            Ok(false) | Err(_) => {
+                error!("time: NTP sync failed, retrying");
+                Timer::after(Duration::from_secs(10)).await;
+            }
+        }
     }
 
+    info!("time: NTP sync complete");
+}
+
+#[embassy_executor::task]
+pub async fn sleep_task(mut rtc: Rtc<'static>) {
     loop {
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
         match with_timeout(INACTIVITY, ACTIVITY.wait()).await {
