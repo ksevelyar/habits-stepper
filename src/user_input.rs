@@ -12,6 +12,7 @@ pub static ACTIVITY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 
 #[embassy_executor::task]
 pub async fn reed_task(mut reed: Input<'static>) {
+    USER_INPUT_CHANNEL.send(GpioEvent::HistoryReleased).await;
     loop {
         reed.wait_for_falling_edge().await;
         Timer::after(DEBOUNCE).await;
