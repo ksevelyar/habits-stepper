@@ -10,11 +10,14 @@ use embassy_net::{
     dns::DnsQueryType,
     udp::{PacketMetadata, UdpSocket},
 };
-use embassy_time::{Duration, Instant};
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::mutex::Mutex;
+use embassy_time::{Duration, Instant, Timer};
 
 use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
 use jiff::Timestamp;
+use static_cell::StaticCell;
 
 include!(concat!(env!("OUT_DIR"), "/timezone.rs"));
 
@@ -28,6 +31,8 @@ const INACTIVITY: Duration = Duration::from_secs(90);
 
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
+
+pub static RTC: StaticCell<Mutex<CriticalSectionRawMutex, Rtc<'static>>> = StaticCell::new();
 
 defmt::timestamp!(
     "{=u8:02}:{=u8:02}:{=u8:02}",
@@ -119,18 +124,18 @@ impl NtpTimestampGenerator for NtpTs {
 }
 
 async fn sync_with_ntp(
-    rtc: &Rtc<'static>,
+    current_time_us: u64,
     stack: &Stack<'static>,
     rx_meta: &mut [PacketMetadata; 16],
     rx_buffer: &mut [u8; 4096],
     tx_meta: &mut [PacketMetadata; 16],
     tx_buffer: &mut [u8; 4096],
-) {
+) -> Option<u64> {
     let ntp_addrs = match stack.dns_query(NTP_SERVER, DnsQueryType::A).await {
         Ok(addrs) if !addrs.is_empty() => addrs,
         _ => {
             error!("time: DNS failed");
-            return;
+            return None;
         }
     };
 
@@ -141,7 +146,6 @@ async fn sync_with_ntp(
     };
 
     let addr: IpAddr = ntp_addrs[0].into();
-    let current_time_us = rtc.current_time_us();
     let result = get_time(
         SocketAddr::from((addr, 123)),
         &socket,
@@ -151,53 +155,74 @@ async fn sync_with_ntp(
 
     match result {
         Ok(time) => {
-            let old_epoch = epoch_secs();
-
             let epoch_us = (time.sec() as u64 * USEC_IN_SEC)
                 + ((time.sec_fraction() as u64 * USEC_IN_SEC) >> 32);
 
-            let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
-
-            let correction = old_epoch.map(|old| new_epoch as i64 - old as i64);
-
-            rtc.set_current_time_us(epoch_us);
-            set_epoch(new_epoch);
-
-            log_sync(correction);
+            Some(epoch_us)
         }
         Err(_e) => {
             error!("time: NTP failed");
+            None
         }
     }
 }
 
 #[embassy_executor::task]
-pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
-    seed_from_rtc(&rtc);
+pub async fn ntp_task(
+    stack: Stack<'static>,
+    rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>,
+) {
+    seed_from_rtc(&*rtc.lock().await);
+
+    stack.wait_config_up().await;
 
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
     let mut rx_buffer = [0; 4096];
     let mut tx_meta = [PacketMetadata::EMPTY; 16];
     let mut tx_buffer = [0; 4096];
 
-    match with_timeout(INACTIVITY, async {
-        stack.wait_config_up().await;
-        sync_with_ntp(
-            &rtc,
-            &stack,
-            &mut rx_meta,
-            &mut rx_buffer,
-            &mut tx_meta,
-            &mut tx_buffer,
+    let mut failed_attempts: u32 = 0;
+
+    loop {
+        let current_time_us = rtc.lock().await.current_time_us();
+
+        let result = with_timeout(
+            Duration::from_secs(30),
+            sync_with_ntp(
+                current_time_us,
+                &stack,
+                &mut rx_meta,
+                &mut rx_buffer,
+                &mut tx_meta,
+                &mut tx_buffer,
+            ),
         )
         .await;
-    })
-    .await
-    {
-        Ok(()) => (),
-        Err(_) => warn!("time: NTP sync skipped"),
+
+        match result {
+            Ok(Some(epoch_us)) => {
+                let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
+                let correction = epoch_secs().map(|old| new_epoch as i64 - old as i64);
+
+                rtc.lock().await.set_current_time_us(epoch_us);
+                set_epoch(new_epoch);
+                log_sync(correction);
+
+                break;
+            }
+            Ok(None) | Err(_) => {
+                failed_attempts += 1;
+                warn!("time: NTP sync attempt {} failed", failed_attempts);
+                Timer::after(Duration::from_secs(10)).await;
+            }
+        }
     }
 
+    info!("time: NTP sync complete");
+}
+
+#[embassy_executor::task]
+pub async fn sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
     loop {
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
         match with_timeout(INACTIVITY, ACTIVITY.wait()).await {
@@ -216,7 +241,7 @@ pub async fn task(mut rtc: Rtc<'static>, stack: Stack<'static>) {
                 ];
                 let wake = RtcioWakeupSource::new(&mut wake_pins);
 
-                rtc.sleep_deep(&[&wake]);
+                rtc.lock().await.sleep_deep(&[&wake]);
             }
         }
     }
