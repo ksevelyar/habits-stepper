@@ -9,11 +9,11 @@ session state, and sends session events to display.
 - `HistoryReleased` — switches display back to SessionUpdate view
 
 ## Output
-- `SessionUpdate{week_minutes, week_steps}` — sent on step or history toggle
-- `SessionHistory{prev_week_minutes, prev_week_steps}` — sent on HistoryPressed
+- `SessionEvent::Update(WeekTotals { minutes, steps })` — sent on step or history toggle
+- `SessionEvent::History(WeekTotals { minutes, steps })` — sent on HistoryPressed
 
 ## Permanent storage
-* Sessions should load sessions from permanent storage and log error on fail to load them
-* on load should log amount of loaded sessions for current week adn previous 3 weeks.
-* on session end it should be synced to backend and saved into permanent storage, also should be logged
-* esp32c3 NOR flash wear should be minimased
+* Load sessions from permanent storage, log error on failure
+* On load, log number of loaded sessions for current week and previous 3 weeks
+* On session end, sync to backend, save to permanent storage, and log
+* esp32c3 NOR flash wear should be minimized

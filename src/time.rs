@@ -2,6 +2,7 @@ use core::net::{IpAddr, SocketAddr};
 use core::sync::atomic::{AtomicU32, Ordering};
 use embassy_time::with_timeout;
 use esp_hal::gpio::RtcPinWithResistors;
+use esp_hal::peripherals::GPIO;
 use esp_hal::rtc_cntl::sleep::{RtcioWakeupSource, WakeupLevel};
 
 use defmt::{error, info, warn};
@@ -248,10 +249,26 @@ pub async fn sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static
             Err(_) => {
                 info!("time: user input timeout -> entering deep sleep");
 
-                let mut gpio1 = unsafe { esp_hal::peripherals::GPIO1::steal() };
-                let mut gpio2 = unsafe { esp_hal::peripherals::GPIO2::steal() };
+                let reed_level = {
+                    let bits = GPIO::regs().in_().read().bits();
+                    if bits & (1 << 1) != 0 {
+                        WakeupLevel::Low
+                    } else {
+                        WakeupLevel::High
+                    }
+                };
+
+                // SAFETY: we are about to enter deep sleep, which resets the chip.
+                // No other task can access these pins before the reset.
+                let (mut gpio1, mut gpio2) = unsafe {
+                    (
+                        esp_hal::peripherals::GPIO1::steal(),
+                        esp_hal::peripherals::GPIO2::steal(),
+                    )
+                };
+
                 let mut wake_pins = [
-                    (&mut gpio1 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
+                    (&mut gpio1 as &mut dyn RtcPinWithResistors, reed_level),
                     (&mut gpio2 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
                 ];
                 let wake = RtcioWakeupSource::new(&mut wake_pins);
