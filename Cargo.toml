@@ -11,7 +11,11 @@ test = false
 
 [[test]]
 harness = false
-name    = "storage_test"
+name    = "storage"
+
+[[test]]
+harness = false
+name    = "sessions"
 
 [lib]
 test = false

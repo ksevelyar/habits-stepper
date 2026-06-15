@@ -17,6 +17,7 @@ use embassy_time::{Duration, Instant, Timer};
 use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
 use jiff::Timestamp;
+use jiff::civil::Weekday;
 use static_cell::StaticCell;
 
 include!(concat!(env!("OUT_DIR"), "/timezone.rs"));
@@ -50,6 +51,20 @@ pub fn epoch_secs() -> Option<u32> {
     let ibase = INSTANT_BASE.load(Ordering::Relaxed) as u64;
     let delta = now.saturating_sub(ibase) as u32;
     Some(base + delta)
+}
+
+pub fn week_start_epoch(now: u32) -> u32 {
+    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let zoned = timestamp.to_zoned(TIMEZONE);
+    let since_monday = zoned.weekday().since(Weekday::Monday);
+    let monday = zoned.saturating_sub(jiff::Span::new().days(since_monday as i64));
+    let midnight = monday.saturating_sub(
+        jiff::Span::new()
+            .hours(monday.hour() as i64)
+            .minutes(monday.minute() as i64)
+            .seconds(monday.second() as i64),
+    );
+    midnight.timestamp().as_second() as u32
 }
 
 fn local_time() -> jiff::Zoned {
