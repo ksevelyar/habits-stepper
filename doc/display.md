@@ -1,19 +1,16 @@
 ## Display
-Display is view layer, it knows nothing about internal logic.
+Display is the view layer — it knows nothing about internal logic.
 
 ```rust
 pub enum SessionEvent {
-    Update(SessionUpdate),
-    History(SessionHistory),
+    Update(WeekTotals),
+    History(WeekTotals),
 }
 
-pub struct SessionUpdate {
-    pub week_minutes: u32,
-    pub week_steps: u32,
-}
-
-pub struct SessionHistory {
-    pub prev_week_minutes: u32,
-    pub prev_week_steps: u32,
+pub struct WeekTotals {
+    pub minutes: u32,
+    pub steps: u32,
 }
 ```
+
+`symbol.rs` defines the seven-segment digit layout — the contract for rendering time and step values as pixel rectangles.

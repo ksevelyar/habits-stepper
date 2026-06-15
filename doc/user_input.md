@@ -8,8 +8,9 @@ When pressed the display shows the previous week's totals; when
 released it returns to the current week.
 
 ## Boot
-On boot user_input sends `HistoryReleased` to show data on screen immediately.
+On boot, user_input sends `HistoryReleased` so the display shows data immediately.
 
 ## Sleep
 * mcu wakes up from deep sleep via reed switch or history button
 * deep sleep after 90s of inactivity
+* the reed current level is sampled before sleep. Wake-up is set for the opposite level. This way the chip wakes on the first reed change whether the pedal was pressed or released at sleep time.
