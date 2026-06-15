@@ -11,21 +11,22 @@ use storage::{FlashRing, SLOT_COUNT};
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
 const SYNC_INTERVAL: Duration = Duration::from_secs(60);
+const WEEK_SECONDS: u32 = 604800;
 
 pub type FlashMutex = Mutex<CriticalSectionRawMutex, FlashRing<'static>>;
 
 #[derive(Clone, Copy)]
-struct Session {
-    start_epoch: u32,
-    end_epoch: u32,
-    steps: u32,
+pub struct Session {
+    pub start_epoch: u32,
+    pub end_epoch: u32,
+    pub steps: u32,
 }
 
-struct Sessions {
-    current: Option<Session>,
-    ring: [Option<Session>; MAX_SESSIONS],
-    head: usize,
-    count: usize,
+pub struct Sessions {
+    pub current: Option<Session>,
+    pub ring: [Option<Session>; MAX_SESSIONS],
+    pub head: usize,
+    pub count: usize,
 }
 
 impl Sessions {
@@ -107,34 +108,23 @@ fn minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 
     }
 }
 
-#[derive(Clone)]
-pub struct SessionUpdate {
-    pub week_minutes: u32,
-    pub week_steps: u32,
-}
-
-#[derive(Clone)]
-pub struct SessionHistory {
-    pub prev_week_minutes: u32,
-    pub prev_week_steps: u32,
+#[derive(Clone, Copy)]
+pub struct WeekTotals {
+    pub minutes: u32,
+    pub steps: u32,
 }
 
 #[derive(Clone)]
 pub enum SessionEvent {
-    Update(SessionUpdate),
-    History(SessionHistory),
+    Update(WeekTotals),
+    History(WeekTotals),
 }
 
-fn make_session_update(
-    sessions: &Sessions,
-    now: u32,
-    prev: Option<&SessionEvent>,
-) -> Option<SessionEvent> {
-    let week_seconds: u32 = 604800;
-    let week_start = now.saturating_sub(week_seconds);
-
-    let mut week_minutes: u32 = 0;
-    let mut week_steps: u32 = 0;
+pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
+    let week_start = crate::time::week_start_epoch(now);
+    let week_end = week_start + WEEK_SECONDS;
+    let mut minutes: u32 = 0;
+    let mut steps: u32 = 0;
 
     for session in sessions
         .ring
@@ -142,67 +132,13 @@ fn make_session_update(
         .flatten()
         .chain(sessions.current.as_ref())
     {
-        let week_overlap_start = session.start_epoch.max(week_start);
-        let week_overlap_end = session.end_epoch.min(now);
-        if week_overlap_end >= week_overlap_start {
-            week_minutes += (week_overlap_end - week_overlap_start) / 60;
-            week_steps += session.steps;
+        minutes += minutes_in_range(session, week_start, week_end);
+        if session.end_epoch.min(week_end) > session.start_epoch.max(week_start) {
+            steps += session.steps;
         }
     }
 
-    let changed = match prev {
-        None => true,
-        Some(SessionEvent::Update(update)) => {
-            week_minutes != update.week_minutes || week_steps != update.week_steps
-        }
-        Some(SessionEvent::History(_)) => true,
-    };
-
-    changed.then_some({
-        SessionEvent::Update(SessionUpdate {
-            week_minutes,
-            week_steps,
-        })
-    })
-}
-
-fn make_session_history(
-    sessions: &Sessions,
-    now: u32,
-    prev: Option<&SessionEvent>,
-) -> Option<SessionEvent> {
-    let week_seconds: u32 = 604800;
-    let week0_start = now.saturating_sub(week_seconds);
-    let week1_start = week0_start.saturating_sub(week_seconds);
-
-    let mut prev_week_minutes: u32 = 0;
-    let mut prev_week_steps: u32 = 0;
-
-    for session in sessions
-        .ring
-        .iter()
-        .flatten()
-        .chain(sessions.current.as_ref())
-    {
-        prev_week_minutes += minutes_in_range(session, week1_start, week0_start);
-        let overlap_start = session.start_epoch.max(week1_start);
-        let overlap_end = session.end_epoch.min(week0_start);
-        if overlap_end > overlap_start {
-            prev_week_steps += session.steps;
-        }
-    }
-
-    let changed = match prev {
-        None | Some(SessionEvent::Update(_)) => true,
-        Some(SessionEvent::History(_)) => false,
-    };
-
-    changed.then_some({
-        SessionEvent::History(SessionHistory {
-            prev_week_minutes,
-            prev_week_steps,
-        })
-    })
+    WeekTotals { minutes, steps }
 }
 
 #[embassy_executor::task]
@@ -211,7 +147,6 @@ pub async fn session_task(flash_mutex: &'static FlashMutex) {
         let mut flash = flash_mutex.lock().await;
         Sessions::new(&mut flash)
     };
-    let mut prev_event: Option<SessionEvent> = None;
 
     loop {
         let result = with_timeout(TICK_INTERVAL, USER_INPUT_CHANNEL.receive()).await;
@@ -224,26 +159,18 @@ pub async fn session_task(flash_mutex: &'static FlashMutex) {
             }
 
             match result {
-                Ok(GpioEvent::StepDetected) => {
-                    sessions.trigger(now);
-                    if let Some(event) = make_session_update(&sessions, now, prev_event.as_ref()) {
-                        prev_event = Some(event.clone());
-                        DISPLAY_CHANNEL.send(event).await;
+                Ok(event @ (GpioEvent::StepDetected | GpioEvent::HistoryReleased)) => {
+                    if matches!(event, GpioEvent::StepDetected) {
+                        sessions.trigger(now);
                     }
+                    let totals = make_week_totals(&sessions, now);
+                    DISPLAY_CHANNEL.send(SessionEvent::Update(totals)).await;
                 }
                 Ok(GpioEvent::HistoryPressed) => {
-                    if let Some(event) = make_session_history(&sessions, now, prev_event.as_ref()) {
-                        prev_event = Some(event.clone());
-                        DISPLAY_CHANNEL.send(event).await;
-                    }
+                    let totals = make_week_totals(&sessions, now.saturating_sub(WEEK_SECONDS));
+                    DISPLAY_CHANNEL.send(SessionEvent::History(totals)).await;
                 }
-                Ok(GpioEvent::HistoryReleased) => {
-                    if let Some(event) = make_session_update(&sessions, now, prev_event.as_ref()) {
-                        prev_event = Some(event.clone());
-                        DISPLAY_CHANNEL.send(event).await;
-                    }
-                }
-                Err(_err) => {}
+                Err(_) => {}
             }
         }
     }

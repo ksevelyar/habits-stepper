@@ -228,21 +228,21 @@ pub async fn display_task(
         let event = DISPLAY_CHANNEL.receive().await;
         device.clear();
         match event {
-            SessionEvent::Update(update) => {
+            SessionEvent::Update(totals) => {
                 info!(
-                    "display: session update: week={}min({}steps)",
-                    update.week_minutes, update.week_steps
+                    "display: session update: {}min({}steps)",
+                    totals.minutes, totals.steps
                 );
-                render_time(&mut device, update.week_minutes);
-                render_steps(&mut device, update.week_steps);
+                render_time(&mut device, totals.minutes);
+                render_steps(&mut device, totals.steps);
             }
-            SessionEvent::History(history) => {
+            SessionEvent::History(totals) => {
                 info!(
-                    "display: session history: prev={}min({}steps)",
-                    history.prev_week_minutes, history.prev_week_steps
+                    "display: session history: {}min({}steps)",
+                    totals.minutes, totals.steps
                 );
-                render_time(&mut device, history.prev_week_minutes);
-                render_steps(&mut device, history.prev_week_steps);
+                render_time(&mut device, totals.minutes);
+                render_steps(&mut device, totals.steps);
             }
         }
         device.flush().ok();
