@@ -4,14 +4,32 @@ height = 82;
 
 module walls() {
   difference() {
-    translate([0, 0, wall]) cylinder(h=60, d1=diameter - 0.5, d2=diameter, $fn=256);
-    translate([0, 0, -0.1]) cylinder(h=height * 2, d=diameter - wall - 0.5, $fn=256);
+    union() {
+      translate([0, 0, wall]) cylinder(h=height - 22, d1=diameter - 0.5, d2=diameter, $fn=256);
+    }
+    translate([0, 0, -0.1]) cylinder(h=height * 2, d=diameter - wall, $fn=256);
 
-    translate([-30 / 2, -50, 0]) cube(size=[30, 100, height + 5], center=false);
+    translate([-40 / 2, -50, 0]) cube(size=[40, 100, height + 5], center=false);
   }
 
-  translate([-diameter / 2 + 2, -20/2, 0]) cube(size=[7, 20, height + 8], center=false);
-  translate([diameter / 2 - 9, -20/2, 0]) cube(size=[7, 20, height + 8], center=false);
+  difference() {
+    union() {
+      translate([15.5, -21.5, 0]) rotate([0, 0, -60]) walls_connector();
+      translate([15.5, 21.5, 0]) rotate([0, 0, -120]) walls_connector();
+      translate([-15.5, 21.5, 0]) rotate([0, 0, 120]) walls_connector();
+      translate([-15.5, -21.5, 0]) rotate([0, 0, 60]) walls_connector();
+    }
+
+    translate([0, 0, wall]) cylinder(h=height + 1, d=36, center=false, $fn=128);
+  }
+}
+
+module walls_connector() {
+  difference() {
+    translate([0, 0, wall]) cylinder(h=height - 22, d=18, $fn=256);
+    translate([0, 0, -0.1]) cylinder(h=height * 2, d=16, $fn=256);
+    translate([-18 / 2, -18, 0]) cube([18, 18, 115], center=false);
+  }
 }
 
 module battery() {
