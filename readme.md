@@ -1,13 +1,13 @@
 # Habits Stepper
-![](stepper.jpg)
+![](doc/stepper.jpg)
 
 ## Why
 Automatically tracks stepping sessions without requiring any button presses to start or reset workouts. Time is synced via NTP so new day and week boundaries are handled automatically — no need to remember to reset counts on Monday. Just start stepping and sessions are tracked correctly.
 
 ## Overview
-* auto-track stepping sessions for the last 2 weeks, time-synced via NTP with a compile-time IANA timezone
+* auto-track stepping sessions, time-synced via NTP with a compile-time IANA timezone
 * async embassy runtime; display updates only on input events via channels
-* deep sleep after 90s of inactivity; 18650 battery + TP4057 charger gives ~1 month uptime
+* deep sleep after 90s of inactivity; 18650 battery gives ~2 weeks without charging
 * firmware upload (probe-rs), defmt logs (RTT), and battery charging over a single USB-C port
 * ring buffer in NOR flash (512 sessions); data survives deep sleep and reboots
 * on-MCU tests via embedded_test
