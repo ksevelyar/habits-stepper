@@ -1,5 +1,5 @@
 ## Display
-Display is the view layer — it knows nothing about internal logic.
+Display is the view layer and knows nothing about internal logic.
 
 ```rust
 pub enum SessionEvent {
@@ -13,4 +13,4 @@ pub struct WeekTotals {
 }
 ```
 
-`symbol.rs` defines the seven-segment digit layout — the contract for rendering time and step values as pixel rectangles.
+`symbol.rs` defines the seven-segment digit layout: the contract for rendering time and step values as pixel rectangles.

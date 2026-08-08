@@ -19,6 +19,17 @@ fn main() {
     .unwrap();
     println!("cargo:rerun-if-env-changed=TIMEZONE");
 
+    let metrics_url = std::env::var("METRICS_URL").expect("METRICS_URL must be set");
+    let jwt_token = std::env::var("JWT_TOKEN").expect("JWT_TOKEN must be set");
+    let chain_id = std::env::var("CHAIN_ID").expect("CHAIN_ID must be set");
+
+    println!("cargo:rustc-env=METRICS_URL={metrics_url}");
+    println!("cargo:rustc-env=JWT_TOKEN={jwt_token}");
+    println!("cargo:rustc-env=CHAIN_ID={chain_id}");
+    println!("cargo:rerun-if-env-changed=METRICS_URL");
+    println!("cargo:rerun-if-env-changed=JWT_TOKEN");
+    println!("cargo:rerun-if-env-changed=CHAIN_ID");
+
     linker_be_nice();
     println!("cargo:rustc-link-arg-tests=-Tembedded-test.x");
     println!("cargo:rustc-link-arg=-Tdefmt.x");

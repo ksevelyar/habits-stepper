@@ -3,56 +3,55 @@ pub mod storage;
 use defmt::info;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::mutex::Mutex;
-use embassy_time::{Duration, Timer, with_timeout};
+use embassy_time::{Duration, with_timeout};
+use heapless::Deque;
 
 use crate::{DISPLAY_CHANNEL, GpioEvent, USER_INPUT_CHANNEL};
 use storage::{FlashRing, SLOT_COUNT};
 
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
-const SYNC_INTERVAL: Duration = Duration::from_secs(60);
 const WEEK_SECONDS: u32 = 604800;
 
 pub type FlashMutex = Mutex<CriticalSectionRawMutex, FlashRing<'static>>;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Session {
     pub start_epoch: u32,
     pub end_epoch: u32,
     pub steps: u32,
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct DailyTotal {
+    pub date: u32,
+    pub minutes: u32,
+}
+
 pub struct Sessions {
     pub current: Option<Session>,
-    pub ring: [Option<Session>; MAX_SESSIONS],
-    pub head: usize,
-    pub count: usize,
+    pub history: Deque<Session, MAX_SESSIONS>,
 }
 
 impl Sessions {
     fn new(flash: &mut FlashRing<'static>) -> Self {
         flash.init();
 
-        let mut ring = [const { None }; MAX_SESSIONS];
-        let mut loaded = 0;
+        let mut history = Deque::new();
 
-        for i in 0..SLOT_COUNT {
-            if flash.is_occupied(i) {
-                let (start_epoch, end_epoch, steps, _flags) = flash.slot_at(i);
-                ring[loaded] = Some(Session {
-                    start_epoch,
-                    end_epoch,
-                    steps,
-                });
-                loaded += 1;
-            }
+        for record in flash.sessions() {
+            history
+                .push_back(Session {
+                    start_epoch: record.start_epoch,
+                    end_epoch: record.end_epoch,
+                    steps: record.steps,
+                })
+                .unwrap();
         }
 
         Self {
             current: None,
-            ring,
-            head: loaded,
-            count: loaded,
+            history,
         }
     }
 
@@ -72,8 +71,7 @@ impl Sessions {
         }
     }
 
-    fn tick(&mut self, now: u32, flash: &mut FlashRing<'static>) {
-        // TODO: add test to the case when ntp time jumps backward
+    fn tick(&mut self, now: u32, flash: &mut FlashRing<'static>) -> Option<Session> {
         let timed_out = self.current.as_ref().is_some_and(|session| {
             if now < session.end_epoch {
                 true
@@ -89,11 +87,15 @@ impl Sessions {
                 session.steps,
                 (session.end_epoch - session.start_epoch) / 60
             );
-            flash.write_session(session.start_epoch, session.end_epoch, session.steps);
-            let idx = self.head;
-            self.ring[idx] = Some(session);
-            self.head = (self.head + 1) % MAX_SESSIONS;
-            self.count = self.count.saturating_add(1).min(MAX_SESSIONS);
+            let evicted =
+                flash.write_session(session.start_epoch, session.end_epoch, session.steps);
+            for _ in 0..evicted {
+                self.history.pop_front();
+            }
+            self.history.push_back(session).unwrap();
+            Some(session)
+        } else {
+            None
         }
     }
 }
@@ -106,6 +108,17 @@ fn minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 
     } else {
         0
     }
+}
+
+pub fn make_day_minutes(sessions: &Sessions, day_start: u32) -> u32 {
+    let day_end = crate::time::next_day_start_epoch(day_start);
+    let mut minutes: u32 = 0;
+
+    for session in sessions.history.iter().chain(sessions.current.as_ref()) {
+        minutes += minutes_in_range(session, day_start, day_end);
+    }
+
+    minutes
 }
 
 #[derive(Clone, Copy)]
@@ -126,12 +139,7 @@ pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
     let mut minutes: u32 = 0;
     let mut steps: u32 = 0;
 
-    for session in sessions
-        .ring
-        .iter()
-        .flatten()
-        .chain(sessions.current.as_ref())
-    {
+    for session in sessions.history.iter().chain(sessions.current.as_ref()) {
         minutes += minutes_in_range(session, week_start, week_end);
         if session.end_epoch.min(week_end) > session.start_epoch.max(week_start) {
             steps += session.steps;
@@ -153,9 +161,13 @@ pub async fn session_task(flash_mutex: &'static FlashMutex) {
         let epoch = crate::time::epoch_secs();
 
         if let Some(now) = epoch {
-            {
+            let completed = {
                 let mut flash = flash_mutex.lock().await;
-                sessions.tick(now, &mut flash);
+                sessions.tick(now, &mut flash)
+            };
+
+            if completed.is_some() {
+                report_completed_session(&sessions, now);
             }
 
             match result {
@@ -176,10 +188,18 @@ pub async fn session_task(flash_mutex: &'static FlashMutex) {
     }
 }
 
-#[embassy_executor::task]
-pub async fn sync_task(_flash_mutex: &'static FlashMutex) {
-    loop {
-        // Stub: sync always returns false
-        Timer::after(SYNC_INTERVAL).await;
-    }
+fn report_completed_session(sessions: &Sessions, now: u32) {
+    let today = crate::time::day_start_epoch(now);
+    let yesterday = crate::time::previous_day_start_epoch(now);
+
+    crate::SYNC_SIGNAL.signal([
+        DailyTotal {
+            date: today,
+            minutes: make_day_minutes(sessions, today),
+        },
+        DailyTotal {
+            date: yesterday,
+            minutes: make_day_minutes(sessions, yesterday),
+        },
+    ]);
 }

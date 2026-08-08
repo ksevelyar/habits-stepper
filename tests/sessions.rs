@@ -7,20 +7,15 @@ esp_bootloader_esp_idf::esp_app_desc!();
 #[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
 mod tests {
     use defmt::assert_eq;
-    use habits_stepper::sessions::{Session, Sessions, make_week_totals, storage::SLOT_COUNT};
+    use habits_stepper::sessions::{Session, Sessions, make_day_minutes, make_week_totals};
+    use heapless::Deque;
 
     fn session_from_raw(current: Option<Session>, ring_sessions: &[Session]) -> Sessions {
-        let mut ring: [Option<Session>; SLOT_COUNT as usize] =
-            [const { None }; SLOT_COUNT as usize];
-        for (index, session) in ring_sessions.iter().enumerate() {
-            ring[index] = Some(*session);
+        let mut history = Deque::new();
+        for session in ring_sessions {
+            history.push_back(*session).unwrap();
         }
-        Sessions {
-            current,
-            ring,
-            head: ring_sessions.len(),
-            count: ring_sessions.len(),
-        }
+        Sessions { current, history }
     }
 
     #[init]
@@ -90,5 +85,47 @@ mod tests {
         let totals = make_week_totals(&sessions, current_time - 604800);
         assert_eq!(totals.minutes, 60);
         assert_eq!(totals.steps, 60);
+    }
+
+    #[test]
+    async fn day_totals_sum_all_sessions_on_same_day() {
+        let midnight = jiff::civil::date(2026, 8, 9)
+            .at(0, 0, 0, 0)
+            .to_zoned(habits_stepper::time::TIMEZONE)
+            .unwrap();
+        let day_start = midnight.timestamp().as_second() as u32;
+
+        let morning = Session {
+            start_epoch: day_start + 3600,
+            end_epoch: day_start + 3660,
+            steps: 10,
+        };
+        let evening = Session {
+            start_epoch: day_start + 7200,
+            end_epoch: day_start + 7260,
+            steps: 5,
+        };
+
+        let sessions = session_from_raw(None, &[morning, evening]);
+        assert_eq!(make_day_minutes(&sessions, day_start), 2);
+    }
+
+    #[test]
+    async fn day_totals_split_session_across_midnight() {
+        let midnight = jiff::civil::date(2026, 8, 9)
+            .at(0, 0, 0, 0)
+            .to_zoned(habits_stepper::time::TIMEZONE)
+            .unwrap();
+        let day_start = midnight.timestamp().as_second() as u32;
+
+        let crossing = Session {
+            start_epoch: day_start - 1200,
+            end_epoch: day_start + 1200,
+            steps: 40,
+        };
+
+        let sessions = session_from_raw(None, &[crossing]);
+        assert_eq!(make_day_minutes(&sessions, day_start - 86400), 20);
+        assert_eq!(make_day_minutes(&sessions, day_start), 20);
     }
 }
