@@ -3,9 +3,11 @@
 
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::channel::Channel;
+use embassy_sync::signal::Signal;
 
 pub mod display;
 pub mod sessions;
+pub mod sync;
 pub mod time;
 pub mod user_input;
 pub mod wifi;
@@ -20,3 +22,4 @@ pub enum GpioEvent {
 pub static USER_INPUT_CHANNEL: Channel<CriticalSectionRawMutex, GpioEvent, 3> = Channel::new();
 pub static DISPLAY_CHANNEL: Channel<CriticalSectionRawMutex, sessions::SessionEvent, 3> =
     Channel::new();
+pub static SYNC_SIGNAL: Signal<CriticalSectionRawMutex, [sessions::DailyTotal; 2]> = Signal::new();

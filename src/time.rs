@@ -68,6 +68,47 @@ pub fn week_start_epoch(now: u32) -> u32 {
     midnight.timestamp().as_second() as u32
 }
 
+pub fn day_start_epoch(now: u32) -> u32 {
+    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let midnight = timestamp.to_zoned(TIMEZONE).start_of_day().unwrap();
+    midnight.timestamp().as_second() as u32
+}
+
+pub fn next_day_start_epoch(day_start: u32) -> u32 {
+    let timestamp = jiff::Timestamp::new(day_start as i64, 0).unwrap();
+    let next = timestamp
+        .to_zoned(TIMEZONE)
+        .saturating_add(jiff::Span::new().days(1));
+    next.start_of_day().unwrap().timestamp().as_second() as u32
+}
+
+pub fn previous_day_start_epoch(now: u32) -> u32 {
+    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let yesterday = timestamp
+        .to_zoned(TIMEZONE)
+        .saturating_sub(jiff::Span::new().days(1));
+    yesterday.start_of_day().unwrap().timestamp().as_second() as u32
+}
+
+pub fn date_bytes(now: u32) -> [u8; 10] {
+    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let zoned = timestamp.to_zoned(TIMEZONE);
+    let mut buf = [0u8; 10];
+    write_digits(&mut buf[0..4], zoned.year() as u32);
+    buf[4] = b'-';
+    write_digits(&mut buf[5..7], zoned.month() as u32);
+    buf[7] = b'-';
+    write_digits(&mut buf[8..10], zoned.day() as u32);
+    buf
+}
+
+fn write_digits(buf: &mut [u8], mut value: u32) {
+    for byte in buf.iter_mut().rev() {
+        *byte = b'0' + (value % 10) as u8;
+        value /= 10;
+    }
+}
+
 fn local_time() -> jiff::Zoned {
     let epoch_secs = epoch_secs().unwrap_or(0);
     let timestamp = jiff::Timestamp::new(epoch_secs as i64, 0).unwrap();

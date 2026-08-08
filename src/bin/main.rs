@@ -13,7 +13,7 @@ use esp_hal::{
 };
 use habits_stepper::sessions::FlashMutex;
 use habits_stepper::sessions::storage;
-use habits_stepper::{display, sessions, time, user_input, wifi};
+use habits_stepper::{display, sessions, sync, time, user_input, wifi};
 use panic_rtt_target as _;
 
 use defmt::info;
@@ -49,6 +49,7 @@ async fn main(spawner: Spawner) -> ! {
     let rtc = time::RTC.init(Mutex::new(rtc));
     spawner.spawn(time::ntp_task(stack, rtc).unwrap());
     spawner.spawn(time::sleep_task(rtc).unwrap());
+    spawner.spawn(sync::sync_task(stack).unwrap());
     let display_spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()
@@ -79,7 +80,6 @@ async fn main(spawner: Spawner) -> ! {
     let flash_mutex = FLASH_RING.init(Mutex::new(storage::FlashRing::new(peripherals.FLASH)));
 
     spawner.spawn(sessions::session_task(flash_mutex).unwrap());
-    spawner.spawn(sessions::sync_task(flash_mutex).unwrap());
 
     loop {
         Timer::after(Duration::from_secs(3600)).await;
