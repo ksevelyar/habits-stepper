@@ -1,10 +1,10 @@
 use core::fmt::Write as _;
 
 use defmt::{error, info};
-use embassy_time::{Duration, with_timeout};
 use embassy_net::Stack;
 use embassy_net::dns::DnsSocket;
 use embassy_net::tcp::client::{TcpClient, TcpClientState};
+use embassy_time::{Duration, with_timeout};
 use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
 use reqwless::headers::ContentType;
 use reqwless::request::{Method, RequestBuilder};
@@ -60,20 +60,17 @@ where
     let mut rx_buf = [0u8; 512];
     let auth_headers = [("authorization", AUTH_HEADER)];
 
-    let status = match with_timeout(
-        Duration::from_secs(30),
-        async {
-            client
-                .request(Method::POST, METRICS_URL)
-                .await?
-                .headers(&auth_headers)
-                .content_type(ContentType::ApplicationJson)
-                .body(body.as_slice())
-                .send(&mut rx_buf)
-                .await
-                .map(|response| response.status.0)
-        },
-    )
+    let status = match with_timeout(Duration::from_secs(30), async {
+        client
+            .request(Method::POST, METRICS_URL)
+            .await?
+            .headers(&auth_headers)
+            .content_type(ContentType::ApplicationJson)
+            .body(body.as_slice())
+            .send(&mut rx_buf)
+            .await
+            .map(|response| response.status.0)
+    })
     .await
     {
         Ok(Ok(status)) => Some(status),

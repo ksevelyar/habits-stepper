@@ -141,7 +141,7 @@ pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
 
     for session in sessions.history.iter().chain(sessions.current.as_ref()) {
         minutes += minutes_in_range(session, week_start, week_end);
-        if session.end_epoch.min(week_end) > session.start_epoch.max(week_start) {
+        if session.end_epoch.min(week_end) >= session.start_epoch.max(week_start) {
             steps += session.steps;
         }
     }
