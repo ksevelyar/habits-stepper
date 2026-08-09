@@ -29,7 +29,7 @@ use sntpc_net_embassy::UdpSocketWrapper;
 const NTP_SERVER: &str = "pool.ntp.org";
 const MIN_VALID_EPOCH: u32 = 1_700_000_000;
 const USEC_IN_SEC: u64 = 1_000_000;
-const INACTIVITY: Duration = Duration::from_secs(90);
+const INACTIVITY: Duration = Duration::from_secs(120);
 
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
@@ -284,7 +284,6 @@ pub async fn sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
         match with_timeout(INACTIVITY, ACTIVITY.wait()).await {
             Ok(()) => {
-                info!("time: activity before timeout, resetting");
                 continue;
             }
             Err(_) => {

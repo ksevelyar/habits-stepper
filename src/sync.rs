@@ -1,6 +1,7 @@
 use core::fmt::Write as _;
 
 use defmt::{error, info};
+use embassy_time::{Duration, with_timeout};
 use embassy_net::Stack;
 use embassy_net::dns::DnsSocket;
 use embassy_net::tcp::client::{TcpClient, TcpClientState};
@@ -59,18 +60,24 @@ where
     let mut rx_buf = [0u8; 512];
     let auth_headers = [("authorization", AUTH_HEADER)];
 
-    let status = match client.request(Method::POST, METRICS_URL).await {
-        Ok(handle) => {
-            let mut request = handle
+    let status = match with_timeout(
+        Duration::from_secs(30),
+        async {
+            client
+                .request(Method::POST, METRICS_URL)
+                .await?
                 .headers(&auth_headers)
                 .content_type(ContentType::ApplicationJson)
-                .body(body.as_slice());
-            match request.send(&mut rx_buf).await {
-                Ok(response) => Some(response.status.0),
-                Err(_) => None,
-            }
-        }
-        Err(_) => None,
+                .body(body.as_slice())
+                .send(&mut rx_buf)
+                .await
+                .map(|response| response.status.0)
+        },
+    )
+    .await
+    {
+        Ok(Ok(status)) => Some(status),
+        _ => None,
     };
 
     if status == Some(200) {
