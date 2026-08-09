@@ -17,27 +17,6 @@ pub struct SessionRecord {
     pub steps: u32,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
-#[repr(u32)]
-pub enum SlotFlags {
-    Empty = 0xFFFF_FFFF,
-    Occupied = 0xFFFF_FFFE,
-}
-
-impl SlotFlags {
-    pub fn from_u32(v: u32) -> Self {
-        match v {
-            x if x == Self::Empty as u32 => Self::Empty,
-            x if x == Self::Occupied as u32 => Self::Occupied,
-            _ => Self::Empty,
-        }
-    }
-
-    pub fn to_bytes(self) -> [u8; 4] {
-        (self as u32).to_le_bytes()
-    }
-}
-
 pub struct FlashRing<'a> {
     flash: FlashStorage<'a>,
     head: u16,
@@ -63,12 +42,11 @@ impl<'a> FlashRing<'a> {
         let mut first_empty = None;
         let mut count = 0u16;
 
-        for i in 0..SLOT_COUNT {
-            let flags = self.slot_flags(i);
-            if flags != SlotFlags::Empty {
+        for index in 0..SLOT_COUNT {
+            if !self.slot_is_empty(index) {
                 count += 1;
             } else if first_empty.is_none() {
-                first_empty = Some(i);
+                first_empty = Some(index);
             }
         }
 
@@ -81,18 +59,18 @@ impl<'a> FlashRing<'a> {
         );
     }
 
-    fn slot_flags(&mut self, index: u16) -> SlotFlags {
-        let offset = Self::slot_offset(index) + 12;
+    fn slot_is_empty(&mut self, index: u16) -> bool {
+        let offset = Self::slot_offset(index);
         let mut buf = [0u8; 4];
         if let Err(e) = self.flash.read(offset, &mut buf) {
             error!(
-                "storage: slot_flags[{}] read failed: {:?}",
+                "storage: slot[{}] read failed: {:?}",
                 index,
                 defmt::Debug2Format(&e)
             );
-            return SlotFlags::Empty;
+            return true;
         }
-        SlotFlags::from_u32(u32::from_le_bytes(buf))
+        u32::from_le_bytes(buf) == u32::MAX
     }
 
     fn slot_at(&mut self, index: u16) -> SessionRecord {
@@ -133,11 +111,10 @@ impl<'a> FlashRing<'a> {
         };
 
         let index = self.head;
-        let mut buf = [0u8; 16];
+        let mut buf = [0xFFu8; 16];
         buf[0..4].copy_from_slice(&start_epoch.to_le_bytes());
         buf[4..8].copy_from_slice(&end_epoch.to_le_bytes());
         buf[8..12].copy_from_slice(&steps.to_le_bytes());
-        buf[12..16].copy_from_slice(&SlotFlags::Occupied.to_bytes());
 
         let offset = Self::slot_offset(index);
         if let Err(e) = self.flash.write(offset, &buf) {
