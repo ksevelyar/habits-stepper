@@ -38,7 +38,7 @@ module battery() {
       difference() {
         hull() {
           length = display_length + 0.2;
-          width = display_width + 3.1;
+          width = display_pcb_width + 3.1;
           translate([-length / 2, 0, 0]) cube(size=[length, width, wall]);
 
           translate([0, 0, 0]) cylinder(h=wall, d=diameter - 0.5, $fn=128);

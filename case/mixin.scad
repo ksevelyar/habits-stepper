@@ -1,7 +1,11 @@
 wall = 2;
 diameter = 71.5;
 display_length = 77;
-display_width = 19.2;
+display_pcb_width = 19.2;
+display_slot_width = 20.6;
+display_slot_length = 67;
+display_window_length = 56;
+display_window_width = 17.4;
 esp32c3_width = 18.5;
 esp32c3_length = 24;
 
@@ -32,11 +36,21 @@ module button_cutout() {
   translate([-size / 2, -24.5, -2.5]) cube(size=size);
 }
 
+module display_slot_cutout() {
+  translate([-display_slot_length / 2, (display_pcb_width - display_slot_width) / 2, 0.4]) cube([display_slot_length, display_slot_width, 100]);
+}
+
+module display_window_cutout(clearance = 0) {
+  width = display_window_width + clearance;
+  translate([-display_window_length / 2, (display_pcb_width - width) / 2, -0.1])
+      cube([display_window_length, width, 100]);
+}
+
 module display() {
   difference() {
     hull() {
       length = display_length + wall * 2 + 0.5;
-      width = display_width + wall * 2 + 0.5;
+      width = display_pcb_width + wall * 2 + 0.5;
       translate([-length / 2, 0, 0]) cube(size=[length, width, height]);
 
       cylinder(h=height, d=diameter + wall * 2, $fn=256);
@@ -44,7 +58,7 @@ module display() {
 
     hull() {
       length = display_length + 0.5;
-      width = display_width + 3.5;
+      width = display_pcb_width + 3.5;
       translate([-length / 2, 0, wall]) cube(size=[length, width, height + wall]);
 
       translate([0, 0, wall]) cylinder(h=height, d=diameter + 0.3, $fn=256);
