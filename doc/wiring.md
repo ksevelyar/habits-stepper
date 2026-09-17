@@ -8,7 +8,12 @@ bat- to 18650-
 bat+ to 18650+
 
 out- to gnd from esp32
-out+ - ldo mcp1700 3.3v - esp32 3.3v
+out+ - mcp1700 1 - esp32 3.3v
+
+## mcp1700
+1 - gnd
+2 - tp4057 out+
+3 - esp32 3.3v
 
 ## display sh1122, spi
 gnd - gnd

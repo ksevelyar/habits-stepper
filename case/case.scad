@@ -18,8 +18,8 @@ module mounts() {
   translate([12.7, 23.4, 0]) leg(height - wall);
   translate([-12.7, 23.4, 0]) leg(height - wall);
 
-  translate([display_length / 2 - 15, display_pcb_width + 3.2, 0]) leg(10);
-  translate([-display_length / 2 + 15, display_pcb_width + 3.2, 0]) leg(10);
+  translate([display_length / 2 - 15, display_pcb_width + 4, 0]) leg(10);
+  translate([-display_length / 2 + 15, display_pcb_width + 4, 0]) leg(10);
 }
 
 difference() {

@@ -23,18 +23,18 @@ module stopper() {
         hull() {
           translate([11, display_pcb_width - 13, 7]) leg(wall);
 
-          translate([display_length / 2 - 15, display_pcb_width + 3.2, 7]) leg(wall);
+          translate([display_length / 2 - 15, display_pcb_width + 4, 7]) leg(wall);
         }
 
         hull() {
           translate([-11, display_pcb_width - 13, 11 - wall * 2]) leg(wall);
-          translate([-display_length / 2 + 15, display_pcb_width + 3.2, 11 - wall * 2]) leg(wall);
+          translate([-display_length / 2 + 15, display_pcb_width + 4, 11 - wall * 2]) leg(wall);
         }
       }
 
-      translate([display_length / 2 - 15, display_pcb_width + 3.2, 6]) cylinder(10, d=3.12, $fn=32);
+      translate([display_length / 2 - 15, display_pcb_width + 4, 6]) cylinder(10, d=3.12, $fn=32);
 
-      translate([-display_length / 2 + 15, display_pcb_width + 3.2, 6]) cylinder(10, d=3.12, $fn=32);
+      translate([-display_length / 2 + 15, display_pcb_width + 4, 6]) cylinder(10, d=3.12, $fn=32);
     }
 
     difference() {
