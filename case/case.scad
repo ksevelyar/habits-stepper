@@ -35,8 +35,8 @@ difference() {
   charger_led_cutout();
   display_cutout();
 
-  translate([display_length / 2 - 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.3, 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([display_length / 2 - 2.5, display_pcb_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
-  translate([-display_length / 2 + 2.5, display_pcb_width - 2, -0.1]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+  translate([display_length / 2 - 2.3, 2, -overcut]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+  translate([-display_length / 2 + 2.3, 2, -overcut]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+  translate([display_length / 2 - 2.5, display_pcb_width - 2, -overcut]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
+  translate([-display_length / 2 + 2.5, display_pcb_width - 2, -overcut]) cylinder(h=wall * 2, d=3.12, $fn=64, center=false);
 }
