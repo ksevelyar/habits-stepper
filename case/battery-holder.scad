@@ -1,6 +1,6 @@
 include <mixin.scad>;
 
-height = 77;
+height = 79;
 connector_inner_diameter = 17.4;
 mounting_hole_diameter = 3.12;
 

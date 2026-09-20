@@ -45,6 +45,18 @@
               cargo clippy --all-features --workspace -- -D warnings
             '')
 
+            (writeShellScriptBin "regenerate-stl" ''
+              set -euo pipefail
+              cd "$(git rev-parse --show-toplevel)/case"
+              for scad in *.scad; do
+                if [[ "$scad" == "mixin.scad" ]]; then
+                  continue
+                fi
+                openscad -o "''${scad%.scad}.stl" "$scad"
+              done
+            '')
+
+            openscad
             websocat
             probe-rs-tools
             esp-generate
