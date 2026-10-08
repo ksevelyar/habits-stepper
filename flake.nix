@@ -53,7 +53,7 @@
               done
             '')
 
-            openscad
+            openscad-unstable
             websocat
             probe-rs-tools
             esp-generate
