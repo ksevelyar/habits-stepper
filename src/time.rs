@@ -33,14 +33,16 @@ const INACTIVITY: Duration = Duration::from_secs(120);
 
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
+static INSTANT_MILLIS_BASE: AtomicU32 = AtomicU32::new(0);
 
 pub static RTC: StaticCell<Mutex<CriticalSectionRawMutex, Rtc<'static>>> = StaticCell::new();
 
 defmt::timestamp!(
-    "{=u8:02}:{=u8:02}:{=u8:02}",
-    { local_time().hour() as u8 },
-    { local_time().minute() as u8 },
-    { local_time().second() as u8 },
+    "{}",
+    LocalTime {
+        zoned: local_time(),
+        tenth_of_second: tenth_of_second(),
+    }
 );
 
 pub fn epoch_secs() -> Option<u32> {
@@ -109,6 +111,34 @@ fn write_digits(buf: &mut [u8], mut value: u32) {
     }
 }
 
+fn tenth_of_second() -> u8 {
+    if EPOCH_BASE.load(Ordering::Acquire) == 0 {
+        return 0;
+    }
+    let now_millis = Instant::now().as_millis() as u32;
+    let base_millis = INSTANT_MILLIS_BASE.load(Ordering::Relaxed);
+    let subsec_millis = now_millis.wrapping_sub(base_millis) % 1000;
+    (subsec_millis / 100) as u8
+}
+
+struct LocalTime {
+    zoned: jiff::Zoned,
+    tenth_of_second: u8,
+}
+
+impl defmt::Format for LocalTime {
+    fn format(&self, formatter: defmt::Formatter) {
+        defmt::write!(
+            formatter,
+            "{=u8:02}:{=u8:02}:{=u8:02}.{=u8}",
+            self.zoned.hour() as u8,
+            self.zoned.minute() as u8,
+            self.zoned.second() as u8,
+            self.tenth_of_second,
+        );
+    }
+}
+
 fn local_time() -> jiff::Zoned {
     let epoch_secs = epoch_secs().unwrap_or(0);
     let timestamp = jiff::Timestamp::new(epoch_secs as i64, 0).unwrap();
@@ -118,6 +148,7 @@ fn local_time() -> jiff::Zoned {
 
 fn set_epoch(epoch_secs: u32) {
     INSTANT_BASE.store(Instant::now().as_secs() as u32, Ordering::Relaxed);
+    INSTANT_MILLIS_BASE.store(Instant::now().as_millis() as u32, Ordering::Relaxed);
     EPOCH_BASE.store(epoch_secs, Ordering::Release);
 }
 

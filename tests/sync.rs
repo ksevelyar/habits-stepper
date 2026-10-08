@@ -140,7 +140,7 @@ mod tests {
         let tcp = FakeTcp { response };
         let dns = FakeDns;
         let mut client = HttpClient::new(&tcp, &dns);
-        post_total(&mut client, &report()).await
+        post_total(&mut client, "/metrics", &report()).await
     }
 
     #[test]

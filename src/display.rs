@@ -196,16 +196,16 @@ pub fn draw_rect(display: &mut Sh1122Device, x: usize, y: usize, width: usize, h
 pub fn render_time(display: &mut Sh1122Device, total_minutes: u32) {
     let word = symbol::build_time_word(total_minutes, 0);
 
-    for i in 0..word.count {
-        draw_symbol(display, &word.symbols[i]);
+    for symbol in &word.symbols[..word.count] {
+        draw_symbol(display, symbol);
     }
 }
 
 pub fn render_steps(display: &mut Sh1122Device, value: u32) {
     let word = symbol::build_number_word(value, DISPLAY_WIDTH);
 
-    for i in 0..word.count {
-        draw_symbol(display, &word.symbols[i]);
+    for symbol in &word.symbols[..word.count] {
+        draw_symbol(display, symbol);
     }
 }
 

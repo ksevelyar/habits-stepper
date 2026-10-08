@@ -13,12 +13,16 @@ use crate::sessions::DailyTotal;
 use crate::time::date_bytes;
 
 const TLS_SEED: u64 = 0x53_59_4E_43;
-const METRICS_URL: &str = env!("METRICS_URL");
+const METRICS_URL: Option<&str> = option_env!("METRICS_URL");
 const AUTH_HEADER: &str = concat!("Bearer ", env!("JWT_TOKEN"));
 const CHAIN_ID: &str = env!("CHAIN_ID");
 
 #[embassy_executor::task]
 pub async fn sync_task(stack: Stack<'static>) {
+    let Some(metrics_url) = METRICS_URL.filter(|url| !url.is_empty()) else {
+        info!("sync: disabled (METRICS_URL is not set)");
+        return;
+    };
     info!("sync: task started (chain_id={})", CHAIN_ID);
     stack.wait_config_up().await;
 
@@ -37,12 +41,16 @@ pub async fn sync_task(stack: Stack<'static>) {
     loop {
         let totals = crate::SYNC_SIGNAL.wait().await;
         for total in totals {
-            post_total(&mut client, &total).await;
+            post_total(&mut client, metrics_url, &total).await;
         }
     }
 }
 
-pub async fn post_total<'a, T, D>(client: &mut HttpClient<'a, T, D>, total: &DailyTotal) -> bool
+pub async fn post_total<'a, T, D>(
+    client: &mut HttpClient<'a, T, D>,
+    metrics_url: &str,
+    total: &DailyTotal,
+) -> bool
 where
     T: embedded_nal_async::TcpConnect + 'a,
     D: embedded_nal_async::Dns + 'a,
@@ -62,7 +70,7 @@ where
 
     let status = match with_timeout(Duration::from_secs(30), async {
         client
-            .request(Method::POST, METRICS_URL)
+            .request(Method::POST, metrics_url)
             .await?
             .headers(&auth_headers)
             .content_type(ContentType::ApplicationJson)

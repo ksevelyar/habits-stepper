@@ -10,7 +10,7 @@ display_window_length = 56;
 display_window_width = 17.4;
 esp32c3_width = 18.5;
 esp32c3_length = 24;
-tp4057_width = 19.5;
+tp4057_width = 14.5;
 tp4057_length = 14;
 
 module rail_side(half_width, length, y, rail_height=9) {
