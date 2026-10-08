@@ -1,12 +1,12 @@
 include <mixin.scad>;
 
-height = 79;
+height = 85;
 connector_inner_diameter = 17.4;
 mounting_hole_diameter = 3.12;
 
 module walls() {
   difference() {
-    translate([0, 0, wall]) cylinder(h=height - 22, d1=diameter - 0.5, d2=diameter, $fn=256);
+    translate([0, 0, wall]) cylinder(h=height - 12, d1=diameter - 0.5, d2=diameter, $fn=256);
     translate([0, 0, -overcut]) cylinder(h=height * 2, d=diameter - wall, $fn=256);
 
     translate([-20, -40, 0]) cube(size=[40, 100, height + overcut], center=false);
@@ -20,21 +20,17 @@ module walls() {
       translate([-15.1, 20.7, 0]) rotate([0, 0, 120]) walls_connector();
       translate([-15.1, -20.7, 0]) rotate([0, 0, 60]) walls_connector();
     }
-
-
   }
-
 }
 
 module walls_connector() {
   difference() {
-    translate([0, 0, wall]) cylinder(h=height - 22, d=connector_inner_diameter+wall, $fn=256);
+    translate([0, 0, wall]) cylinder(h=height - 12, d=connector_inner_diameter + wall, $fn=256);
     translate([0, 0, -overcut]) cylinder(h=height * 2, d=connector_inner_diameter, $fn=256);
 
-    translate([-(connector_inner_diameter+wall) / 2, -connector_inner_diameter, 0])
-        cube([connector_inner_diameter+wall, connector_inner_diameter, height+overcut], center=false);
+    translate([-(connector_inner_diameter + wall) / 2, -connector_inner_diameter, 0])
+      cube([connector_inner_diameter + wall, connector_inner_diameter, height + overcut], center=false);
   }
-
 }
 
 module battery() {
@@ -54,8 +50,7 @@ module battery() {
       translate([0, 0, 0]) cylinder(h=height - wall, d=battery_slot_diameter + 2, center=false, $fn=128);
     }
 
-    translate([0, 0, wall]) cylinder(h=height + overcut, d=battery_slot_diameter, center=false, $fn=128);
-    translate([0, 0, -overcut]) cylinder(h=height + overcut, d=18, center=false, $fn=128);
+    translate([0, 0, -overcut]) cylinder(h=height + overcut, d=battery_slot_diameter, center=false, $fn=128);
 
     mounting_holes();
   }
@@ -69,12 +64,11 @@ module mounting_holes() {
 }
 
 module cross() {
-translate([-wall/2,-10,0]) cube([wall,20,wall]);
-translate([-10,-wall/2,0]) cube([20,wall,wall]);
+  translate([-wall, -20, 0]) cube([wall*2, 40, wall]);
+  translate([-20, -wall, 0]) cube([40, wall*2, wall]);
 }
 
 cross();
 
 battery();
 walls();
-

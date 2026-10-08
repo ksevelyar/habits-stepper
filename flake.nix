@@ -45,13 +45,10 @@
               cargo clippy --all-features --workspace -- -D warnings
             '')
 
-            (writeShellScriptBin "regenerate-stl" ''
+            (pkgs.writeShellScriptBin "render-stl" ''
               set -euo pipefail
-              cd "$(git rev-parse --show-toplevel)/case"
-              for scad in *.scad; do
-                if [[ "$scad" == "mixin.scad" ]]; then
-                  continue
-                fi
+              shopt -s extglob
+              for scad in case/!(mixin).scad; do
                 openscad -o "''${scad%.scad}.stl" "$scad"
               done
             '')

@@ -1,7 +1,7 @@
 wall = 2;
 overcut = 0.1;
 battery_slot_diameter = 32.5;
-diameter = 71.5;
+diameter = 72;
 display_length = 77;
 display_pcb_width = 19.2;
 display_slot_width = 21;
@@ -13,7 +13,7 @@ esp32c3_length = 24;
 tp4057_width = 14.5;
 tp4057_length = 14;
 
-module rail_side(half_width, length, y, rail_height=9) {
+module rail_side(half_width, length, y, rail_height = 9) {
   translate([-half_width - 2, y, 2]) cube([2, length, rail_height]);
   hull() {
     translate([-half_width - 0.15, y, 2 + rail_height - 3.5]) rotate([0, -40, 0]) cube([1.5, length, 1]);
@@ -22,7 +22,7 @@ module rail_side(half_width, length, y, rail_height=9) {
   translate([-half_width - 0.35, y, 2 + rail_height - 1.0]) rotate([0, -40, 0]) cube([1.3, length, 1]);
 }
 
-module rail(half_width, length, y, rail_height=9) {
+module rail(half_width, length, y, rail_height = 9) {
   rail_side(half_width, length, y, rail_height);
   mirror([1, 0, 0]) rail_side(half_width, length, y, rail_height);
 }
@@ -47,7 +47,7 @@ module display_slot_cutout() {
 module display_window_cutout(clearance = 0) {
   width = display_window_width + clearance;
   translate([-display_window_length / 2, (display_pcb_width - width) / 2, -0.1])
-      cube([display_window_length, width, 100]);
+    cube([display_window_length, width, 100]);
 }
 
 module display() {
@@ -81,6 +81,6 @@ module type_c_cutout() {
 module leg(leg_height) {
   difference() {
     cylinder(h=leg_height, d=6.24, $fn=32);
-    cylinder(h=leg_height + 1, d=3.06, $fn=32);
+    cylinder(h=leg_height + 1, d=3, $fn=32);
   }
 }
