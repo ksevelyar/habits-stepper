@@ -1,6 +1,6 @@
 wall = 2;
 overcut = 0.1;
-battery_slot_diameter = 32.5;
+battery_slot_diameter = 20;
 diameter = 72;
 display_length = 77;
 display_pcb_width = 19.2;

@@ -1,7 +1,7 @@
 include <mixin.scad>;
 
 height = 85;
-connector_inner_diameter = 17.4;
+connector_inner_diameter = 24;
 mounting_hole_diameter = 3.12;
 
 module walls() {
@@ -14,11 +14,11 @@ module walls() {
 
   difference() {
     union() {
-      translate([15.1, -20.7, 0]) rotate([0, 0, -60]) walls_connector();
+      translate([13.5, -18.5, 0]) rotate([0, 0, -60]) walls_connector();
 
-      translate([15.1, 20.7, 0]) rotate([0, 0, -120]) walls_connector();
-      translate([-15.1, 20.7, 0]) rotate([0, 0, 120]) walls_connector();
-      translate([-15.1, -20.7, 0]) rotate([0, 0, 60]) walls_connector();
+      translate([13.5, 18.5, 0]) rotate([0, 0, -120]) walls_connector();
+      translate([-13.5, -18.5, 0]) rotate([0, 0, 60]) walls_connector();
+      translate([-13.5, 18.5, 0]) rotate([0, 0, 120]) walls_connector();
     }
   }
 }
