@@ -1,14 +1,21 @@
 use defmt::info;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::channel::Channel;
 use embassy_sync::signal::Signal;
 use embassy_time::{Duration, Timer};
 use esp_hal::gpio::Input;
 
-use crate::{GpioEvent, USER_INPUT_CHANNEL};
-
 const DEBOUNCE: Duration = Duration::from_millis(50);
 
+#[derive(PartialEq)]
+pub enum GpioEvent {
+    StepDetected,
+    HistoryPressed,
+    HistoryReleased,
+}
+
 pub static ACTIVITY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+pub static USER_INPUT_CHANNEL: Channel<CriticalSectionRawMutex, GpioEvent, 3> = Channel::new();
 
 #[embassy_executor::task]
 pub async fn reed_task(mut reed: Input<'static>) {

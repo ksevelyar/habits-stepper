@@ -4,26 +4,32 @@ use defmt::{error, info};
 use embassy_net::Stack;
 use embassy_net::dns::DnsSocket;
 use embassy_net::tcp::client::{TcpClient, TcpClientState};
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::signal::Signal;
 use embassy_time::{Duration, with_timeout};
 use reqwless::client::{HttpClient, TlsConfig, TlsVerify};
 use reqwless::headers::ContentType;
 use reqwless::request::{Method, RequestBuilder};
 
+use crate::application::Configuration;
 use crate::sessions::DailyTotal;
 use crate::time::date_bytes;
 
 const TLS_SEED: u64 = 0x53_59_4E_43;
-const METRICS_URL: Option<&str> = option_env!("METRICS_URL");
-const AUTH_HEADER: &str = concat!("Bearer ", env!("JWT_TOKEN"));
-const CHAIN_ID: &str = env!("CHAIN_ID");
+
+pub static SYNC_SIGNAL: Signal<CriticalSectionRawMutex, [DailyTotal; 2]> = Signal::new();
 
 #[embassy_executor::task]
-pub async fn sync_task(stack: Stack<'static>) {
-    let Some(metrics_url) = METRICS_URL.filter(|url| !url.is_empty()) else {
-        info!("sync: disabled (METRICS_URL is not set)");
+pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configuration) {
+    let (Some(_metrics_url), Some(_jwt_token), Some(chain_id)) = (
+        configuration.metrics_url,
+        configuration.jwt_token,
+        configuration.chain_id,
+    ) else {
+        info!("sync: disabled (backend is not configured)");
         return;
     };
-    info!("sync: task started (chain_id={})", CHAIN_ID);
+    info!("sync: task started (chain_id={})", chain_id);
     stack.wait_config_up().await;
 
     let state = TcpClientState::<1, 4096, 4096>::new();
@@ -39,22 +45,30 @@ pub async fn sync_task(stack: Stack<'static>) {
     );
 
     loop {
-        let totals = crate::SYNC_SIGNAL.wait().await;
+        let totals = SYNC_SIGNAL.wait().await;
         for total in totals {
-            post_total(&mut client, metrics_url, &total).await;
+            post_total(&mut client, configuration, &total).await;
         }
     }
 }
 
 pub async fn post_total<'a, T, D>(
     client: &mut HttpClient<'a, T, D>,
-    metrics_url: &str,
+    configuration: &Configuration,
     total: &DailyTotal,
 ) -> bool
 where
     T: embedded_nal_async::TcpConnect + 'a,
     D: embedded_nal_async::Dns + 'a,
 {
+    let (Some(metrics_url), Some(jwt_token), Some(chain_id)) = (
+        configuration.metrics_url,
+        configuration.jwt_token,
+        configuration.chain_id,
+    ) else {
+        return false;
+    };
+
     let bytes = date_bytes(total.date);
     let date = core::str::from_utf8(&bytes).unwrap();
 
@@ -62,11 +76,17 @@ where
     let _ = write!(
         body,
         "{{\"date\":\"{}\",\"value\":\"{}\",\"chain_id\":{}}}",
-        date, total.minutes, CHAIN_ID
+        date, total.minutes, chain_id
     );
 
+    let mut authorization = heapless::String::<512>::new();
+    if write!(authorization, "Bearer {}", jwt_token).is_err() {
+        error!("sync: authorization header is too long");
+        return false;
+    }
+
     let mut rx_buf = [0u8; 512];
-    let auth_headers = [("authorization", AUTH_HEADER)];
+    let auth_headers = [("authorization", authorization.as_str())];
 
     let status = match with_timeout(Duration::from_secs(30), async {
         client
@@ -88,13 +108,13 @@ where
     if status == Some(200) {
         info!(
             "sync: post succeeded status=200 date={} minutes={} chain_id={}",
-            date, total.minutes, CHAIN_ID
+            date, total.minutes, chain_id
         );
         true
     } else {
         error!(
             "sync: post failed status={:?} date={} minutes={} chain_id={}",
-            status, date, total.minutes, CHAIN_ID
+            status, date, total.minutes, chain_id
         );
         false
     }

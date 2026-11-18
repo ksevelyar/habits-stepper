@@ -6,14 +6,13 @@ pub use esp_radio::wifi::Interface;
 
 use esp_radio::wifi::{Config, ControllerConfig, WifiController, sta::StationConfig};
 
-extern crate alloc;
+use crate::application::Configuration;
 
-const SSID: &str = env!("SSID");
-const PASSWORD: &str = env!("PASS");
-const WIFI_TRANSMIT_POWER: &str = env!("WIFI_TRANSMIT_POWER");
+extern crate alloc;
 
 pub async fn init(
     wifi: esp_hal::peripherals::WIFI<'static>,
+    configuration: &Configuration,
 ) -> (
     WifiController<'static>,
     Stack<'static>,
@@ -21,8 +20,8 @@ pub async fn init(
 ) {
     let station_config = Config::Station(
         StationConfig::default()
-            .with_ssid(SSID)
-            .with_password(PASSWORD.into()),
+            .with_ssid(configuration.ssid)
+            .with_password(configuration.pass.into()),
     );
 
     let (mut controller, interfaces) = esp_radio::wifi::new(
@@ -31,7 +30,8 @@ pub async fn init(
     )
     .expect("Failed to initialize Wi-Fi controller");
 
-    let max_tx_power_dbm: i8 = WIFI_TRANSMIT_POWER
+    let max_tx_power_dbm: i8 = configuration
+        .wifi_transmit_power
         .parse()
         .expect("WIFI_TRANSMIT_POWER must be a valid integer");
     controller
@@ -53,11 +53,14 @@ pub async fn init(
 }
 
 #[embassy_executor::task]
-pub async fn connection(mut controller: WifiController<'static>) {
+pub async fn connection(
+    mut controller: WifiController<'static>,
+    configuration: &'static Configuration,
+) {
     let mut failed_attempts: u32 = 0;
 
     loop {
-        info!("wifi: connecting to \"{}\"", env!("SSID"));
+        info!("wifi: connecting to \"{}\"", configuration.ssid);
 
         match controller.connect_async().await {
             Ok(info) => {

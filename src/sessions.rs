@@ -6,7 +6,8 @@ use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, with_timeout};
 use heapless::Deque;
 
-use crate::{DISPLAY_CHANNEL, GpioEvent, USER_INPUT_CHANNEL};
+use crate::display::DISPLAY_CHANNEL;
+use crate::user_input::{GpioEvent, USER_INPUT_CHANNEL};
 use storage::{FlashRing, SLOT_COUNT};
 
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
@@ -192,7 +193,7 @@ fn report_completed_session(sessions: &Sessions, now: u32) {
     let today = crate::time::day_start_epoch(now);
     let yesterday = crate::time::previous_day_start_epoch(now);
 
-    crate::SYNC_SIGNAL.signal([
+    crate::sync::SYNC_SIGNAL.signal([
         DailyTotal {
             date: today,
             minutes: make_day_minutes(sessions, today),
