@@ -11,19 +11,8 @@ test = false
 
 [[test]]
 harness = false
-name    = "storage"
-
-[[test]]
-harness = false
-name    = "sessions"
-
-[[test]]
-harness = false
-name    = "time"
-
-[[test]]
-harness = false
-name    = "sync"
+name    = "features"
+path    = "tests/features.rs"
 
 [lib]
 test = false

@@ -25,12 +25,11 @@
           SSID = "ssid";
           PASS = "pass";
           JWT_TOKEN = "very secret";
-          METRICS_URL = "https://api.habits.rusty-cluster.net/metrics";
           CHAIN_ID = "19";
           DEFMT_LOG = "info,embassy_net=warn";
           TIMEZONE = "Europe/Moscow";
           # NOTE: Valid range: 2–20 dBm
-          WIFI_TRANSMIT_POWER = "19";
+          WIFI_TRANSMIT_POWER = "18";
 
           buildInputs = with pkgs; [
             (rust-bin.nightly.latest.default.override {
