@@ -16,7 +16,6 @@
 11. The device synchronizes time.
 12. The display shows current-week minutes and steps.
 13. Wi-Fi remains connected.
-14. Backend synchronization remains available.
 
 ## 2. Device synchronizes time on boot without backend
 1. `METRICS_URL` and `JWT_TOKEN` are not configured.
@@ -32,4 +31,3 @@
 11. The device synchronizes time.
 12. The display shows current-week minutes and steps.
 13. Wi-Fi disconnects.
-14. Backend synchronization is unavailable.

@@ -11,6 +11,7 @@ use esp_hal::{
     time::Rate,
     timer::timg::TimerGroup,
 };
+use habits_stepper::application::CONFIGURATION;
 use habits_stepper::sessions::FlashMutex;
 use habits_stepper::sessions::storage;
 use habits_stepper::{display, sessions, sync, time, user_input, wifi};
@@ -42,14 +43,14 @@ async fn main(spawner: Spawner) -> ! {
     esp_rtos::start(timg0.timer0, sw_interrupt.software_interrupt0);
     info!("init: embassy initialized");
 
-    let (controller, stack, runner) = wifi::init(peripherals.WIFI).await;
+    let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION).await;
 
-    spawner.spawn(wifi::connection(controller).unwrap());
+    spawner.spawn(wifi::connection(controller, &CONFIGURATION).unwrap());
     spawner.spawn(wifi::net_task(runner).unwrap());
     let rtc = time::RTC.init(Mutex::new(rtc));
     spawner.spawn(time::ntp_task(stack, rtc).unwrap());
     spawner.spawn(time::sleep_task(rtc).unwrap());
-    spawner.spawn(sync::sync_task(stack).unwrap());
+    spawner.spawn(sync::sync_task(stack, &CONFIGURATION).unwrap());
     let display_spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()

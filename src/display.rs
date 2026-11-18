@@ -3,7 +3,9 @@ use embassy_time::{Duration, Timer};
 use esp_hal::gpio::Output;
 use esp_hal::spi::master::Spi;
 
-use crate::DISPLAY_CHANNEL;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::channel::Channel;
+
 use crate::sessions::SessionEvent;
 
 pub const DISPLAY_WIDTH: usize = 256;
@@ -14,6 +16,8 @@ const PIXEL_BITS: usize = 4;
 const PIXEL_SHIFT: usize = 8 - PIXEL_BITS;
 const PIXEL_MASK: u8 = 0xf;
 const FB_SIZE: usize = DISPLAY_WIDTH * DISPLAY_HEIGHT * PIXEL_BITS / 8;
+
+pub static DISPLAY_CHANNEL: Channel<CriticalSectionRawMutex, SessionEvent, 3> = Channel::new();
 
 mod symbol;
 

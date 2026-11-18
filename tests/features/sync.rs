@@ -8,6 +8,7 @@ mod tests {
     use defmt::assert;
     use embedded_io_async::{ErrorType, Read, Write};
     use embedded_nal_async::AddrType;
+    use habits_stepper::application::Configuration;
     use habits_stepper::sessions::DailyTotal;
     use habits_stepper::sync::post_total;
     use heapless::Vec;
@@ -134,7 +135,16 @@ mod tests {
         let tcp = FakeTcp { response };
         let dns = FakeDns;
         let mut client = HttpClient::new(&tcp, &dns);
-        post_total(&mut client, "/metrics", &report()).await
+        let configuration = Configuration {
+            ssid: "test-ssid",
+            pass: "test-pass",
+            wifi_transmit_power: "18",
+            timezone: "Europe/Moscow",
+            metrics_url: Some("/metrics"),
+            jwt_token: Some("test-token"),
+            chain_id: Some("19"),
+        };
+        post_total(&mut client, &configuration, &report()).await
     }
 
     #[test]
