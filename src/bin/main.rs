@@ -41,7 +41,7 @@ async fn main(spawner: Spawner) -> ! {
     esp_rtos::start(timg0.timer0, sw_interrupt.software_interrupt0);
     info!("init: embassy initialized");
 
-    let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION).await;
+    let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION);
 
     spawner.spawn(wifi::connection(controller, &CONFIGURATION).unwrap());
     spawner.spawn(wifi::net_task(runner).unwrap());

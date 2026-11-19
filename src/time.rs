@@ -19,7 +19,7 @@ use crate::user_input::ACTIVITY;
 use esp_hal::rtc_cntl::Rtc;
 use jiff::Timestamp;
 use jiff::civil::Weekday;
-use static_cell::StaticCell;
+use static_cell::{ConstStaticCell, StaticCell};
 
 include!(concat!(env!("OUT_DIR"), "/timezone.rs"));
 
@@ -264,10 +264,16 @@ pub async fn ntp_task(
 
     stack.wait_config_up().await;
 
-    let mut rx_meta = [PacketMetadata::EMPTY; 16];
-    let mut rx_buffer = [0; 4096];
-    let mut tx_meta = [PacketMetadata::EMPTY; 16];
-    let mut tx_buffer = [0; 4096];
+    static RECEIVE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
+    static TRANSMIT_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
+    static RECEIVE_METADATA: ConstStaticCell<[PacketMetadata; 16]> =
+        ConstStaticCell::new([PacketMetadata::EMPTY; 16]);
+    static TRANSMIT_METADATA: ConstStaticCell<[PacketMetadata; 16]> =
+        ConstStaticCell::new([PacketMetadata::EMPTY; 16]);
+    let receive_metadata = RECEIVE_METADATA.take();
+    let receive_buffer = RECEIVE_BUFFER.take();
+    let transmit_metadata = TRANSMIT_METADATA.take();
+    let transmit_buffer = TRANSMIT_BUFFER.take();
 
     let mut failed_attempts: u32 = 0;
 
@@ -279,10 +285,10 @@ pub async fn ntp_task(
             sync_with_ntp(
                 current_time_us,
                 &stack,
-                &mut rx_meta,
-                &mut rx_buffer,
-                &mut tx_meta,
-                &mut tx_buffer,
+                receive_metadata,
+                receive_buffer,
+                transmit_metadata,
+                transmit_buffer,
             ),
         )
         .await;
