@@ -50,7 +50,7 @@ pub struct HardSpi<'d> {
 }
 
 impl<'d> HardSpi<'d> {
-    pub fn new(spi: Spi<'d, esp_hal::Blocking>, cs: Output<'d>, dc: Output<'d>) -> Self {
+    pub fn create(spi: Spi<'d, esp_hal::Blocking>, cs: Output<'d>, dc: Output<'d>) -> Self {
         Self { spi, cs, dc }
     }
 
@@ -80,12 +80,12 @@ pub struct Sh1122Device<'d> {
 }
 
 impl<'d> Sh1122Device<'d> {
-    pub fn new(interface: HardSpi<'d>, buffer: &'d mut [u8; FB_SIZE]) -> Self {
+    pub fn create(interface: HardSpi<'d>, buffer: &'d mut [u8; FB_SIZE]) -> Self {
         Self { interface, buffer }
     }
 
     pub fn init_display(&mut self) -> Result<(), DisplayError> {
-        self.display_off()?;
+        self.turn_display_off()?;
         self.set_row_adr(0)?;
         self.set_col_adr(0)?;
         self.set_start_line(0)?;
@@ -95,7 +95,7 @@ impl<'d> Sh1122Device<'d> {
         self.set_contrast(0x80)?;
         self.set_entire_on()?;
         self.set_inverted(false)?;
-        self.display_on()?;
+        self.turn_display_on()?;
         self.flush()?;
         Ok(())
     }
@@ -123,11 +123,11 @@ impl<'d> Sh1122Device<'d> {
             (self.buffer[byte_index] & !mask) | ((pixel >> PIXEL_SHIFT) << bit_index);
     }
 
-    fn display_off(&mut self) -> Result<(), DisplayError> {
+    fn turn_display_off(&mut self) -> Result<(), DisplayError> {
         self.interface.write_cmd(cmd::SET_DISP, &[])
     }
 
-    fn display_on(&mut self) -> Result<(), DisplayError> {
+    fn turn_display_on(&mut self) -> Result<(), DisplayError> {
         self.interface.write_cmd(cmd::SET_DISP | 0x01, &[])
     }
 
@@ -176,7 +176,7 @@ impl<'d> Sh1122Device<'d> {
 }
 
 fn draw_symbol(display: &mut Sh1122Device, symbol: &Symbol) {
-    for rectangle in symbol.rects() {
+    for rectangle in symbol.iterate_rectangles() {
         draw_rect(
             display,
             symbol.x + rectangle.x,
@@ -212,7 +212,7 @@ pub fn render_steps(display: &mut Sh1122Device, value: u32) {
 }
 
 #[embassy_executor::task]
-pub async fn display_task(
+pub async fn update_display(
     spi: Spi<'static, esp_hal::Blocking>,
     cs: Output<'static>,
     dc: Output<'static>,
@@ -225,7 +225,7 @@ pub async fn display_task(
     reset.set_high();
     Timer::after(Duration::from_millis(10)).await;
 
-    let mut device = Sh1122Device::new(HardSpi::new(spi, cs, dc), FRAMEBUFFER.take());
+    let mut device = Sh1122Device::create(HardSpi::create(spi, cs, dc), FRAMEBUFFER.take());
     device.init_display().ok();
 
     loop {

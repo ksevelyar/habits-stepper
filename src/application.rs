@@ -9,10 +9,10 @@ pub struct Configuration {
     pub chain_id: Option<&'static str>,
 }
 
-pub static CONFIGURATION: Configuration = Configuration::from_environment();
+pub static CONFIGURATION: Configuration = Configuration::load_from_environment();
 
 impl Configuration {
-    pub const fn from_environment() -> Self {
+    pub const fn load_from_environment() -> Self {
         Self {
             ssid: env!("SSID"),
             pass: env!("PASS"),

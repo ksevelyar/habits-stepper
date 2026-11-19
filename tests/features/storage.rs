@@ -140,7 +140,7 @@ mod tests {
     }
 
     fn create_erased_ring(flash: esp_hal::peripherals::FLASH<'static>) -> FlashRing<'static> {
-        let mut ring = FlashRing::new(flash);
+        let mut ring = FlashRing::create(flash);
         ring.erase_all();
         ring
     }
@@ -166,7 +166,7 @@ mod tests {
         ring: &mut FlashRing<'static>,
         expected_step_count: impl Fn(u16) -> u32,
     ) {
-        for (session_index, session) in ring.sessions().enumerate() {
+        for (session_index, session) in ring.iterate_sessions().enumerate() {
             assert_eq!(
                 session.steps,
                 expected_step_count(session_index as u16),

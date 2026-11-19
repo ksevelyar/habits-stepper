@@ -18,7 +18,7 @@ pub static ACTIVITY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 pub static USER_INPUT_CHANNEL: Channel<CriticalSectionRawMutex, GpioEvent, 3> = Channel::new();
 
 #[embassy_executor::task]
-pub async fn reed_task(mut reed: Input<'static>) {
+pub async fn monitor_reed(mut reed: Input<'static>) {
     USER_INPUT_CHANNEL.send(GpioEvent::HistoryReleased).await;
 
     let mut previous_state = reed.is_low();
@@ -40,7 +40,7 @@ pub async fn reed_task(mut reed: Input<'static>) {
 }
 
 #[embassy_executor::task]
-pub async fn history_task(mut history: Input<'static>) {
+pub async fn monitor_history(mut history: Input<'static>) {
     loop {
         history.wait_for_falling_edge().await;
         Timer::after(DEBOUNCE).await;
