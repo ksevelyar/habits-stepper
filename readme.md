@@ -1,14 +1,22 @@
 # Habits Stepper
 ![](doc/stepper.jpg)
 
-Automatically tracks workouts to JSON backend over Wi-Fi. Time is synced via NTP so new day and week boundaries are handled automatically — no need to remember to reset counts on Monday.
+Automatically tracks workouts and sends them to a JSON backend over Wi-Fi. NTP synchronization handles day and week boundaries automatically, so there is no need to reset counts on Monday.
 
 ## Features
-* auto-track stepping sessions, time-synced via NTP with a compile-time IANA timezone
-* deep sleep after 90s of inactivity; 18650 battery gives ~2 weeks without charging
+* automatic tracking of stepping sessions, time-synchronized via NTP with a compile-time IANA timezone
+* deep sleep after 90 seconds of inactivity and approximately two weeks of battery life with an 18650 battery
 * firmware upload (probe-rs), defmt logs (RTT), and battery charging over a single USB-C port
-* persistent storage for workouts in NOR flash; data survives deep sleep and reboots
-* 3D-printed case with SH1122 256x64 OLED display
+* persistent workout storage in NOR flash that survives deep sleep and reboots
+* 3D-printed case with an SH1122 256x64 OLED display
+
+## Tests
+Tests require a connected MCU.
+
+```
+nix develop
+cargo test
+```
 
 ## Build & Flash
 ```

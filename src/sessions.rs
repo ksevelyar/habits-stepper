@@ -11,7 +11,7 @@ use storage::{FlashRing, SLOT_COUNT};
 
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
-const WEEK_SECONDS: u32 = 604800;
+const WEEK_SECONDS: u32 = 604_800;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Session {

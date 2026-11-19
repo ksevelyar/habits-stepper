@@ -140,7 +140,7 @@ mod tests {
             pass: "test-pass",
             wifi_transmit_power: "18",
             timezone: "Europe/Moscow",
-            metrics_url: Some("/metrics"),
+            metrics_url: Some("http://localhost/metrics"),
             jwt_token: Some("test-token"),
             chain_id: Some("19"),
         };

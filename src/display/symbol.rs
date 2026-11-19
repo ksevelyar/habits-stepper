@@ -36,7 +36,9 @@ pub enum Segment {
     ColonBottom,
 }
 
-use Segment::*;
+use Segment::{
+    Bottom, ColonBottom, ColonTop, LowerLeft, LowerRight, Middle, Top, UpperLeft, UpperRight,
+};
 
 const fn segment_to_rect(segment: Segment) -> Rect {
     match segment {

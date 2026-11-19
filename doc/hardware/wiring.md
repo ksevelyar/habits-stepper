@@ -1,29 +1,29 @@
 # Wiring
 
-## charging (tp4057)
-5v from esp32 to in+
-gnd from esp32 to in-
+## Charging (TP4057)
+5 V from ESP32 to IN+
+GND from ESP32 to IN-
 
-bat- to 18650-
-bat+ to 18650+
+BAT- to 18650-
+BAT+ to 18650+
 
-out- to gnd from esp32
-out+ - mcp1700 1 - esp32 3.3v
+OUT- to GND from ESP32
+OUT+ to MCP1700 pin 1 to ESP32 3.3 V
 
-## mcp1700
-1 - gnd
-2 - tp4057 out+
-3 - esp32 3.3v
+## MCP1700
+1 - GND
+2 - TP4057 OUT+
+3 - ESP32 3.3 V
 
-## display sh1122, spi
-gnd - gnd
-vdd - 3v3
-scl - gpio5
-sda - gpio6
-rst - gpio7
-dc  - gpio9
-cs  - gpio10
+## SH1122 display, SPI
+GND - GND
+VDD - 3V3
+SCL - GPIO5
+SDA - GPIO6
+RST - GPIO7
+DC - GPIO9
+CS - GPIO10
 
-## buttons
-reed - gpio1 + gnd
-history - gpio2 + gnd
+## Buttons
+Reed - GPIO1 + GND
+History - GPIO2 + GND

@@ -1,11 +1,10 @@
 # Maintenance
-* lithium grease with molybdenium
-* обслуживать принтер на столе, на пакете
+* Use lithium grease with molybdenum
+* Service the printer on a bag on the table
 
-## Troubleshouting
-### 1. если контргайка откручивается
-открутить, стереть избытки смазки бумагой, протереть резьбу болта и гайки нетканной салфеткой смоченной в изопропиловом спирте
+## Troubleshooting
+### 1. Locknut loosens
+Remove the locknut, wipe off excess grease with paper, and clean the bolt and nut threads with a nonwoven cloth moistened with isopropyl alcohol.
 
-### 2. хруст\вибрация при переносе веса на другую педаль
-* может проскальзывать болт снизу - открутить, снять излишки смазки
-
+### 2. Crunching or vibration when shifting weight to the other pedal
+* The bolt underneath may be slipping. Remove it and wipe off excess grease

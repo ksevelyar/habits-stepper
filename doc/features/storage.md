@@ -22,4 +22,4 @@ On startup, storage scans the start epochs, counts occupied slots, and places th
 
 When 511 sessions are stored, storage erases the sector containing the oldest sessions before writing the next session. This removes 256 sessions.
 
-Flash read, write, and erase failures are logged. Operations continue after failure.
+Flash read, write, and erase failures are logged. Operations continue after a failure.
