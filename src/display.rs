@@ -2,6 +2,7 @@ use defmt::info;
 use embassy_time::{Duration, Timer};
 use esp_hal::gpio::Output;
 use esp_hal::spi::master::Spi;
+use static_cell::ConstStaticCell;
 
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::channel::Channel;
@@ -75,15 +76,12 @@ impl<'d> HardSpi<'d> {
 
 pub struct Sh1122Device<'d> {
     interface: HardSpi<'d>,
-    buffer: [u8; FB_SIZE],
+    buffer: &'d mut [u8; FB_SIZE],
 }
 
 impl<'d> Sh1122Device<'d> {
-    pub fn new(interface: HardSpi<'d>) -> Self {
-        Self {
-            interface,
-            buffer: [0; FB_SIZE],
-        }
+    pub fn new(interface: HardSpi<'d>, buffer: &'d mut [u8; FB_SIZE]) -> Self {
+        Self { interface, buffer }
     }
 
     pub fn init_display(&mut self) -> Result<(), DisplayError> {
@@ -105,7 +103,7 @@ impl<'d> Sh1122Device<'d> {
     pub fn flush(&mut self) -> Result<(), DisplayError> {
         self.set_col_adr(0)?;
         self.set_row_adr(0)?;
-        self.interface.write_data(&self.buffer)?;
+        self.interface.write_data(self.buffer)?;
         Ok(())
     }
 
@@ -225,7 +223,8 @@ pub async fn display_task(
     reset.set_high();
     Timer::after(Duration::from_millis(10)).await;
 
-    let mut device = Sh1122Device::new(HardSpi::new(spi, cs, dc));
+    static FRAMEBUFFER: ConstStaticCell<[u8; FB_SIZE]> = ConstStaticCell::new([0; FB_SIZE]);
+    let mut device = Sh1122Device::new(HardSpi::new(spi, cs, dc), FRAMEBUFFER.take());
     device.init_display().ok();
 
     loop {
