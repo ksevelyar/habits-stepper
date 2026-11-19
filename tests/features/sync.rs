@@ -144,7 +144,15 @@ mod tests {
             jwt_token: Some("test-token"),
             chain_id: Some("19"),
         };
-        post_total(&mut client, &configuration, &report()).await
+        let mut response_buffer = [0; 512];
+        post_total(
+            &mut client,
+            &configuration,
+            "Bearer test-token",
+            &report(),
+            &mut response_buffer,
+        )
+        .await
     }
 
     #[test]
@@ -156,7 +164,7 @@ mod tests {
         let request = core::str::from_utf8(written.as_slice()).unwrap();
 
         assert!(request.contains("POST /metrics HTTP/1.1"));
-        assert!(request.contains("authorization: Bearer "));
+        assert!(request.contains("authorization: Bearer test-token"));
         assert!(request.contains("Content-Type: application/json"));
         assert!(request.contains("Content-Length: "));
         assert!(request.contains("\"date\":\"2026-08-09\""));

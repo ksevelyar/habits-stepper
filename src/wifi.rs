@@ -3,6 +3,7 @@ use embassy_net::{Runner, Stack, StackResources};
 use embassy_time::{Duration, Timer};
 use esp_hal::rng::Rng;
 pub use esp_radio::wifi::Interface;
+use static_cell::ConstStaticCell;
 
 use esp_radio::wifi::{Config, ControllerConfig, WifiController, sta::StationConfig};
 
@@ -10,7 +11,7 @@ use crate::application::Configuration;
 
 extern crate alloc;
 
-pub async fn init(
+pub fn init(
     wifi: esp_hal::peripherals::WIFI<'static>,
     configuration: &Configuration,
 ) -> (
@@ -42,12 +43,10 @@ pub async fn init(
     let config = embassy_net::Config::dhcpv4(Default::default());
     let seed = (Rng::new().random() as u64) << 32 | Rng::new().random() as u64;
 
-    let (stack, runner) = embassy_net::new(
-        interfaces.station,
-        config,
-        static_cell::make_static!(StackResources::<6>::new()),
-        seed,
-    );
+    static NETWORK_RESOURCES: ConstStaticCell<StackResources<6>> =
+        ConstStaticCell::new(StackResources::new());
+    let (stack, runner) =
+        embassy_net::new(interfaces.station, config, NETWORK_RESOURCES.take(), seed);
 
     (controller, stack, runner)
 }
