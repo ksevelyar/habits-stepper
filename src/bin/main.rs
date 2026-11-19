@@ -12,7 +12,6 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use habits_stepper::application::CONFIGURATION;
-use habits_stepper::sessions::FlashMutex;
 use habits_stepper::sessions::storage;
 use habits_stepper::{display, sessions, sync, time, user_input, wifi};
 use panic_rtt_target as _;
@@ -21,7 +20,6 @@ use defmt::info;
 use embassy_executor::Spawner;
 use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, Timer};
-use static_cell::StaticCell;
 
 extern crate alloc;
 
@@ -77,10 +75,8 @@ async fn main(spawner: Spawner) -> ! {
     spawner.spawn(user_input::reed_task(reed).unwrap());
     spawner.spawn(user_input::history_task(history).unwrap());
     spawner.spawn(display::display_task(display_spi, display_cs, display_dc, display_rst).unwrap());
-    static FLASH_RING: StaticCell<FlashMutex> = StaticCell::new();
-    let flash_mutex = FLASH_RING.init(Mutex::new(storage::FlashRing::new(peripherals.FLASH)));
-
-    spawner.spawn(sessions::session_task(flash_mutex).unwrap());
+    let flash = storage::FlashRing::new(peripherals.FLASH);
+    spawner.spawn(sessions::session_task(flash).unwrap());
 
     loop {
         Timer::after(Duration::from_secs(3600)).await;
