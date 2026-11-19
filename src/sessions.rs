@@ -1,10 +1,9 @@
 pub mod storage;
 
 use defmt::info;
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
-use embassy_sync::mutex::Mutex;
 use embassy_time::{Duration, with_timeout};
 use heapless::Deque;
+use static_cell::ConstStaticCell;
 
 use crate::display::DISPLAY_CHANNEL;
 use crate::user_input::{GpioEvent, USER_INPUT_CHANNEL};
@@ -13,8 +12,6 @@ use storage::{FlashRing, SLOT_COUNT};
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
 const WEEK_SECONDS: u32 = 604800;
-
-pub type FlashMutex = Mutex<CriticalSectionRawMutex, FlashRing<'static>>;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Session {
@@ -35,24 +32,17 @@ pub struct Sessions {
 }
 
 impl Sessions {
-    fn new(flash: &mut FlashRing<'static>) -> Self {
+    fn load_history(&mut self, flash: &mut FlashRing<'static>) {
         flash.init();
 
-        let mut history = Deque::new();
-
         for record in flash.sessions() {
-            history
+            self.history
                 .push_back(Session {
                     start_epoch: record.start_epoch,
                     end_epoch: record.end_epoch,
                     steps: record.steps,
                 })
                 .unwrap();
-        }
-
-        Self {
-            current: None,
-            history,
         }
     }
 
@@ -151,24 +141,23 @@ pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
 }
 
 #[embassy_executor::task]
-pub async fn session_task(flash_mutex: &'static FlashMutex) {
-    let mut sessions = {
-        let mut flash = flash_mutex.lock().await;
-        Sessions::new(&mut flash)
-    };
+pub async fn session_task(mut flash: FlashRing<'static>) {
+    static SESSIONS: ConstStaticCell<Sessions> = ConstStaticCell::new(Sessions {
+        current: None,
+        history: Deque::new(),
+    });
+    let sessions = SESSIONS.take();
+    sessions.load_history(&mut flash);
 
     loop {
         let result = with_timeout(TICK_INTERVAL, USER_INPUT_CHANNEL.receive()).await;
         let epoch = crate::time::epoch_secs();
 
         if let Some(now) = epoch {
-            let completed = {
-                let mut flash = flash_mutex.lock().await;
-                sessions.tick(now, &mut flash)
-            };
+            let completed = sessions.tick(now, &mut flash);
 
             if completed.is_some() {
-                report_completed_session(&sessions, now);
+                report_completed_session(sessions, now);
             }
 
             match result {
@@ -176,11 +165,11 @@ pub async fn session_task(flash_mutex: &'static FlashMutex) {
                     if matches!(event, GpioEvent::StepDetected) {
                         sessions.trigger(now);
                     }
-                    let totals = make_week_totals(&sessions, now);
+                    let totals = make_week_totals(sessions, now);
                     DISPLAY_CHANNEL.send(SessionEvent::Update(totals)).await;
                 }
                 Ok(GpioEvent::HistoryPressed) => {
-                    let totals = make_week_totals(&sessions, now.saturating_sub(WEEK_SECONDS));
+                    let totals = make_week_totals(sessions, now.saturating_sub(WEEK_SECONDS));
                     DISPLAY_CHANNEL.send(SessionEvent::History(totals)).await;
                 }
                 Err(_) => {}
