@@ -51,33 +51,33 @@ pub fn epoch_secs() -> Option<u32> {
         return None;
     }
     let now = Instant::now().as_secs();
-    let ibase = INSTANT_BASE.load(Ordering::Relaxed) as u64;
+    let ibase = u64::from(INSTANT_BASE.load(Ordering::Relaxed));
     let delta = now.saturating_sub(ibase) as u32;
     Some(base + delta)
 }
 
 pub fn week_start_epoch(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let zoned = timestamp.to_zoned(TIMEZONE);
     let since_monday = zoned.weekday().since(Weekday::Monday);
-    let monday = zoned.saturating_sub(jiff::Span::new().days(since_monday as i64));
+    let monday = zoned.saturating_sub(jiff::Span::new().days(i64::from(since_monday)));
     let midnight = monday.saturating_sub(
         jiff::Span::new()
-            .hours(monday.hour() as i64)
-            .minutes(monday.minute() as i64)
-            .seconds(monday.second() as i64),
+            .hours(i64::from(monday.hour()))
+            .minutes(i64::from(monday.minute()))
+            .seconds(i64::from(monday.second())),
     );
     midnight.timestamp().as_second() as u32
 }
 
 pub fn day_start_epoch(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let midnight = timestamp.to_zoned(TIMEZONE).start_of_day().unwrap();
     midnight.timestamp().as_second() as u32
 }
 
 pub fn next_day_start_epoch(day_start: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(day_start as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(day_start), 0).unwrap();
     let next = timestamp
         .to_zoned(TIMEZONE)
         .saturating_add(jiff::Span::new().days(1));
@@ -85,7 +85,7 @@ pub fn next_day_start_epoch(day_start: u32) -> u32 {
 }
 
 pub fn previous_day_start_epoch(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let yesterday = timestamp
         .to_zoned(TIMEZONE)
         .saturating_sub(jiff::Span::new().days(1));
@@ -93,7 +93,7 @@ pub fn previous_day_start_epoch(now: u32) -> u32 {
 }
 
 pub fn date_bytes(now: u32) -> [u8; 10] {
-    let timestamp = jiff::Timestamp::new(now as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let zoned = timestamp.to_zoned(TIMEZONE);
     let mut buf = [0u8; 10];
     write_digits(&mut buf[0..4], zoned.year() as u32);
@@ -130,10 +130,10 @@ impl defmt::Format for LocalTime {
     fn format(&self, formatter: defmt::Formatter) {
         defmt::write!(
             formatter,
-            "{=u8:02}:{=u8:02}:{=u8:02}.{=u8}",
-            self.zoned.hour() as u8,
-            self.zoned.minute() as u8,
-            self.zoned.second() as u8,
+            "{=i8:02}:{=i8:02}:{=i8:02}.{=u8}",
+            self.zoned.hour(),
+            self.zoned.minute(),
+            self.zoned.second(),
             self.tenth_of_second,
         );
     }
@@ -141,7 +141,7 @@ impl defmt::Format for LocalTime {
 
 fn local_time() -> jiff::Zoned {
     let epoch_secs = epoch_secs().unwrap_or(0);
-    let timestamp = jiff::Timestamp::new(epoch_secs as i64, 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(epoch_secs), 0).unwrap();
 
     timestamp.to_zoned(crate::time::TIMEZONE)
 }
@@ -157,7 +157,7 @@ fn seed_from_rtc(rtc: &Rtc) {
     let secs = (us / USEC_IN_SEC) as u32;
     if secs > MIN_VALID_EPOCH {
         set_epoch(secs);
-        let ts = Timestamp::new(secs as i64, 0).unwrap();
+        let ts = Timestamp::new(i64::from(secs), 0).unwrap();
         let z = ts.to_zoned(TIMEZONE);
         info!(
             "time: rtc seeded: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
@@ -181,7 +181,7 @@ fn log_sync(correction: Option<i64>) {
     }
 
     if let Some(epoch) = epoch_secs() {
-        let ts = Timestamp::new(epoch as i64, 0).unwrap();
+        let ts = Timestamp::new(i64::from(epoch), 0).unwrap();
         let z = ts.to_zoned(TIMEZONE);
         info!(
             "time: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
@@ -243,8 +243,8 @@ async fn sync_with_ntp(
 
     match result {
         Ok(time) => {
-            let epoch_us = (time.sec() as u64 * USEC_IN_SEC)
-                + ((time.sec_fraction() as u64 * USEC_IN_SEC) >> 32);
+            let epoch_us = (u64::from(time.sec()) * USEC_IN_SEC)
+                + ((u64::from(time.sec_fraction()) * USEC_IN_SEC) >> 32);
 
             Some(epoch_us)
         }
@@ -260,16 +260,17 @@ pub async fn ntp_task(
     stack: Stack<'static>,
     rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>,
 ) {
-    seed_from_rtc(&*rtc.lock().await);
-
-    stack.wait_config_up().await;
-
     static RECEIVE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
     static TRANSMIT_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
     static RECEIVE_METADATA: ConstStaticCell<[PacketMetadata; 16]> =
         ConstStaticCell::new([PacketMetadata::EMPTY; 16]);
     static TRANSMIT_METADATA: ConstStaticCell<[PacketMetadata; 16]> =
         ConstStaticCell::new([PacketMetadata::EMPTY; 16]);
+
+    seed_from_rtc(&*rtc.lock().await);
+
+    stack.wait_config_up().await;
+
     let receive_metadata = RECEIVE_METADATA.take();
     let receive_buffer = RECEIVE_BUFFER.take();
     let transmit_metadata = TRANSMIT_METADATA.take();
@@ -293,23 +294,19 @@ pub async fn ntp_task(
         )
         .await;
 
-        match result {
-            Ok(Some(epoch_us)) => {
-                let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
-                let correction = epoch_secs().map(|old| new_epoch as i64 - old as i64);
+        if let Ok(Some(epoch_us)) = result {
+            let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
+            let correction = epoch_secs().map(|old| i64::from(new_epoch) - i64::from(old));
 
-                rtc.lock().await.set_current_time_us(epoch_us);
-                set_epoch(new_epoch);
-                log_sync(correction);
+            rtc.lock().await.set_current_time_us(epoch_us);
+            set_epoch(new_epoch);
+            log_sync(correction);
 
-                break;
-            }
-            Ok(None) | Err(_) => {
-                failed_attempts += 1;
-                warn!("time: NTP sync attempt {} failed", failed_attempts);
-                Timer::after(Duration::from_secs(10)).await;
-            }
+            break;
         }
+        failed_attempts += 1;
+        warn!("time: NTP sync attempt {} failed", failed_attempts);
+        Timer::after(Duration::from_secs(10)).await;
     }
 
     info!("time: NTP sync complete");
@@ -319,39 +316,34 @@ pub async fn ntp_task(
 pub async fn sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
     loop {
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
-        match with_timeout(INACTIVITY, ACTIVITY.wait()).await {
-            Ok(()) => {
-                continue;
-            }
-            Err(_) => {
-                info!("time: user input timeout -> entering deep sleep");
+        if with_timeout(INACTIVITY, ACTIVITY.wait()).await.is_err() {
+            info!("time: user input timeout -> entering deep sleep");
 
-                let reed_level = {
-                    let bits = GPIO::regs().in_().read().bits();
-                    if bits & (1 << 1) != 0 {
-                        WakeupLevel::Low
-                    } else {
-                        WakeupLevel::High
-                    }
-                };
+            let reed_level = {
+                let bits = GPIO::regs().in_().read().bits();
+                if bits & (1 << 1) != 0 {
+                    WakeupLevel::Low
+                } else {
+                    WakeupLevel::High
+                }
+            };
 
-                // SAFETY: we are about to enter deep sleep, which resets the chip.
-                // No other task can access these pins before the reset.
-                let (mut gpio1, mut gpio2) = unsafe {
-                    (
-                        esp_hal::peripherals::GPIO1::steal(),
-                        esp_hal::peripherals::GPIO2::steal(),
-                    )
-                };
+            // SAFETY: we are about to enter deep sleep, which resets the chip.
+            // No other task can access these pins before the reset.
+            let (mut gpio1, mut gpio2) = unsafe {
+                (
+                    esp_hal::peripherals::GPIO1::steal(),
+                    esp_hal::peripherals::GPIO2::steal(),
+                )
+            };
 
-                let mut wake_pins = [
-                    (&mut gpio1 as &mut dyn RtcPinWithResistors, reed_level),
-                    (&mut gpio2 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
-                ];
-                let wake = RtcioWakeupSource::new(&mut wake_pins);
+            let mut wake_pins = [
+                (&mut gpio1 as &mut dyn RtcPinWithResistors, reed_level),
+                (&mut gpio2 as &mut dyn RtcPinWithResistors, WakeupLevel::Low),
+            ];
+            let wake = RtcioWakeupSource::new(&mut wake_pins);
 
-                rtc.lock().await.sleep_deep(&[&wake]);
-            }
+            rtc.lock().await.sleep_deep(&[&wake]);
         }
     }
 }

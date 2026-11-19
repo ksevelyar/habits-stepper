@@ -1,4 +1,4 @@
 ## Power
-* Samsung ICR18650-26J 2600mAh
-* tp4057
-* mcp1700
+* Samsung ICR18650-26J 2600 mAh battery
+* TP4057
+* MCP1700

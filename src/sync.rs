@@ -22,6 +22,14 @@ pub static SYNC_SIGNAL: Signal<CriticalSectionRawMutex, [DailyTotal; 2]> = Signa
 
 #[embassy_executor::task]
 pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configuration) {
+    static AUTHORIZATION: ConstStaticCell<heapless::String<512>> =
+        ConstStaticCell::new(heapless::String::new());
+    static TCP_STATE: ConstStaticCell<TcpClientState<1, 4096, 4096>> =
+        ConstStaticCell::new(TcpClientState::new());
+    static TLS_READ_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
+    static TLS_WRITE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
+    static RESPONSE_BUFFER: ConstStaticCell<[u8; 512]> = ConstStaticCell::new([0; 512]);
+
     let (Some(_metrics_url), Some(jwt_token), Some(chain_id)) = (
         configuration.metrics_url,
         configuration.jwt_token,
@@ -30,10 +38,8 @@ pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configurat
         info!("sync: disabled (backend is not configured)");
         return;
     };
-    static AUTHORIZATION: ConstStaticCell<heapless::String<512>> =
-        ConstStaticCell::new(heapless::String::new());
     let authorization = AUTHORIZATION.take();
-    if write!(authorization, "Bearer {}", jwt_token).is_err() {
+    if write!(authorization, "Bearer {jwt_token}").is_err() {
         error!("sync: authorization header is too long");
         return;
     }
@@ -41,13 +47,9 @@ pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configurat
     info!("sync: task started (chain_id={})", chain_id);
     stack.wait_config_up().await;
 
-    static TCP_STATE: ConstStaticCell<TcpClientState<1, 4096, 4096>> =
-        ConstStaticCell::new(TcpClientState::new());
     let tcp_client = TcpClient::new(stack, TCP_STATE.take());
     let dns_socket = DnsSocket::new(stack);
 
-    static TLS_READ_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
-    static TLS_WRITE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
     let mut client = HttpClient::new_with_tls(
         &tcp_client,
         &dns_socket,
@@ -59,7 +61,6 @@ pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configurat
         ),
     );
 
-    static RESPONSE_BUFFER: ConstStaticCell<[u8; 512]> = ConstStaticCell::new([0; 512]);
     let response_buffer = RESPONSE_BUFFER.take();
 
     loop {

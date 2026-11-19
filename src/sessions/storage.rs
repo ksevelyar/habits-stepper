@@ -3,8 +3,8 @@ use embedded_storage::nor_flash::{NorFlash, ReadNorFlash};
 use esp_hal::peripherals::FLASH as Flash;
 use esp_storage::FlashStorage;
 
-const SECTOR0_ADDR: u32 = 0x3F0000;
-const SECTOR1_ADDR: u32 = 0x3F1000;
+const SECTOR0_ADDR: u32 = 0x003F_0000;
+const SECTOR1_ADDR: u32 = 0x003F_1000;
 const SECTOR_SIZE: u32 = 4096;
 const SLOT_SIZE: u32 = 16;
 const SLOTS_PER_SECTOR: u16 = (SECTOR_SIZE / SLOT_SIZE) as u16;
@@ -33,7 +33,7 @@ impl<'a> FlashRing<'a> {
     }
 
     fn slot_offset(index: u16) -> u32 {
-        SECTOR0_ADDR + index as u32 * SLOT_SIZE
+        SECTOR0_ADDR + u32::from(index) * SLOT_SIZE
     }
 
     pub fn init(&mut self) {

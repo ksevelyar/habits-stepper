@@ -218,12 +218,13 @@ pub async fn display_task(
     dc: Output<'static>,
     mut reset: Output<'static>,
 ) {
+    static FRAMEBUFFER: ConstStaticCell<[u8; FB_SIZE]> = ConstStaticCell::new([0; FB_SIZE]);
+
     reset.set_low();
     Timer::after(Duration::from_millis(10)).await;
     reset.set_high();
     Timer::after(Duration::from_millis(10)).await;
 
-    static FRAMEBUFFER: ConstStaticCell<[u8; FB_SIZE]> = ConstStaticCell::new([0; FB_SIZE]);
     let mut device = Sh1122Device::new(HardSpi::new(spi, cs, dc), FRAMEBUFFER.take());
     device.init_display().ok();
 
