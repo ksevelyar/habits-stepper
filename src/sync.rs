@@ -14,14 +14,14 @@ use static_cell::ConstStaticCell;
 
 use crate::application::Configuration;
 use crate::sessions::DailyTotal;
-use crate::time::date_bytes;
+use crate::time::format_date_bytes;
 
 const TLS_SEED: u64 = 0x53_59_4E_43;
 
 pub static SYNC_SIGNAL: Signal<CriticalSectionRawMutex, [DailyTotal; 2]> = Signal::new();
 
 #[embassy_executor::task]
-pub async fn sync_task(stack: Stack<'static>, configuration: &'static Configuration) {
+pub async fn synchronize_totals(stack: Stack<'static>, configuration: &'static Configuration) {
     static AUTHORIZATION: ConstStaticCell<heapless::String<512>> =
         ConstStaticCell::new(heapless::String::new());
     static TCP_STATE: ConstStaticCell<TcpClientState<1, 4096, 4096>> =
@@ -94,7 +94,7 @@ where
         return false;
     };
 
-    let bytes = date_bytes(total.date);
+    let bytes = format_date_bytes(total.date);
     let date = core::str::from_utf8(&bytes).unwrap();
 
     let mut body: heapless::Vec<u8, 128> = heapless::Vec::new();

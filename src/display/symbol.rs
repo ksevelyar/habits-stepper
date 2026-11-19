@@ -40,7 +40,7 @@ use Segment::{
     Bottom, ColonBottom, ColonTop, LowerLeft, LowerRight, Middle, Top, UpperLeft, UpperRight,
 };
 
-const fn segment_to_rect(segment: Segment) -> Rect {
+const fn convert_segment_to_rect(segment: Segment) -> Rect {
     match segment {
         Top => Rect {
             x: BAR_X,
@@ -122,18 +122,18 @@ pub struct Symbol {
 }
 
 impl Symbol {
-    pub fn rects(&self) -> impl Iterator<Item = Rect> {
-        self.segments.iter().copied().map(segment_to_rect)
+    pub fn iterate_rectangles(&self) -> impl Iterator<Item = Rect> {
+        self.segments.iter().copied().map(convert_segment_to_rect)
     }
 
-    fn digit(value: u8, x: usize) -> Self {
+    fn create_digit(value: u8, x: usize) -> Self {
         Self {
             x,
             segments: DIGIT_SEGMENTS[(value % 10) as usize],
         }
     }
 
-    fn colon(x: usize) -> Self {
+    fn create_colon(x: usize) -> Self {
         Self {
             x,
             segments: COLON_SEGMENTS,
@@ -154,7 +154,7 @@ pub fn build_number_word(value: u32, right_x: usize) -> Word {
         let digit = ((clamped / power) % 10) as u8;
         let x = right_x.saturating_sub(DIGIT_WIDTH + DIGIT_ADVANCE * (4 - i));
 
-        Symbol::digit(digit, x)
+        Symbol::create_digit(digit, x)
     });
 
     Word { symbols, count: 5 }
@@ -169,11 +169,11 @@ pub fn build_time_word(total_minutes: u32, start_x: usize) -> Word {
 
     Word {
         symbols: [
-            Symbol::digit(hours, start_x),
-            Symbol::colon(colon_x),
-            Symbol::digit((minutes / 10) as u8, colon_right),
-            Symbol::digit((minutes % 10) as u8, colon_right + DIGIT_ADVANCE),
-            Symbol::digit(0, 0),
+            Symbol::create_digit(hours, start_x),
+            Symbol::create_colon(colon_x),
+            Symbol::create_digit((minutes / 10) as u8, colon_right),
+            Symbol::create_digit((minutes % 10) as u8, colon_right + DIGIT_ADVANCE),
+            Symbol::create_digit(0, 0),
         ],
         count: 4,
     }

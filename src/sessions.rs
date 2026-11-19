@@ -35,7 +35,7 @@ impl Sessions {
     fn load_history(&mut self, flash: &mut FlashRing<'static>) {
         flash.init();
 
-        for record in flash.sessions() {
+        for record in flash.iterate_sessions() {
             self.history
                 .push_back(Session {
                     start_epoch: record.start_epoch,
@@ -91,7 +91,7 @@ impl Sessions {
     }
 }
 
-fn minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 {
+fn calculate_minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 {
     let overlap_start = session.start_epoch.max(range_start);
     let overlap_end = session.end_epoch.min(range_end);
     if overlap_end > overlap_start {
@@ -102,11 +102,11 @@ fn minutes_in_range(session: &Session, range_start: u32, range_end: u32) -> u32 
 }
 
 pub fn make_day_minutes(sessions: &Sessions, day_start: u32) -> u32 {
-    let day_end = crate::time::next_day_start_epoch(day_start);
+    let day_end = crate::time::calculate_next_day_start(day_start);
     let mut minutes: u32 = 0;
 
     for session in sessions.history.iter().chain(sessions.current.as_ref()) {
-        minutes += minutes_in_range(session, day_start, day_end);
+        minutes += calculate_minutes_in_range(session, day_start, day_end);
     }
 
     minutes
@@ -125,13 +125,13 @@ pub enum SessionEvent {
 }
 
 pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
-    let week_start = crate::time::week_start_epoch(now);
+    let week_start = crate::time::calculate_week_start(now);
     let week_end = week_start + WEEK_SECONDS;
     let mut minutes: u32 = 0;
     let mut steps: u32 = 0;
 
     for session in sessions.history.iter().chain(sessions.current.as_ref()) {
-        minutes += minutes_in_range(session, week_start, week_end);
+        minutes += calculate_minutes_in_range(session, week_start, week_end);
         if session.end_epoch.min(week_end) >= session.start_epoch.max(week_start) {
             steps += session.steps;
         }
@@ -141,7 +141,7 @@ pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
 }
 
 #[embassy_executor::task]
-pub async fn session_task(mut flash: FlashRing<'static>) {
+pub async fn manage_sessions(mut flash: FlashRing<'static>) {
     static SESSIONS: ConstStaticCell<Sessions> = ConstStaticCell::new(Sessions {
         current: None,
         history: Deque::new(),
@@ -151,7 +151,7 @@ pub async fn session_task(mut flash: FlashRing<'static>) {
 
     loop {
         let result = with_timeout(TICK_INTERVAL, USER_INPUT_CHANNEL.receive()).await;
-        let epoch = crate::time::epoch_secs();
+        let epoch = crate::time::get_epoch_seconds();
 
         if let Some(now) = epoch {
             let completed = sessions.tick(now, &mut flash);
@@ -179,8 +179,8 @@ pub async fn session_task(mut flash: FlashRing<'static>) {
 }
 
 fn report_completed_session(sessions: &Sessions, now: u32) {
-    let today = crate::time::day_start_epoch(now);
-    let yesterday = crate::time::previous_day_start_epoch(now);
+    let today = crate::time::calculate_day_start(now);
+    let yesterday = crate::time::calculate_previous_day_start(now);
 
     crate::sync::SYNC_SIGNAL.signal([
         DailyTotal {

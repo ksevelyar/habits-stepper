@@ -43,12 +43,12 @@ async fn main(spawner: Spawner) -> ! {
 
     let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION);
 
-    spawner.spawn(wifi::connection(controller, &CONFIGURATION).unwrap());
-    spawner.spawn(wifi::net_task(runner).unwrap());
+    spawner.spawn(wifi::connect(controller, &CONFIGURATION).unwrap());
+    spawner.spawn(wifi::run_network(runner).unwrap());
     let rtc = time::RTC.init(Mutex::new(rtc));
-    spawner.spawn(time::ntp_task(stack, rtc).unwrap());
-    spawner.spawn(time::sleep_task(rtc).unwrap());
-    spawner.spawn(sync::sync_task(stack, &CONFIGURATION).unwrap());
+    spawner.spawn(time::synchronize_time(stack, rtc).unwrap());
+    spawner.spawn(time::manage_sleep(rtc).unwrap());
+    spawner.spawn(sync::synchronize_totals(stack, &CONFIGURATION).unwrap());
     let display_spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()
@@ -72,11 +72,12 @@ async fn main(spawner: Spawner) -> ! {
         InputConfig::default().with_pull(Pull::Up),
     );
 
-    spawner.spawn(user_input::reed_task(reed).unwrap());
-    spawner.spawn(user_input::history_task(history).unwrap());
-    spawner.spawn(display::display_task(display_spi, display_cs, display_dc, display_rst).unwrap());
-    let flash = storage::FlashRing::new(peripherals.FLASH);
-    spawner.spawn(sessions::session_task(flash).unwrap());
+    spawner.spawn(user_input::monitor_reed(reed).unwrap());
+    spawner.spawn(user_input::monitor_history(history).unwrap());
+    spawner
+        .spawn(display::update_display(display_spi, display_cs, display_dc, display_rst).unwrap());
+    let flash = storage::FlashRing::create(peripherals.FLASH);
+    spawner.spawn(sessions::manage_sessions(flash).unwrap());
 
     loop {
         Timer::after(Duration::from_secs(3600)).await;

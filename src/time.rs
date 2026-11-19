@@ -40,12 +40,12 @@ pub static RTC: StaticCell<Mutex<CriticalSectionRawMutex, Rtc<'static>>> = Stati
 defmt::timestamp!(
     "{}",
     LocalTime {
-        zoned: local_time(),
-        tenth_of_second: tenth_of_second(),
+        zoned: get_local_time(),
+        tenth_of_second: calculate_tenth_of_second(),
     }
 );
 
-pub fn epoch_secs() -> Option<u32> {
+pub fn get_epoch_seconds() -> Option<u32> {
     let base = EPOCH_BASE.load(Ordering::Acquire);
     if base == 0 {
         return None;
@@ -56,7 +56,7 @@ pub fn epoch_secs() -> Option<u32> {
     Some(base + delta)
 }
 
-pub fn week_start_epoch(now: u32) -> u32 {
+pub fn calculate_week_start(now: u32) -> u32 {
     let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let zoned = timestamp.to_zoned(TIMEZONE);
     let since_monday = zoned.weekday().since(Weekday::Monday);
@@ -70,13 +70,13 @@ pub fn week_start_epoch(now: u32) -> u32 {
     midnight.timestamp().as_second() as u32
 }
 
-pub fn day_start_epoch(now: u32) -> u32 {
+pub fn calculate_day_start(now: u32) -> u32 {
     let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let midnight = timestamp.to_zoned(TIMEZONE).start_of_day().unwrap();
     midnight.timestamp().as_second() as u32
 }
 
-pub fn next_day_start_epoch(day_start: u32) -> u32 {
+pub fn calculate_next_day_start(day_start: u32) -> u32 {
     let timestamp = jiff::Timestamp::new(i64::from(day_start), 0).unwrap();
     let next = timestamp
         .to_zoned(TIMEZONE)
@@ -84,7 +84,7 @@ pub fn next_day_start_epoch(day_start: u32) -> u32 {
     next.start_of_day().unwrap().timestamp().as_second() as u32
 }
 
-pub fn previous_day_start_epoch(now: u32) -> u32 {
+pub fn calculate_previous_day_start(now: u32) -> u32 {
     let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let yesterday = timestamp
         .to_zoned(TIMEZONE)
@@ -92,7 +92,7 @@ pub fn previous_day_start_epoch(now: u32) -> u32 {
     yesterday.start_of_day().unwrap().timestamp().as_second() as u32
 }
 
-pub fn date_bytes(now: u32) -> [u8; 10] {
+pub fn format_date_bytes(now: u32) -> [u8; 10] {
     let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
     let zoned = timestamp.to_zoned(TIMEZONE);
     let mut buf = [0u8; 10];
@@ -111,7 +111,7 @@ fn write_digits(buf: &mut [u8], mut value: u32) {
     }
 }
 
-fn tenth_of_second() -> u8 {
+fn calculate_tenth_of_second() -> u8 {
     if EPOCH_BASE.load(Ordering::Acquire) == 0 {
         return 0;
     }
@@ -139,8 +139,8 @@ impl defmt::Format for LocalTime {
     }
 }
 
-fn local_time() -> jiff::Zoned {
-    let epoch_secs = epoch_secs().unwrap_or(0);
+fn get_local_time() -> jiff::Zoned {
+    let epoch_secs = get_epoch_seconds().unwrap_or(0);
     let timestamp = jiff::Timestamp::new(i64::from(epoch_secs), 0).unwrap();
 
     timestamp.to_zoned(crate::time::TIMEZONE)
@@ -180,7 +180,7 @@ fn log_sync(correction: Option<i64>) {
         info!("time: synced ({=i64}s)", corr);
     }
 
-    if let Some(epoch) = epoch_secs() {
+    if let Some(epoch) = get_epoch_seconds() {
         let ts = Timestamp::new(i64::from(epoch), 0).unwrap();
         let z = ts.to_zoned(TIMEZONE);
         info!(
@@ -256,7 +256,7 @@ async fn sync_with_ntp(
 }
 
 #[embassy_executor::task]
-pub async fn ntp_task(
+pub async fn synchronize_time(
     stack: Stack<'static>,
     rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>,
 ) {
@@ -296,7 +296,7 @@ pub async fn ntp_task(
 
         if let Ok(Some(epoch_us)) = result {
             let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
-            let correction = epoch_secs().map(|old| i64::from(new_epoch) - i64::from(old));
+            let correction = get_epoch_seconds().map(|old| i64::from(new_epoch) - i64::from(old));
 
             rtc.lock().await.set_current_time_us(epoch_us);
             set_epoch(new_epoch);
@@ -313,7 +313,7 @@ pub async fn ntp_task(
 }
 
 #[embassy_executor::task]
-pub async fn sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
+pub async fn manage_sleep(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
     loop {
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
         if with_timeout(INACTIVITY, ACTIVITY.wait()).await.is_err() {

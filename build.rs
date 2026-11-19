@@ -25,14 +25,14 @@ fn main() {
     println!("cargo:rerun-if-env-changed=JWT_TOKEN");
     println!("cargo:rerun-if-env-changed=CHAIN_ID");
 
-    linker_be_nice();
+    configure_linker();
     println!("cargo:rustc-link-arg-tests=-Tembedded-test.x");
     println!("cargo:rustc-link-arg=-Tdefmt.x");
     // make sure linkall.x is the last linker script (otherwise might cause problems with flip-link)
     println!("cargo:rustc-link-arg=-Tlinkall.x");
 }
 
-fn linker_be_nice() {
+fn configure_linker() {
     let args: Vec<String> = std::env::args().collect();
     if args.len() > 1 {
         let kind = &args[1];

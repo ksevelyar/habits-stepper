@@ -24,7 +24,7 @@ pub struct FlashRing<'a> {
 }
 
 impl<'a> FlashRing<'a> {
-    pub fn new(flash: Flash<'a>) -> Self {
+    pub fn create(flash: Flash<'a>) -> Self {
         Self {
             flash: FlashStorage::new(flash),
             head: 0,
@@ -32,7 +32,7 @@ impl<'a> FlashRing<'a> {
         }
     }
 
-    fn slot_offset(index: u16) -> u32 {
+    fn calculate_slot_offset(index: u16) -> u32 {
         SECTOR0_ADDR + u32::from(index) * SLOT_SIZE
     }
 
@@ -43,7 +43,7 @@ impl<'a> FlashRing<'a> {
         let mut count = 0u16;
 
         for index in 0..SLOT_COUNT {
-            if !self.slot_is_empty(index) {
+            if !self.is_slot_empty(index) {
                 count += 1;
             } else if first_empty.is_none() {
                 first_empty = Some(index);
@@ -59,8 +59,8 @@ impl<'a> FlashRing<'a> {
         );
     }
 
-    fn slot_is_empty(&mut self, index: u16) -> bool {
-        let offset = Self::slot_offset(index);
+    fn is_slot_empty(&mut self, index: u16) -> bool {
+        let offset = Self::calculate_slot_offset(index);
         let mut buf = [0u8; 4];
         if let Err(e) = self.flash.read(offset, &mut buf) {
             error!(
@@ -73,12 +73,12 @@ impl<'a> FlashRing<'a> {
         u32::from_le_bytes(buf) == u32::MAX
     }
 
-    fn slot_at(&mut self, index: u16) -> SessionRecord {
-        let offset = Self::slot_offset(index);
+    fn read_slot(&mut self, index: u16) -> SessionRecord {
+        let offset = Self::calculate_slot_offset(index);
         let mut buf = [0u8; 16];
         if let Err(e) = self.flash.read(offset, &mut buf) {
             error!(
-                "storage: slot_at[{}] read failed: {}",
+                "storage: read_slot[{}] read failed: {}",
                 index,
                 defmt::Debug2Format(&e)
             );
@@ -116,7 +116,7 @@ impl<'a> FlashRing<'a> {
         buf[4..8].copy_from_slice(&end_epoch.to_le_bytes());
         buf[8..12].copy_from_slice(&steps.to_le_bytes());
 
-        let offset = Self::slot_offset(index);
+        let offset = Self::calculate_slot_offset(index);
         if let Err(e) = self.flash.write(offset, &buf) {
             info!("storage: write failed: {}", defmt::Debug2Format(&e));
         }
@@ -129,7 +129,7 @@ impl<'a> FlashRing<'a> {
         evicted
     }
 
-    pub fn sessions(&mut self) -> impl Iterator<Item = SessionRecord> + '_ {
+    pub fn iterate_sessions(&mut self) -> impl Iterator<Item = SessionRecord> + '_ {
         let count = self.count;
         let archive_is_sector1 = self.head < SLOTS_PER_SECTOR && count >= SLOTS_PER_SECTOR;
         let mut logical_index = 0;
@@ -145,7 +145,7 @@ impl<'a> FlashRing<'a> {
                 logical_index
             };
             logical_index += 1;
-            Some(self.slot_at(index))
+            Some(self.read_slot(index))
         })
     }
 

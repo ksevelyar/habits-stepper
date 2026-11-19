@@ -69,7 +69,7 @@ fn configure_transmit_power(
 }
 
 #[embassy_executor::task]
-pub async fn connection(
+pub async fn connect(
     mut controller: WifiController<'static>,
     configuration: &'static Configuration,
 ) {
@@ -125,6 +125,6 @@ async fn wait_for_disconnect(controller: &mut WifiController<'static>) {
 }
 
 #[embassy_executor::task]
-pub async fn net_task(mut runner: Runner<'static, Interface<'static>>) {
+pub async fn run_network(mut runner: Runner<'static, Interface<'static>>) {
     runner.run().await;
 }

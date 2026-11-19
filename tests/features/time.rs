@@ -2,7 +2,7 @@
 #[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
 mod tests {
     use defmt::assert_eq;
-    use habits_stepper::time::{date_bytes, day_start_epoch};
+    use habits_stepper::time::{calculate_day_start, format_date_bytes};
 
     #[init]
     fn init() {
@@ -28,7 +28,7 @@ mod tests {
             .timestamp()
             .as_second() as u32;
 
-        assert_eq!(day_start_epoch(now), expected);
+        assert_eq!(calculate_day_start(now), expected);
     }
 
     #[test]
@@ -39,8 +39,8 @@ mod tests {
             .unwrap();
         let now = ts.timestamp().as_second() as u32;
 
-        assert_eq!(date_bytes(now), *b"2026-08-09");
-        assert_eq!(date_bytes(day_start_epoch(now)), *b"2026-08-09");
+        assert_eq!(format_date_bytes(now), *b"2026-08-09");
+        assert_eq!(format_date_bytes(calculate_day_start(now)), *b"2026-08-09");
     }
 
     #[test]
@@ -51,6 +51,6 @@ mod tests {
             .unwrap();
         let now = ts.timestamp().as_second() as u32;
 
-        assert_eq!(date_bytes(now), *b"2026-08-10");
+        assert_eq!(format_date_bytes(now), *b"2026-08-10");
     }
 }
