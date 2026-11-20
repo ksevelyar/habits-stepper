@@ -1,4 +1,4 @@
-use defmt::{error, info};
+use defmt::info;
 use embedded_storage::nor_flash::{NorFlash, ReadNorFlash};
 use esp_hal::peripherals::FLASH as Flash;
 use esp_storage::FlashStorage;
@@ -57,27 +57,18 @@ impl<'a> FlashRing<'a> {
     fn is_slot_empty(&mut self, index: u16) -> bool {
         let offset = Self::calculate_slot_offset(index);
         let mut buf = [0u8; 4];
-        if let Err(e) = self.flash.read(offset, &mut buf) {
-            error!(
-                "storage: slot[{}] read failed: {:?}",
-                index,
-                defmt::Debug2Format(&e)
-            );
-            return true;
-        }
+        self.flash
+            .read(offset, &mut buf)
+            .expect("flash slot state should be readable");
         u32::from_le_bytes(buf) == u32::MAX
     }
 
     fn read_slot(&mut self, index: u16) -> Session {
         let offset = Self::calculate_slot_offset(index);
         let mut buf = [0u8; 16];
-        if let Err(e) = self.flash.read(offset, &mut buf) {
-            error!(
-                "storage: read_slot[{}] read failed: {}",
-                index,
-                defmt::Debug2Format(&e)
-            );
-        }
+        self.flash
+            .read(offset, &mut buf)
+            .expect("stored session should be readable");
         Session {
             start_epoch: u32::from_le_bytes(buf[0..4].try_into().unwrap()),
             end_epoch: u32::from_le_bytes(buf[4..8].try_into().unwrap()),
@@ -93,11 +84,10 @@ impl<'a> FlashRing<'a> {
                 (SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE)
             };
 
-            if let Err(e) = self.flash.erase(start, end) {
-                error!("storage: archive erase failed: {}", defmt::Debug2Format(&e));
-            } else {
-                info!("storage: archive erased, rotating sectors");
-            }
+            self.flash
+                .erase(start, end)
+                .expect("flash archive should be erasable");
+            info!("storage: archive erased, rotating sectors");
 
             self.count -= SLOTS_PER_SECTOR;
             SLOTS_PER_SECTOR
@@ -112,9 +102,9 @@ impl<'a> FlashRing<'a> {
         buf[8..12].copy_from_slice(&steps.to_le_bytes());
 
         let offset = Self::calculate_slot_offset(index);
-        if let Err(e) = self.flash.write(offset, &buf) {
-            info!("storage: write failed: {}", defmt::Debug2Format(&e));
-        }
+        self.flash
+            .write(offset, &buf)
+            .expect("session should be writable to flash");
 
         self.head = match index {
             index if index == SLOT_COUNT - 1 => 0,
@@ -149,18 +139,12 @@ impl<'a> FlashRing<'a> {
     }
 
     pub fn erase_all(&mut self) {
-        if let Err(e) = self.flash.erase(SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE) {
-            error!(
-                "storage: erase_all sector 0 failed: {}",
-                defmt::Debug2Format(&e)
-            );
-        }
-        if let Err(e) = self.flash.erase(SECTOR1_ADDR, SECTOR1_ADDR + SECTOR_SIZE) {
-            error!(
-                "storage: erase_all sector 1 failed: {}",
-                defmt::Debug2Format(&e)
-            );
-        }
+        self.flash
+            .erase(SECTOR0_ADDR, SECTOR0_ADDR + SECTOR_SIZE)
+            .expect("flash sector 0 should be erasable");
+        self.flash
+            .erase(SECTOR1_ADDR, SECTOR1_ADDR + SECTOR_SIZE)
+            .expect("flash sector 1 should be erasable");
         self.head = 0;
         self.count = 0;
     }
