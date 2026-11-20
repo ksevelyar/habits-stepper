@@ -1,6 +1,10 @@
 ## Style
+* economy of complexity is main architecture goal
 * Prefer `expect` over `unwrap` to document invariants
 * Use Rust edition 2024. `mod.rs` is forbidden
+
+## Embedded
+* static dispatch is preferable
 
 ## Tests
 * Only feature tests are allowed

@@ -33,7 +33,7 @@
 
           buildInputs = with pkgs; [
             (rust-bin.nightly.latest.default.override {
-              extensions = ["rust-src"];
+              extensions = ["rust-src" "rust-analyzer"];
               targets = ["riscv32imc-unknown-none-elf"];
             })
 
@@ -57,7 +57,6 @@
             probe-rs-tools
             esp-generate
             cargo-udeps
-            rust-analyzer
           ];
         };
       }

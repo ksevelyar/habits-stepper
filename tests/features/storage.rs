@@ -20,9 +20,7 @@ mod tests {
 
     #[test]
     #[timeout(5)]
-    async fn preserves_sessions_across_sector_rotations(
-        flash: esp_hal::peripherals::FLASH<'static>,
-    ) {
+    fn preserves_sessions_across_sector_rotations(flash: esp_hal::peripherals::FLASH<'static>) {
         let mut ring = create_erased_ring(flash);
 
         assert_eq!(
@@ -80,7 +78,7 @@ mod tests {
 
     #[test]
     #[timeout(5)]
-    async fn preserves_sessions_across_sector_rotations_after_reinitialization(
+    fn preserves_sessions_across_sector_rotations_after_reinitialization(
         flash: esp_hal::peripherals::FLASH<'static>,
     ) {
         let mut ring = create_erased_ring(flash);
@@ -152,8 +150,8 @@ mod tests {
     ) -> u16 {
         let mut evicted = 0;
         for session_index in session_indexes {
-            evicted +=
-                ring.write_session(session_index as u32, session_index as u32 + 1, step_count);
+            let session_index = u32::from(session_index);
+            evicted += ring.write_session(session_index, session_index + 1, step_count);
         }
         evicted
     }

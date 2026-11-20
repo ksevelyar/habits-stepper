@@ -1,4 +1,5 @@
 use defmt::{error, info, warn};
+use embassy_futures::select::select;
 use embassy_net::{Runner, Stack, StackResources};
 use embassy_time::{Duration, Timer};
 use esp_hal::rng::Rng;
@@ -8,6 +9,13 @@ use static_cell::ConstStaticCell;
 use esp_radio::wifi::{Config, ControllerConfig, WifiController, sta::StationConfig};
 
 use crate::application::Configuration;
+use core::sync::atomic::{AtomicBool, Ordering};
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::signal::Signal;
+
+static NETWORK_READY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+pub static STOP_WIFI: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+pub static DHCP_STARTED: AtomicBool = AtomicBool::new(false);
 
 extern crate alloc;
 
@@ -68,63 +76,99 @@ fn configure_transmit_power(
         .expect("Failed to set max TX power");
 }
 
-#[embassy_executor::task]
-pub async fn connect(
-    mut controller: WifiController<'static>,
-    configuration: &'static Configuration,
+pub trait WifiConnection {
+    fn connect(&mut self) -> impl core::future::Future<Output = bool>;
+    fn wait_for_disconnect(&mut self) -> impl core::future::Future<Output = ()>;
+}
+
+impl WifiConnection for WifiController<'static> {
+    async fn connect(&mut self) -> bool {
+        match self.connect_async().await {
+            Ok(info) => {
+                info!("wifi: connected to \"{}\"", info.ssid.as_str());
+                true
+            }
+            Err(error) => {
+                if let esp_radio::wifi::WifiError::Disconnected(info) = error {
+                    error!(
+                        "wifi: disconnected: SSID: \"{}\", reason: {:?}, RSSI: {}",
+                        info.ssid.as_str(),
+                        info.reason,
+                        info.rssi,
+                    );
+                } else {
+                    error!("wifi: connection failed: {:?}", error);
+                }
+                false
+            }
+        }
+    }
+
+    async fn wait_for_disconnect(&mut self) {
+        match self.wait_for_disconnect_async().await {
+            Ok(info) => {
+                info!(
+                    "wifi: disconnected from \"{}\" (reason: {:?}, rssi: {})",
+                    info.ssid.as_str(),
+                    info.reason,
+                    info.rssi,
+                );
+            }
+            Err(error) => warn!("wifi: disconnect wait failed: {:?}", error),
+        }
+    }
+}
+
+pub async fn maintain_connection<Connection: WifiConnection>(
+    controller: &mut Connection,
+    configuration: &Configuration,
 ) {
     let mut failed_attempts: u32 = 0;
-
     loop {
         info!("wifi: connecting to \"{}\"", configuration.ssid);
-
-        match controller.connect_async().await {
-            Ok(info) => {
-                failed_attempts = 0;
-                info!("wifi: connected to \"{}\"", info.ssid.as_str());
-
-                wait_for_disconnect(&mut controller).await;
+        if controller.connect().await {
+            failed_attempts = 0;
+            if !DHCP_STARTED.load(Ordering::Acquire) {
+                crate::display::show_startup(crate::display::StartupStage::Dhcp).await;
+                DHCP_STARTED.store(true, Ordering::Release);
+                NETWORK_READY.signal(());
             }
-            Err(err) => {
-                failed_attempts += 1;
-                warn!("wifi: connection attempt {} failed", failed_attempts);
-                match err {
-                    esp_radio::wifi::WifiError::Disconnected(info) => {
-                        error!(
-                            "wifi: disconnected: SSID: \"{}\", reason: {:?}, RSSI: {}",
-                            info.ssid.as_str(),
-                            info.reason,
-                            info.rssi,
-                        );
-                    }
-                    _ => {
-                        error!("wifi: connection failed: {:?}", err);
-                    }
-                }
-            }
+            controller.wait_for_disconnect().await;
+        } else {
+            failed_attempts += 1;
+            warn!("wifi: connection attempt {} failed", failed_attempts);
         }
-
-        Timer::after(Duration::from_millis(5000)).await;
+        Timer::after(Duration::from_millis(2000)).await;
     }
 }
 
-async fn wait_for_disconnect(controller: &mut WifiController<'static>) {
-    match controller.wait_for_disconnect_async().await {
-        Ok(info) => {
-            info!(
-                "wifi: disconnected from \"{}\" (reason: {:?}, rssi: {})",
-                info.ssid.as_str(),
-                info.reason,
-                info.rssi,
-            );
-        }
-        Err(error) => {
-            warn!("wifi: disconnect wait failed: {:?}", error);
-        }
-    }
+pub async fn run_wifi_connection<Connection: WifiConnection>(
+    mut controller: Connection,
+    configuration: &'static Configuration,
+) {
+    crate::display::show_startup(crate::display::StartupStage::Wifi).await;
+    let connection = maintain_connection(&mut controller, configuration);
+    let shutdown = async {
+        STOP_WIFI.wait().await;
+        info!("wifi: stopping after time synchronization");
+    };
+    select(connection, shutdown).await;
+}
+
+pub async fn wait_for_network_start() {
+    NETWORK_READY.wait().await;
 }
 
 #[embassy_executor::task]
-pub async fn run_network(mut runner: Runner<'static, Interface<'static>>) {
+pub async fn run_wifi_task(
+    controller: WifiController<'static>,
+    configuration: &'static Configuration,
+) {
+    run_wifi_connection(controller, configuration).await;
+}
+
+#[embassy_executor::task]
+pub async fn run_network_task(mut runner: Runner<'static, Interface<'static>>) {
+    wait_for_network_start().await;
     runner.run().await;
 }

@@ -1,11 +1,12 @@
 pub mod storage;
 
+use core::sync::atomic::Ordering;
 use defmt::info;
 use embassy_time::{Duration, with_timeout};
 use heapless::Deque;
 use static_cell::ConstStaticCell;
 
-use crate::display::DISPLAY_CHANNEL;
+use crate::display::{DISPLAY_CHANNEL, DisplayEvent};
 use crate::user_input::{GpioEvent, USER_INPUT_CHANNEL};
 use storage::{FlashRing, SLOT_COUNT};
 
@@ -35,14 +36,8 @@ impl Sessions {
     fn load_history(&mut self, flash: &mut FlashRing<'static>) {
         flash.init();
 
-        for record in flash.iterate_sessions() {
-            self.history
-                .push_back(Session {
-                    start_epoch: record.start_epoch,
-                    end_epoch: record.end_epoch,
-                    steps: record.steps,
-                })
-                .unwrap();
+        for session in flash.iterate_sessions() {
+            self.history.push_back(session).unwrap();
         }
     }
 
@@ -112,16 +107,10 @@ pub fn make_day_minutes(sessions: &Sessions, day_start: u32) -> u32 {
     minutes
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct WeekTotals {
     pub minutes: u32,
     pub steps: u32,
-}
-
-#[derive(Clone)]
-pub enum SessionEvent {
-    Update(WeekTotals),
-    History(WeekTotals),
 }
 
 pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
@@ -141,7 +130,7 @@ pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
 }
 
 #[embassy_executor::task]
-pub async fn manage_sessions(mut flash: FlashRing<'static>) {
+pub async fn run_sessions_task(mut flash: FlashRing<'static>) {
     static SESSIONS: ConstStaticCell<Sessions> = ConstStaticCell::new(Sessions {
         current: None,
         history: Deque::new(),
@@ -165,12 +154,20 @@ pub async fn manage_sessions(mut flash: FlashRing<'static>) {
                     if matches!(event, GpioEvent::StepDetected) {
                         sessions.trigger(now);
                     }
-                    let totals = make_week_totals(sessions, now);
-                    DISPLAY_CHANNEL.send(SessionEvent::Update(totals)).await;
+                    if crate::time::TIME_SYNCHRONIZED.load(Ordering::Acquire) {
+                        let totals = make_week_totals(sessions, now);
+                        DISPLAY_CHANNEL.send(DisplayEvent::Update(totals)).await;
+                    }
                 }
                 Ok(GpioEvent::HistoryPressed) => {
-                    let totals = make_week_totals(sessions, now.saturating_sub(WEEK_SECONDS));
-                    DISPLAY_CHANNEL.send(SessionEvent::History(totals)).await;
+                    if crate::time::TIME_SYNCHRONIZED.load(Ordering::Acquire) {
+                        let totals = make_week_totals(sessions, now.saturating_sub(WEEK_SECONDS));
+                        DISPLAY_CHANNEL.send(DisplayEvent::History(totals)).await;
+                    }
+                }
+                Ok(GpioEvent::TimeSynchronized) => {
+                    let totals = make_week_totals(sessions, now);
+                    DISPLAY_CHANNEL.send(DisplayEvent::Update(totals)).await;
                 }
                 Err(_) => {}
             }

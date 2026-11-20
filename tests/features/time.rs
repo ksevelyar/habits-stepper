@@ -14,7 +14,7 @@ mod tests {
     }
 
     #[test]
-    async fn day_start_matches_local_midnight() {
+    fn day_start_matches_local_midnight() {
         let noon = jiff::civil::date(2026, 8, 9)
             .at(14, 30, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
@@ -32,7 +32,7 @@ mod tests {
     }
 
     #[test]
-    async fn date_bytes_formats_iso_date() {
+    fn date_bytes_formats_iso_date() {
         let ts = jiff::civil::date(2026, 8, 9)
             .at(23, 45, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
@@ -44,7 +44,7 @@ mod tests {
     }
 
     #[test]
-    async fn date_bytes_after_midnight_is_next_day() {
+    fn date_bytes_after_midnight_is_next_day() {
         let ts = jiff::civil::date(2026, 8, 10)
             .at(0, 0, 30, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)

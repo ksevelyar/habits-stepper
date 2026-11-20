@@ -19,14 +19,13 @@ use panic_rtt_target as _;
 use defmt::info;
 use embassy_executor::Spawner;
 use embassy_sync::mutex::Mutex;
-use embassy_time::{Duration, Timer};
 
 extern crate alloc;
 
 esp_bootloader_esp_idf::esp_app_desc!();
 
 #[esp_rtos::main]
-async fn main(spawner: Spawner) -> ! {
+async fn main(spawner: Spawner) {
     rtt_target::rtt_init_defmt!();
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
@@ -41,28 +40,22 @@ async fn main(spawner: Spawner) -> ! {
     esp_rtos::start(timg0.timer0, sw_interrupt.software_interrupt0);
     info!("init: embassy initialized");
 
-    let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION);
-
-    spawner.spawn(wifi::connect(controller, &CONFIGURATION).unwrap());
-    spawner.spawn(wifi::run_network(runner).unwrap());
     let rtc = time::RTC.init(Mutex::new(rtc));
-    spawner.spawn(time::synchronize_time(stack, rtc).unwrap());
-    spawner.spawn(time::manage_sleep(rtc).unwrap());
-    spawner.spawn(sync::synchronize_totals(stack, &CONFIGURATION).unwrap());
     let display_spi = Spi::new(
         peripherals.SPI2,
         SpiConfig::default()
             .with_frequency(Rate::from_mhz(4))
             .with_mode(Mode::_0),
     )
-    .unwrap()
+    .expect("initialize display SPI")
     .with_sck(peripherals.GPIO5)
     .with_mosi(peripherals.GPIO6);
-
-    let display_cs = Output::new(peripherals.GPIO10, Level::High, OutputConfig::default());
-    let display_dc = Output::new(peripherals.GPIO9, Level::Low, OutputConfig::default());
-    let display_rst = Output::new(peripherals.GPIO7, Level::High, OutputConfig::default());
-
+    let display = display::DisplayHardware {
+        spi: display_spi,
+        chip_select: Output::new(peripherals.GPIO10, Level::High, OutputConfig::default()),
+        data_command: Output::new(peripherals.GPIO9, Level::Low, OutputConfig::default()),
+        reset: Output::new(peripherals.GPIO7, Level::High, OutputConfig::default()),
+    };
     let reed = Input::new(
         peripherals.GPIO1,
         InputConfig::default().with_pull(Pull::Up),
@@ -71,15 +64,18 @@ async fn main(spawner: Spawner) -> ! {
         peripherals.GPIO2,
         InputConfig::default().with_pull(Pull::Up),
     );
-
-    spawner.spawn(user_input::monitor_reed(reed).unwrap());
-    spawner.spawn(user_input::monitor_history(history).unwrap());
-    spawner
-        .spawn(display::update_display(display_spi, display_cs, display_dc, display_rst).unwrap());
     let flash = storage::FlashRing::create(peripherals.FLASH);
-    spawner.spawn(sessions::manage_sessions(flash).unwrap());
 
-    loop {
-        Timer::after(Duration::from_secs(3600)).await;
-    }
+    let (controller, stack, runner) = wifi::init(peripherals.WIFI, &CONFIGURATION);
+
+    time::seed_from_rtc(&*rtc.lock().await);
+    spawner.spawn(time::run_sleep_task(rtc).expect("create sleep task"));
+    spawner.spawn(user_input::run_reed_task(reed).expect("create reed task"));
+    spawner.spawn(user_input::run_history_task(history).expect("create history task"));
+    spawner.spawn(display::run_display_task(display).expect("create display task"));
+    spawner.spawn(sessions::run_sessions_task(flash).expect("create sessions task"));
+    spawner.spawn(wifi::run_wifi_task(controller, &CONFIGURATION).expect("create Wi-Fi task"));
+    spawner.spawn(wifi::run_network_task(runner).expect("create network task"));
+    spawner.spawn(time::run_sync_time_task(stack, rtc, &CONFIGURATION).expect("create time task"));
+    spawner.spawn(sync::run_sync_totals_task(stack, &CONFIGURATION).expect("create sync task"));
 }
