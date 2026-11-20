@@ -38,7 +38,7 @@ mod tests {
     }
 
     fn build_test_application(configuration: &'static Configuration) -> Application {
-        let week_start = time::calculate_week_start(CURRENT_EPOCH);
+        let week_start = time::calculate_week_range(CURRENT_EPOCH).start;
         let sessions = [
             Session {
                 start_epoch: week_start - 660,
