@@ -1,27 +1,19 @@
 #[cfg(test)]
 #[embedded_test::tests(executor = esp_rtos::embassy::Executor::new())]
 mod tests {
-    use crate::features::simulated_esp32::display::DisplayEvents;
-    use crate::features::simulated_esp32::time::TimeNetwork;
-    use crate::features::simulated_esp32::wifi::WifiController;
-    use crate::features::simulated_esp32::{Application, run_application};
-    use core::sync::atomic::{AtomicBool, Ordering};
+    use crate::features::simulated_esp32::{
+        Application, DISPLAY_EVENTS, WIFI_CONNECTED, build_application, run_application,
+    };
+    use core::sync::atomic::Ordering;
     use embassy_executor::Spawner;
     use embassy_sync::mutex::Mutex;
     use embassy_time::{Duration, Timer};
-    use esp_hal::gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull};
     use esp_hal::rtc_cntl::Rtc;
-    use esp_hal::spi::Mode;
-    use esp_hal::spi::master::{Config as SpiConfig, Spi};
-    use esp_hal::time::Rate;
     use habits_stepper::application::Configuration;
-    use habits_stepper::display::{DisplayEvent, DisplayHardware, StartupStage};
-    use habits_stepper::sessions::WeekTotals;
-    use habits_stepper::sessions::storage::FlashRing;
+    use habits_stepper::display::{DisplayEvent, StartupStage};
+    use habits_stepper::sessions::{Session, WeekTotals};
     use habits_stepper::time;
 
-    static WIFI_CONNECTED: AtomicBool = AtomicBool::new(false);
-    static DISPLAY_EVENTS: DisplayEvents = DisplayEvents::new();
     static CONFIGURATION: Configuration = Configuration {
         ssid: "skynet",
         pass: "test password",
@@ -46,62 +38,20 @@ mod tests {
     }
 
     fn build_test_application(configuration: &'static Configuration) -> Application {
-        let peripherals = esp_hal::init(esp_hal::Config::default());
-        let timer = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG0);
-        let interrupts =
-            esp_hal::interrupt::software::SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
-        esp_rtos::start(timer.timer0, interrupts.software_interrupt0);
-        esp_alloc::heap_allocator!(size: 32768);
-
-        DISPLAY_EVENTS.clear();
-        let rtc = Rtc::new(peripherals.LPWR);
-        rtc.set_current_time_us(0);
-        let rtc = time::RTC.init(Mutex::new(rtc));
-
-        let mut flash = FlashRing::create(peripherals.FLASH);
-        flash.erase_all();
-        flash.init();
         let week_start = time::calculate_week_start(CURRENT_EPOCH);
-        flash.write_session(week_start + 60, week_start + 660, 120);
-        flash.write_session(week_start - 660, week_start - 60, 500);
-
-        let display_spi = Spi::new(
-            peripherals.SPI2,
-            SpiConfig::default()
-                .with_frequency(Rate::from_mhz(4))
-                .with_mode(Mode::_0),
-        )
-        .expect("initialize display SPI")
-        .with_sck(peripherals.GPIO5)
-        .with_mosi(peripherals.GPIO6);
-        let display = DisplayHardware {
-            spi: display_spi,
-            chip_select: Output::new(peripherals.GPIO10, Level::High, OutputConfig::default()),
-            data_command: Output::new(peripherals.GPIO9, Level::Low, OutputConfig::default()),
-            reset: Output::new(peripherals.GPIO7, Level::High, OutputConfig::default()),
-        };
-        let reed = Input::new(
-            peripherals.GPIO1,
-            InputConfig::default().with_pull(Pull::Up),
-        );
-        let history = Input::new(
-            peripherals.GPIO2,
-            InputConfig::default().with_pull(Pull::Up),
-        );
-        Application {
-            configuration,
-            wifi: WifiController {
-                connected: &WIFI_CONNECTED,
+        let sessions = [
+            Session {
+                start_epoch: week_start - 660,
+                end_epoch: week_start - 60,
+                steps: 500,
             },
-            time: TimeNetwork {
-                epoch_microseconds: u64::from(CURRENT_EPOCH) * 1_000_000,
+            Session {
+                start_epoch: week_start + 60,
+                end_epoch: week_start + 660,
+                steps: 120,
             },
-            display: (display, &DISPLAY_EVENTS),
-            rtc,
-            reed,
-            history,
-            flash,
-        }
+        ];
+        build_application(configuration, CURRENT_EPOCH, &sessions)
     }
 
     #[test]

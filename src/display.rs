@@ -1,4 +1,4 @@
-use defmt::info;
+use defmt::{error, info};
 use embassy_time::{Duration, Timer};
 use esp_hal::gpio::Output;
 use esp_hal::spi::master::Spi;
@@ -358,7 +358,9 @@ pub async fn initialize_display(mut hardware: DisplayHardware) -> Sh1122Device<'
         HardSpi::create(hardware.spi, hardware.chip_select, hardware.data_command),
         FRAMEBUFFER.take(),
     );
-    device.init_display().ok();
+    if let Err(display_error) = device.init_display() {
+        error!("display: initialization failed: {}", display_error);
+    }
 
     device
 }

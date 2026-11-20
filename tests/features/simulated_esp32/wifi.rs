@@ -7,6 +7,8 @@ use embassy_time::{Duration, Timer};
 use habits_stepper::application::Configuration;
 use habits_stepper::wifi::WifiConnection;
 
+const NETWORK_DELAY: Duration = Duration::from_millis(100);
+
 pub(super) static CONFIGURATION_READY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
 pub(super) static NETWORK_REQUESTS: Channel<CriticalSectionRawMutex, NetworkRequest, 2> =
     Channel::new();
@@ -23,7 +25,7 @@ pub struct WifiController {
 
 impl WifiConnection for WifiController {
     async fn connect(&mut self) -> bool {
-        Timer::after(Duration::from_secs(2)).await;
+        Timer::after(NETWORK_DELAY).await;
         self.connected.store(true, Ordering::Release);
         true
     }
@@ -47,12 +49,12 @@ pub async fn run_wifi_task(controller: WifiController, configuration: &'static C
 #[embassy_executor::task]
 pub async fn run_network_task() {
     habits_stepper::wifi::wait_for_network_start().await;
-    Timer::after(Duration::from_secs(1)).await;
+    Timer::after(NETWORK_DELAY).await;
     CONFIGURATION_READY.signal(());
     super::sync::CONFIGURATION_READY.signal(());
     loop {
         let _request = NETWORK_REQUESTS.receive().await;
-        Timer::after(Duration::from_secs(1)).await;
+        Timer::after(NETWORK_DELAY).await;
         NETWORK_RESPONSE.signal(());
     }
 }

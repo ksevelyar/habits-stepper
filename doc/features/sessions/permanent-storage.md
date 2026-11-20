@@ -15,17 +15,23 @@
 5. The display shows 30 minutes and 300 steps.
 
 ### 2. User sees recent activity after recording 512 sessions
-1. The user has recorded 511 sessions over several months. The oldest 256 sessions were recorded before last week. Last week's total is 30 minutes and 300 steps, and this week's total is 20 minutes and 200 steps.
-2. The user records another session of 5 minutes and 50 steps.
-3. After the session ends, the user checks the current week's totals: 25 minutes and 250 steps.
-4. The user presses the history button and sees 30 minutes and 300 steps.
+1. The user has recorded 511 sessions last week. The oldest 256 sessions contain 256 steps and the newer 255 contain 510 steps.
+2. The user checks history and sees 766 steps.
+3. The user records another session of 5 minutes and 50 steps.
+4. The display shows 5 minutes and 50 steps. History shows 510 steps.
+5. The device restarts. The same totals are displayed.
+6. The user records another session of 1 minute and 10 steps.
+7. The display shows 6 minutes and 60 steps. History still shows 510 steps.
 
 ### 3. User sees recent activity after a restart and storage rotation
 1. The user records 257 sessions and the device restarts.
-2. Over the following months, the user records 254 more sessions. Last week's total is 30 minutes and 300 steps, and this week's total is 20 minutes and 200 steps.
-3. The user records another session of 5 minutes and 50 steps.
-4. After the session ends, the display shows 25 minutes and 250 steps for the current week.
-5. The user presses the history button and sees 30 minutes and 300 steps.
+2. The user records 254 more sessions last week. The oldest 256 sessions contain 256 steps and the newer 255 contain 510 steps.
+3. The user checks history and sees 766 steps.
+4. The user records another session of 5 minutes and 50 steps.
+5. The display shows 5 minutes and 50 steps. History shows 510 steps.
+6. The device restarts. The same totals are displayed.
+7. The user records another session of 1 minute and 10 steps.
+8. The display shows 6 minutes and 60 steps. History still shows 510 steps.
 
 ## Implementation
 

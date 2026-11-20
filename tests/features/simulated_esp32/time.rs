@@ -9,6 +9,12 @@ use super::wifi::{CONFIGURATION_READY, NETWORK_REQUESTS, NETWORK_RESPONSE, Netwo
 
 pub use habits_stepper::time::{run_sleep_task, seed_from_rtc};
 
+pub async fn set_time(rtc: &Mutex<CriticalSectionRawMutex, Rtc<'static>>, epoch: u32) {
+    let rtc = rtc.lock().await;
+    rtc.set_current_time_us(u64::from(epoch) * 1_000_000);
+    seed_from_rtc(&rtc);
+}
+
 pub struct TimeNetwork {
     pub epoch_microseconds: u64,
 }
