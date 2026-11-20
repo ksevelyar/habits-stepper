@@ -12,18 +12,14 @@ Automatically tracks workouts and sends them to a JSON backend over Wi-Fi. NTP s
 * 3D-printed case with a 256x64 OLED display
 
 ## Documentation
-* [Project boundaries](doc/boundaries.md)
-* [Debugging](doc/debug.md)
 * [Deep sleep](doc/features/deep-sleep.md)
 * [Time synchronization](doc/features/time-sync.md)
 * [Session tracking](doc/features/sessions/tracking.md)
 * [Permanent session storage](doc/features/sessions/permanent-storage.md)
 * [Backend sync](doc/features/sessions/backend-sync.md)
 * [Mechanical maintenance](doc/hardware/mechanical-maintenance.md)
-* [Power](doc/hardware/power.md)
 * [Wiring](doc/hardware/wiring.md)
-* [ESP32-C3 SuperMini datasheet](doc/hardware/ESP32-C3-SuperMini-datasheet.pdf)
-* [MCP1700 datasheet](doc/hardware/MCP1700.pdf)
+* [Project boundaries](doc/boundaries.md)
 
 ## Tests
 Tests require a connected MCU.
@@ -51,4 +47,12 @@ JWT_TOKEN="<jwt-token>" SSID="skynet-2" PASS="<pass>" METRICS_URL="https://api.h
 22:40:17.0 [INFO ] time: Europe/Moscow 2026-11-20 22:40:17
 22:40:17.0 [INFO ] time: NTP sync complete
 22:40:17.0 [INFO ] display: session update: 125min(5231steps)
+```
+
+## Logs
+```
+nix develop
+cargo build --release
+
+probe-rs attach --no-location --always-print-stacktrace target/riscv32imc-unknown-none-elf/release/habits-stepper
 ```
