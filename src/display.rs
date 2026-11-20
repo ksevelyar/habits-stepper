@@ -6,8 +6,15 @@ use static_cell::ConstStaticCell;
 
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::channel::Channel;
+use embassy_sync::signal::Signal;
 
-use crate::sessions::SessionEvent;
+use crate::sessions::WeekTotals;
+use embedded_graphics::draw_target::DrawTarget;
+use embedded_graphics::geometry::{OriginDimensions, Size};
+use embedded_graphics::mono_font::{MonoTextStyle, ascii::FONT_10X20};
+use embedded_graphics::pixelcolor::BinaryColor;
+use embedded_graphics::prelude::{Drawable, Pixel, Point};
+use embedded_graphics::text::{Baseline, Text};
 
 pub const DISPLAY_WIDTH: usize = 256;
 pub const DISPLAY_HEIGHT: usize = 64;
@@ -18,7 +25,28 @@ const PIXEL_SHIFT: usize = 8 - PIXEL_BITS;
 const PIXEL_MASK: u8 = 0xf;
 const FB_SIZE: usize = DISPLAY_WIDTH * DISPLAY_HEIGHT * PIXEL_BITS / 8;
 
-pub static DISPLAY_CHANNEL: Channel<CriticalSectionRawMutex, SessionEvent, 3> = Channel::new();
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum StartupStage {
+    Wifi,
+    Dhcp,
+    Dns,
+    Ntp,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum DisplayEvent {
+    Startup(StartupStage),
+    Update(WeekTotals),
+    History(WeekTotals),
+}
+
+pub static DISPLAY_CHANNEL: Channel<CriticalSectionRawMutex, DisplayEvent, 3> = Channel::new();
+static STARTUP_DISPLAYED: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+
+pub async fn show_startup(stage: StartupStage) {
+    DISPLAY_CHANNEL.send(DisplayEvent::Startup(stage)).await;
+    STARTUP_DISPLAYED.wait().await;
+}
 
 mod symbol;
 
@@ -196,59 +224,147 @@ pub fn draw_rect(display: &mut Sh1122Device, x: usize, y: usize, width: usize, h
 }
 
 pub fn render_time(display: &mut Sh1122Device, total_minutes: u32) {
-    let word = symbol::build_time_word(total_minutes, 0);
-
-    for symbol in &word.symbols[..word.count] {
-        draw_symbol(display, symbol);
+    for symbol in symbol::build_time(total_minutes, 0) {
+        draw_symbol(display, &symbol);
     }
 }
 
 pub fn render_steps(display: &mut Sh1122Device, value: u32) {
-    let word = symbol::build_number_word(value, DISPLAY_WIDTH);
-
-    for symbol in &word.symbols[..word.count] {
-        draw_symbol(display, symbol);
+    for symbol in symbol::build_number(value, DISPLAY_WIDTH) {
+        draw_symbol(display, &symbol);
     }
 }
 
-#[embassy_executor::task]
-pub async fn update_display(
-    spi: Spi<'static, esp_hal::Blocking>,
-    cs: Output<'static>,
-    dc: Output<'static>,
-    mut reset: Output<'static>,
-) {
-    static FRAMEBUFFER: ConstStaticCell<[u8; FB_SIZE]> = ConstStaticCell::new([0; FB_SIZE]);
+struct ScaledDisplay<'display, 'device> {
+    display: &'display mut Sh1122Device<'device>,
+    scale: usize,
+    left: usize,
+    top: usize,
+}
 
-    reset.set_low();
-    Timer::after(Duration::from_millis(10)).await;
-    reset.set_high();
-    Timer::after(Duration::from_millis(10)).await;
+impl OriginDimensions for ScaledDisplay<'_, '_> {
+    fn size(&self) -> Size {
+        Size::new(DISPLAY_WIDTH as u32, DISPLAY_HEIGHT as u32)
+    }
+}
 
-    let mut device = Sh1122Device::create(HardSpi::create(spi, cs, dc), FRAMEBUFFER.take());
-    device.init_display().ok();
+impl DrawTarget for ScaledDisplay<'_, '_> {
+    type Color = BinaryColor;
+    type Error = core::convert::Infallible;
 
-    loop {
-        let event = DISPLAY_CHANNEL.receive().await;
-        device.clear();
+    fn draw_iter<Pixels>(&mut self, pixels: Pixels) -> Result<(), Self::Error>
+    where
+        Pixels: IntoIterator<Item = Pixel<Self::Color>>,
+    {
+        for Pixel(point, color) in pixels {
+            if color == BinaryColor::On && point.x >= 0 && point.y >= 0 {
+                draw_rect(
+                    self.display,
+                    self.left + point.x as usize * self.scale,
+                    self.top + point.y as usize * self.scale,
+                    self.scale,
+                    self.scale,
+                );
+            }
+        }
+        Ok(())
+    }
+}
+
+fn render_startup(display: &mut Sh1122Device<'_>, stage: StartupStage) {
+    let text = match stage {
+        StartupStage::Wifi => "WIFI",
+        StartupStage::Dhcp => "DHCP",
+        StartupStage::Dns => "DNS",
+        StartupStage::Ntp => "NTP",
+    };
+    let character_width = FONT_10X20.character_size.width as usize;
+    let character_height = FONT_10X20.character_size.height as usize;
+    let text_width = text.len() * character_width;
+    let scale = (DISPLAY_HEIGHT / character_height).min(DISPLAY_WIDTH / text_width);
+    let left = (DISPLAY_WIDTH - text_width * scale) / 2;
+    let top = (DISPLAY_HEIGHT - character_height * scale) / 2;
+    let mut target = ScaledDisplay {
+        display,
+        scale,
+        left,
+        top,
+    };
+    let style = MonoTextStyle::new(&FONT_10X20, BinaryColor::On);
+    Text::with_baseline(text, Point::zero(), style, Baseline::Top)
+        .draw(&mut target)
+        .expect("drawing to the display framebuffer cannot fail");
+}
+
+pub trait Display {
+    fn show(&mut self, event: &DisplayEvent) -> Result<(), DisplayError>;
+}
+
+impl Display for Sh1122Device<'_> {
+    fn show(&mut self, event: &DisplayEvent) -> Result<(), DisplayError> {
+        self.clear();
         match event {
-            SessionEvent::Update(totals) => {
+            DisplayEvent::Startup(stage) => render_startup(self, *stage),
+            DisplayEvent::Update(totals) => {
                 info!(
                     "display: session update: {}min({}steps)",
                     totals.minutes, totals.steps
                 );
-                render_time(&mut device, totals.minutes);
-                render_steps(&mut device, totals.steps);
+                render_time(self, totals.minutes);
+                render_steps(self, totals.steps);
             }
-            SessionEvent::History(totals) => {
+            DisplayEvent::History(totals) => {
                 info!(
                     "display: session history: {}min({}steps)",
                     totals.minutes, totals.steps
                 );
-                render_time(&mut device, totals.minutes);
-                render_steps(&mut device, totals.steps);
+                render_time(self, totals.minutes);
+                render_steps(self, totals.steps);
             }
         }
-        device.flush().ok();
+        self.flush()
     }
+}
+
+pub async fn run_display<DisplayDevice: Display>(display: &mut DisplayDevice) {
+    loop {
+        let event = DISPLAY_CHANNEL.receive().await;
+        while display.show(&event).is_err() {
+            info!("display: flush failed");
+            Timer::after(Duration::from_millis(100)).await;
+        }
+        if matches!(event, DisplayEvent::Startup(_)) {
+            STARTUP_DISPLAYED.signal(());
+        }
+    }
+}
+
+pub struct DisplayHardware {
+    pub spi: Spi<'static, esp_hal::Blocking>,
+    pub chip_select: Output<'static>,
+    pub data_command: Output<'static>,
+    pub reset: Output<'static>,
+}
+
+pub async fn initialize_display(mut hardware: DisplayHardware) -> Sh1122Device<'static> {
+    static FRAMEBUFFER: ConstStaticCell<[u8; FB_SIZE]> = ConstStaticCell::new([0; FB_SIZE]);
+
+    hardware.reset.set_low();
+    Timer::after(Duration::from_millis(10)).await;
+    hardware.reset.set_high();
+    Timer::after(Duration::from_millis(10)).await;
+
+    let mut device = Sh1122Device::create(
+        HardSpi::create(hardware.spi, hardware.chip_select, hardware.data_command),
+        FRAMEBUFFER.take(),
+    );
+    device.init_display().ok();
+
+    device
+}
+
+#[embassy_executor::task]
+pub async fn run_display_task(hardware: DisplayHardware) {
+    let mut device = initialize_display(hardware).await;
+    run_display(&mut device).await;
 }

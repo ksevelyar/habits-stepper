@@ -3,19 +3,14 @@ use embedded_storage::nor_flash::{NorFlash, ReadNorFlash};
 use esp_hal::peripherals::FLASH as Flash;
 use esp_storage::FlashStorage;
 
+use super::Session;
+
 const SECTOR0_ADDR: u32 = 0x003F_0000;
 const SECTOR1_ADDR: u32 = 0x003F_1000;
 const SECTOR_SIZE: u32 = 4096;
 const SLOT_SIZE: u32 = 16;
 const SLOTS_PER_SECTOR: u16 = (SECTOR_SIZE / SLOT_SIZE) as u16;
 pub const SLOT_COUNT: u16 = SLOTS_PER_SECTOR * 2;
-
-#[derive(Clone, Copy)]
-pub struct SessionRecord {
-    pub start_epoch: u32,
-    pub end_epoch: u32,
-    pub steps: u32,
-}
 
 pub struct FlashRing<'a> {
     flash: FlashStorage<'a>,
@@ -73,7 +68,7 @@ impl<'a> FlashRing<'a> {
         u32::from_le_bytes(buf) == u32::MAX
     }
 
-    fn read_slot(&mut self, index: u16) -> SessionRecord {
+    fn read_slot(&mut self, index: u16) -> Session {
         let offset = Self::calculate_slot_offset(index);
         let mut buf = [0u8; 16];
         if let Err(e) = self.flash.read(offset, &mut buf) {
@@ -83,7 +78,7 @@ impl<'a> FlashRing<'a> {
                 defmt::Debug2Format(&e)
             );
         }
-        SessionRecord {
+        Session {
             start_epoch: u32::from_le_bytes(buf[0..4].try_into().unwrap()),
             end_epoch: u32::from_le_bytes(buf[4..8].try_into().unwrap()),
             steps: u32::from_le_bytes(buf[8..12].try_into().unwrap()),
@@ -129,7 +124,7 @@ impl<'a> FlashRing<'a> {
         evicted
     }
 
-    pub fn iterate_sessions(&mut self) -> impl Iterator<Item = SessionRecord> + '_ {
+    pub fn iterate_sessions(&mut self) -> impl Iterator<Item = Session> + '_ {
         let count = self.count;
         let archive_is_sector1 = self.head < SLOTS_PER_SECTOR && count >= SLOTS_PER_SECTOR;
         let mut logical_index = 0;

@@ -1,5 +1,5 @@
 use core::net::{IpAddr, SocketAddr};
-use core::sync::atomic::{AtomicU32, Ordering};
+use core::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use embassy_time::with_timeout;
 use esp_hal::gpio::RtcPinWithResistors;
 use esp_hal::peripherals::GPIO;
@@ -31,6 +31,7 @@ const MIN_VALID_EPOCH: u32 = 1_700_000_000;
 const USEC_IN_SEC: u64 = 1_000_000;
 const INACTIVITY: Duration = Duration::from_secs(120);
 
+pub static TIME_SYNCHRONIZED: AtomicBool = AtomicBool::new(false);
 static EPOCH_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_BASE: AtomicU32 = AtomicU32::new(0);
 static INSTANT_MILLIS_BASE: AtomicU32 = AtomicU32::new(0);
@@ -152,7 +153,7 @@ fn set_epoch(epoch_secs: u32) {
     EPOCH_BASE.store(epoch_secs, Ordering::Release);
 }
 
-fn seed_from_rtc(rtc: &Rtc) {
+pub fn seed_from_rtc(rtc: &Rtc) {
     let us = rtc.current_time_us();
     let secs = (us / USEC_IN_SEC) as u32;
     if secs > MIN_VALID_EPOCH {
@@ -213,29 +214,21 @@ impl NtpTimestampGenerator for NtpTs {
 
 async fn sync_with_ntp(
     current_time_us: u64,
+    address: IpAddr,
     stack: &Stack<'static>,
     rx_meta: &mut [PacketMetadata; 16],
     rx_buffer: &mut [u8; 4096],
     tx_meta: &mut [PacketMetadata; 16],
     tx_buffer: &mut [u8; 4096],
 ) -> Option<u64> {
-    let ntp_addrs = match stack.dns_query(NTP_SERVER, DnsQueryType::A).await {
-        Ok(addrs) if !addrs.is_empty() => addrs,
-        _ => {
-            error!("time: DNS failed");
-            return None;
-        }
-    };
-
     let socket = {
         let mut s = UdpSocket::new(*stack, rx_meta, rx_buffer, tx_meta, tx_buffer);
         s.bind(0).unwrap();
         UdpSocketWrapper::new(s)
     };
 
-    let addr: IpAddr = ntp_addrs[0].into();
     let result = get_time(
-        SocketAddr::from((addr, 123)),
+        SocketAddr::from((address, 123)),
         &socket,
         NtpContext::new(NtpTs { current_time_us }),
     )
@@ -255,10 +248,55 @@ async fn sync_with_ntp(
     }
 }
 
+pub trait TimeNetwork {
+    fn wait_for_configuration(&mut self) -> impl core::future::Future<Output = ()>;
+    fn resolve_server(&mut self) -> impl core::future::Future<Output = Option<IpAddr>>;
+    fn request_time(
+        &mut self,
+        address: IpAddr,
+        current_time_us: u64,
+    ) -> impl core::future::Future<Output = Option<u64>>;
+}
+
+struct HardwareTimeNetwork {
+    stack: Stack<'static>,
+    receive_buffer: &'static mut [u8; 4096],
+    transmit_buffer: &'static mut [u8; 4096],
+    receive_metadata: &'static mut [PacketMetadata; 16],
+    transmit_metadata: &'static mut [PacketMetadata; 16],
+}
+
+impl TimeNetwork for HardwareTimeNetwork {
+    async fn wait_for_configuration(&mut self) {
+        self.stack.wait_config_up().await;
+    }
+
+    async fn resolve_server(&mut self) -> Option<IpAddr> {
+        match self.stack.dns_query(NTP_SERVER, DnsQueryType::A).await {
+            Ok(addresses) => addresses.first().copied().map(Into::into),
+            Err(_) => None,
+        }
+    }
+
+    async fn request_time(&mut self, address: IpAddr, current_time_us: u64) -> Option<u64> {
+        sync_with_ntp(
+            current_time_us,
+            address,
+            &self.stack,
+            self.receive_metadata,
+            self.receive_buffer,
+            self.transmit_metadata,
+            self.transmit_buffer,
+        )
+        .await
+    }
+}
+
 #[embassy_executor::task]
-pub async fn synchronize_time(
+pub async fn run_sync_time_task(
     stack: Stack<'static>,
     rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>,
+    configuration: &'static crate::application::Configuration,
 ) {
     static RECEIVE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
     static TRANSMIT_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
@@ -267,32 +305,39 @@ pub async fn synchronize_time(
     static TRANSMIT_METADATA: ConstStaticCell<[PacketMetadata; 16]> =
         ConstStaticCell::new([PacketMetadata::EMPTY; 16]);
 
-    seed_from_rtc(&*rtc.lock().await);
+    let mut network = HardwareTimeNetwork {
+        stack,
+        receive_buffer: RECEIVE_BUFFER.take(),
+        transmit_buffer: TRANSMIT_BUFFER.take(),
+        receive_metadata: RECEIVE_METADATA.take(),
+        transmit_metadata: TRANSMIT_METADATA.take(),
+    };
+    synchronize_with_network(&mut network, rtc, configuration).await;
+}
 
-    stack.wait_config_up().await;
-
-    let receive_metadata = RECEIVE_METADATA.take();
-    let receive_buffer = RECEIVE_BUFFER.take();
-    let transmit_metadata = TRANSMIT_METADATA.take();
-    let transmit_buffer = TRANSMIT_BUFFER.take();
+pub async fn synchronize_with_network<Network: TimeNetwork>(
+    network: &mut Network,
+    rtc: &Mutex<CriticalSectionRawMutex, Rtc<'static>>,
+    configuration: &crate::application::Configuration,
+) {
+    network.wait_for_configuration().await;
 
     let mut failed_attempts: u32 = 0;
 
     loop {
-        let current_time_us = rtc.lock().await.current_time_us();
-
-        let result = with_timeout(
-            Duration::from_secs(30),
-            sync_with_ntp(
-                current_time_us,
-                &stack,
-                receive_metadata,
-                receive_buffer,
-                transmit_metadata,
-                transmit_buffer,
-            ),
-        )
-        .await;
+        crate::display::show_startup(crate::display::StartupStage::Dns).await;
+        let address = with_timeout(Duration::from_secs(30), network.resolve_server()).await;
+        let result = if let Ok(Some(address)) = address {
+            crate::display::show_startup(crate::display::StartupStage::Ntp).await;
+            let current_time_us = rtc.lock().await.current_time_us();
+            with_timeout(
+                Duration::from_secs(30),
+                network.request_time(address, current_time_us),
+            )
+            .await
+        } else {
+            Ok(None)
+        };
 
         if let Ok(Some(epoch_us)) = result {
             let new_epoch = (epoch_us / USEC_IN_SEC) as u32;
@@ -301,6 +346,10 @@ pub async fn synchronize_time(
             rtc.lock().await.set_current_time_us(epoch_us);
             set_epoch(new_epoch);
             log_sync(correction);
+            TIME_SYNCHRONIZED.store(true, Ordering::Release);
+            crate::user_input::USER_INPUT_CHANNEL
+                .send(crate::user_input::GpioEvent::TimeSynchronized)
+                .await;
 
             break;
         }
@@ -310,10 +359,13 @@ pub async fn synchronize_time(
     }
 
     info!("time: NTP sync complete");
+    if !configuration.is_backend_configured() {
+        crate::wifi::STOP_WIFI.signal(());
+    }
 }
 
 #[embassy_executor::task]
-pub async fn manage_sleep(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
+pub async fn run_sleep_task(rtc: &'static Mutex<CriticalSectionRawMutex, Rtc<'static>>) {
     loop {
         info!("time: waiting {}s for inactivity", INACTIVITY.as_secs());
         if with_timeout(INACTIVITY, ACTIVITY.wait()).await.is_err() {

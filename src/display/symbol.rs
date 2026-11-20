@@ -141,40 +141,29 @@ impl Symbol {
     }
 }
 
-pub struct Word {
-    pub symbols: [Symbol; 5],
-    pub count: usize,
-}
-
-pub fn build_number_word(value: u32, right_x: usize) -> Word {
+pub fn build_number(value: u32, right_x: usize) -> [Symbol; 5] {
     let clamped = value.min(99999);
 
-    let symbols = core::array::from_fn(|i| {
-        let power = 10u32.pow(4 - i as u32);
+    core::array::from_fn(|index| {
+        let power = 10u32.pow(4 - index as u32);
         let digit = ((clamped / power) % 10) as u8;
-        let x = right_x.saturating_sub(DIGIT_WIDTH + DIGIT_ADVANCE * (4 - i));
+        let x = right_x.saturating_sub(DIGIT_WIDTH + DIGIT_ADVANCE * (4 - index));
 
         Symbol::create_digit(digit, x)
-    });
-
-    Word { symbols, count: 5 }
+    })
 }
 
-pub fn build_time_word(total_minutes: u32, start_x: usize) -> Word {
+pub fn build_time(total_minutes: u32, start_x: usize) -> [Symbol; 4] {
     let hours = (total_minutes / 60) as u8;
     let minutes = total_minutes % 60;
 
     let colon_x = start_x + DIGIT_WIDTH + DIGIT_GAP - COLON_DOT_X;
     let colon_right = colon_x + COLON_ADVANCE;
 
-    Word {
-        symbols: [
-            Symbol::create_digit(hours, start_x),
-            Symbol::create_colon(colon_x),
-            Symbol::create_digit((minutes / 10) as u8, colon_right),
-            Symbol::create_digit((minutes % 10) as u8, colon_right + DIGIT_ADVANCE),
-            Symbol::create_digit(0, 0),
-        ],
-        count: 4,
-    }
+    [
+        Symbol::create_digit(hours, start_x),
+        Symbol::create_colon(colon_x),
+        Symbol::create_digit((minutes / 10) as u8, colon_right),
+        Symbol::create_digit((minutes % 10) as u8, colon_right + DIGIT_ADVANCE),
+    ]
 }

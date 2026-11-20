@@ -1,4 +1,8 @@
 #![no_std]
+#![cfg_attr(test, no_main)]
+
+#[cfg(test)]
+use panic_rtt_target as _;
 
 pub mod application;
 pub mod display;

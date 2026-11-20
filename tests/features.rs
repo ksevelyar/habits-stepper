@@ -10,7 +10,9 @@ fn initialize_debug_output() {
 
 mod features {
     mod sessions;
+    mod simulated_esp32;
     mod storage;
     mod sync;
     mod time;
+    mod time_sync;
 }

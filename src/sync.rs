@@ -1,7 +1,6 @@
 use core::fmt::Write as _;
 
 use defmt::{error, info};
-use embassy_net::Stack;
 use embassy_net::dns::DnsSocket;
 use embassy_net::tcp::client::{TcpClient, TcpClientState};
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
@@ -21,15 +20,44 @@ const TLS_SEED: u64 = 0x53_59_4E_43;
 pub static SYNC_SIGNAL: Signal<CriticalSectionRawMutex, [DailyTotal; 2]> = Signal::new();
 
 #[embassy_executor::task]
-pub async fn synchronize_totals(stack: Stack<'static>, configuration: &'static Configuration) {
-    static AUTHORIZATION: ConstStaticCell<heapless::String<512>> =
-        ConstStaticCell::new(heapless::String::new());
+pub async fn run_sync_totals_task(
+    stack: embassy_net::Stack<'static>,
+    configuration: &'static Configuration,
+) {
     static TCP_STATE: ConstStaticCell<TcpClientState<1, 4096, 4096>> =
         ConstStaticCell::new(TcpClientState::new());
     static TLS_READ_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
     static TLS_WRITE_BUFFER: ConstStaticCell<[u8; 4096]> = ConstStaticCell::new([0; 4096]);
-    static RESPONSE_BUFFER: ConstStaticCell<[u8; 512]> = ConstStaticCell::new([0; 512]);
+    if !configuration.is_backend_configured() {
+        info!("sync: disabled (backend is not configured)");
+        return;
+    }
+    stack.wait_config_up().await;
+    let tcp_client = TcpClient::new(stack, TCP_STATE.take());
+    let dns_socket = DnsSocket::new(stack);
+    let mut client = HttpClient::new_with_tls(
+        &tcp_client,
+        &dns_socket,
+        TlsConfig::new(
+            TLS_SEED,
+            TLS_READ_BUFFER.take(),
+            TLS_WRITE_BUFFER.take(),
+            TlsVerify::None,
+        ),
+    );
+    sync_totals_to_backend(&mut client, configuration).await;
+}
 
+pub async fn sync_totals_to_backend<'a, Tcp, Dns>(
+    client: &mut HttpClient<'a, Tcp, Dns>,
+    configuration: &Configuration,
+) where
+    Tcp: embedded_nal_async::TcpConnect + 'a,
+    Dns: embedded_nal_async::Dns + 'a,
+{
+    static AUTHORIZATION: ConstStaticCell<heapless::String<512>> =
+        ConstStaticCell::new(heapless::String::new());
+    static RESPONSE_BUFFER: ConstStaticCell<[u8; 512]> = ConstStaticCell::new([0; 512]);
     let (Some(_metrics_url), Some(jwt_token), Some(chain_id)) = (
         configuration.metrics_url,
         configuration.jwt_token,
@@ -45,29 +73,12 @@ pub async fn synchronize_totals(stack: Stack<'static>, configuration: &'static C
     }
 
     info!("sync: task started (chain_id={})", chain_id);
-    stack.wait_config_up().await;
-
-    let tcp_client = TcpClient::new(stack, TCP_STATE.take());
-    let dns_socket = DnsSocket::new(stack);
-
-    let mut client = HttpClient::new_with_tls(
-        &tcp_client,
-        &dns_socket,
-        TlsConfig::new(
-            TLS_SEED,
-            TLS_READ_BUFFER.take(),
-            TLS_WRITE_BUFFER.take(),
-            TlsVerify::None,
-        ),
-    );
-
     let response_buffer = RESPONSE_BUFFER.take();
-
     loop {
         let totals = SYNC_SIGNAL.wait().await;
         for total in totals {
             post_total(
-                &mut client,
+                client,
                 configuration,
                 authorization.as_str(),
                 &total,

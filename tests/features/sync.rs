@@ -42,20 +42,20 @@ mod tests {
     impl embedded_nal_async::Dns for FakeDns {
         type Error = TestError;
 
-        async fn get_host_by_name(
+        fn get_host_by_name(
             &self,
             _host: &str,
             _addr_type: AddrType,
-        ) -> Result<IpAddr, Self::Error> {
-            Ok(IpAddr::V4(Ipv4Addr::LOCALHOST))
+        ) -> impl core::future::Future<Output = Result<IpAddr, Self::Error>> {
+            core::future::ready(Ok(IpAddr::V4(Ipv4Addr::LOCALHOST)))
         }
 
-        async fn get_host_by_address(
+        fn get_host_by_address(
             &self,
             _addr: IpAddr,
             _result: &mut [u8],
-        ) -> Result<usize, Self::Error> {
-            Err(TestError)
+        ) -> impl core::future::Future<Output = Result<usize, Self::Error>> {
+            core::future::ready(Err(TestError))
         }
     }
 
@@ -65,21 +65,21 @@ mod tests {
 
     impl embedded_nal_async::TcpConnect for FakeTcp {
         type Error = TestError;
-        type Connection<'m> = FakeConnection<'m>;
+        type Connection<'connection> = FakeConnection<'connection>;
 
-        async fn connect<'m>(
-            &'m self,
+        fn connect(
+            &self,
             _remote: SocketAddr,
-        ) -> Result<Self::Connection<'m>, Self::Error> {
-            Ok(FakeConnection {
+        ) -> impl core::future::Future<Output = Result<Self::Connection<'_>, Self::Error>> {
+            core::future::ready(Ok(FakeConnection {
                 tcp: self,
                 read_pos: 0,
-            })
+            }))
         }
     }
 
-    struct FakeConnection<'m> {
-        tcp: &'m FakeTcp,
+    struct FakeConnection<'connection> {
+        tcp: &'connection FakeTcp,
         read_pos: usize,
     }
 
@@ -88,25 +88,31 @@ mod tests {
     }
 
     impl Read for FakeConnection<'_> {
-        async fn read(&mut self, buf: &mut [u8]) -> Result<usize, TestError> {
+        fn read(
+            &mut self,
+            buffer: &mut [u8],
+        ) -> impl core::future::Future<Output = Result<usize, TestError>> {
             let available = &self.tcp.response[self.read_pos..];
-            let count = core::cmp::min(buf.len(), available.len());
-            buf[..count].copy_from_slice(&available[..count]);
+            let count = core::cmp::min(buffer.len(), available.len());
+            buffer[..count].copy_from_slice(&available[..count]);
             self.read_pos += count;
-            Ok(count)
+            core::future::ready(Ok(count))
         }
     }
 
     impl Write for FakeConnection<'_> {
-        async fn write(&mut self, buf: &[u8]) -> Result<usize, TestError> {
-            critical_section::with(|cs| {
-                let _ = WRITTEN.borrow_ref_mut(cs).extend_from_slice(buf);
+        fn write(
+            &mut self,
+            buffer: &[u8],
+        ) -> impl core::future::Future<Output = Result<usize, TestError>> {
+            critical_section::with(|section| {
+                let _ = WRITTEN.borrow_ref_mut(section).extend_from_slice(buffer);
             });
-            Ok(buf.len())
+            core::future::ready(Ok(buffer.len()))
         }
 
-        async fn flush(&mut self) -> Result<(), TestError> {
-            Ok(())
+        fn flush(&mut self) -> impl core::future::Future<Output = Result<(), TestError>> {
+            core::future::ready(Ok(()))
         }
     }
 
@@ -139,7 +145,6 @@ mod tests {
             ssid: "test-ssid",
             pass: "test-pass",
             wifi_transmit_power: "18",
-            timezone: "Europe/Moscow",
             metrics_url: Some("http://localhost/metrics"),
             jwt_token: Some("test-token"),
             chain_id: Some("19"),

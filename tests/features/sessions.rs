@@ -23,7 +23,7 @@ mod tests {
     }
 
     #[test]
-    async fn current_week_starts_at_monday_midnight() {
+    fn current_week_starts_at_monday_midnight() {
         let monday_morning = jiff::civil::date(2026, 1, 12)
             .at(10, 0, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
@@ -55,7 +55,7 @@ mod tests {
     }
 
     #[test]
-    async fn prev_week_session_appears_in_history() {
+    fn prev_week_session_appears_in_history() {
         let monday_afternoon = jiff::civil::date(2026, 1, 12)
             .at(13, 20, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
@@ -76,13 +76,13 @@ mod tests {
 
         let sessions = session_from_raw(None, &[previous_week_session]);
 
-        let totals = make_week_totals(&sessions, current_time - 604800);
+        let totals = make_week_totals(&sessions, current_time - 604_800);
         assert_eq!(totals.minutes, 60);
         assert_eq!(totals.steps, 60);
     }
 
     #[test]
-    async fn day_totals_sum_all_sessions_on_same_day() {
+    fn day_totals_sum_all_sessions_on_same_day() {
         let midnight = jiff::civil::date(2026, 8, 9)
             .at(0, 0, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
@@ -105,7 +105,7 @@ mod tests {
     }
 
     #[test]
-    async fn day_totals_split_session_across_midnight() {
+    fn day_totals_split_session_across_midnight() {
         let midnight = jiff::civil::date(2026, 8, 9)
             .at(0, 0, 0, 0)
             .to_zoned(habits_stepper::time::TIMEZONE)
