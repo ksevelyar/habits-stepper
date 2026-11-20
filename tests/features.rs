@@ -9,10 +9,11 @@ fn initialize_debug_output() {
 }
 
 mod features {
-    mod sessions;
+    mod sessions {
+        mod backend_sync;
+        mod permanent_storage;
+        mod tracking;
+    }
     mod simulated_esp32;
-    mod storage;
-    mod sync;
-    mod time;
     mod time_sync;
 }

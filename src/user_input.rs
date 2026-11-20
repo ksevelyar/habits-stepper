@@ -20,8 +20,6 @@ pub static USER_INPUT_CHANNEL: Channel<CriticalSectionRawMutex, GpioEvent, 3> = 
 
 #[embassy_executor::task]
 pub async fn run_reed_task(mut reed: Input<'static>) {
-    USER_INPUT_CHANNEL.send(GpioEvent::HistoryReleased).await;
-
     let mut previous_state = reed.is_low();
     loop {
         reed.wait_for_any_edge().await;

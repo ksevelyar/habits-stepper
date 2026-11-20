@@ -1,8 +1,18 @@
+use core::cell::RefCell;
+use embassy_sync::blocking_mutex::Mutex;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::signal::Signal;
 use habits_stepper::application::Configuration;
 
 pub(super) static CONFIGURATION_READY: Signal<CriticalSectionRawMutex, ()> = Signal::new();
+static REQUESTS: Mutex<
+    CriticalSectionRawMutex,
+    RefCell<heapless::Vec<heapless::Vec<u8, 1024>, 8>>,
+> = Mutex::new(RefCell::new(heapless::Vec::new()));
+
+pub fn take_requests() -> heapless::Vec<heapless::Vec<u8, 1024>, 8> {
+    REQUESTS.lock(|requests| core::mem::take(&mut *requests.borrow_mut()))
+}
 
 #[embassy_executor::task]
 pub async fn run_sync_totals_task(configuration: &'static Configuration) {
@@ -59,6 +69,8 @@ pub struct Tcp;
 
 pub struct Connection {
     position: usize,
+    request: heapless::Vec<u8, 1024>,
+    recorded: bool,
 }
 
 impl embedded_nal_async::TcpConnect for Tcp {
@@ -69,7 +81,11 @@ impl embedded_nal_async::TcpConnect for Tcp {
         &self,
         _remote: core::net::SocketAddr,
     ) -> impl core::future::Future<Output = Result<Self::Connection<'_>, Self::Error>> {
-        core::future::ready(Ok(Connection { position: 0 }))
+        core::future::ready(Ok(Connection {
+            position: 0,
+            request: heapless::Vec::new(),
+            recorded: false,
+        }))
     }
 }
 
@@ -82,6 +98,15 @@ impl embedded_io_async::Read for Connection {
         &mut self,
         buffer: &mut [u8],
     ) -> impl core::future::Future<Output = Result<usize, Self::Error>> {
+        if !self.recorded {
+            REQUESTS.lock(|requests| {
+                requests
+                    .borrow_mut()
+                    .push(self.request.clone())
+                    .expect("backend request capacity exceeded");
+            });
+            self.recorded = true;
+        }
         let response = b"HTTP/1.1 200 OK\r\ncontent-length: 0\r\n\r\n";
         let remaining = &response[self.position..];
         let count = remaining.len().min(buffer.len());
@@ -96,6 +121,9 @@ impl embedded_io_async::Write for Connection {
         &mut self,
         buffer: &[u8],
     ) -> impl core::future::Future<Output = Result<usize, Self::Error>> {
+        self.request
+            .extend_from_slice(buffer)
+            .expect("backend request too long");
         core::future::ready(Ok(buffer.len()))
     }
 

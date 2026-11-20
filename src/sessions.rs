@@ -135,15 +135,18 @@ pub async fn run_sessions_task(mut flash: FlashRing<'static>) {
         current: None,
         history: Deque::new(),
     });
-    let sessions = SESSIONS.take();
-    sessions.load_history(&mut flash);
+    run_sessions(SESSIONS.take(), &mut flash).await;
+}
+
+pub async fn run_sessions(sessions: &mut Sessions, flash: &mut FlashRing<'static>) {
+    sessions.load_history(flash);
 
     loop {
         let result = with_timeout(TICK_INTERVAL, USER_INPUT_CHANNEL.receive()).await;
         let epoch = crate::time::get_epoch_seconds();
 
         if let Some(now) = epoch {
-            let completed = sessions.tick(now, &mut flash);
+            let completed = sessions.tick(now, flash);
 
             if completed.is_some() {
                 report_completed_session(sessions, now);

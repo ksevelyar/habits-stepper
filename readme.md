@@ -4,11 +4,26 @@
 Automatically tracks workouts and sends them to a JSON backend over Wi-Fi. NTP synchronization handles day and week boundaries automatically, so there is no need to reset counts on Monday.
 
 ## Features
-* automatic tracking of stepping sessions, time-synchronized via NTP with a compile-time IANA timezone
-* deep sleep after 90 seconds of inactivity and approximately two weeks of battery life with an 18650 battery
-* firmware upload (probe-rs), defmt logs (RTT), and battery charging over a single USB-C port
+* automatic tracking of stepping sessions
+* time-synchronized via NTP with a compile-time IANA timezone
+* deep sleep after 120 seconds of inactivity and approximately two weeks of battery life with an 18650 battery
+* firmware upload, logs, and battery charging over a single USB-C port
 * persistent workout storage in NOR flash that survives deep sleep and reboots
-* 3D-printed case with an SH1122 256x64 OLED display
+* 3D-printed case with an 256x64 OLED display
+
+## Documentation
+* [Project boundaries](doc/boundaries.md)
+* [Debugging](doc/debug.md)
+* [Deep sleep](doc/features/deep-sleep.md)
+* [Time synchronization](doc/features/time-sync.md)
+* [Session tracking](doc/features/sessions/tracking.md)
+* [Permanent session storage](doc/features/sessions/permanent-storage.md)
+* [Backend sync](doc/features/sessions/backend-sync.md)
+* [Mechanical maintenance](doc/hardware/mechanical-maintenance.md)
+* [Power](doc/hardware/power.md)
+* [Wiring](doc/hardware/wiring.md)
+* [ESP32-C3 SuperMini datasheet](doc/hardware/ESP32-C3-SuperMini-datasheet.pdf)
+* [MCP1700 datasheet](doc/hardware/MCP1700.pdf)
 
 ## Tests
 Tests require a connected MCU.

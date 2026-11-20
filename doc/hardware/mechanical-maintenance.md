@@ -1,4 +1,4 @@
-# Maintenance
+# Mechanical Maintenance
 * Use lithium grease with molybdenum
 * Service the printer on a bag on the table
 

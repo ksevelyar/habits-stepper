@@ -8,7 +8,7 @@ BAT- to 18650-
 BAT+ to 18650+
 
 OUT- to GND from ESP32
-OUT+ to MCP1700 pin 1 to ESP32 3.3 V
+OUT+ to MCP1700 pin 2
 
 ## MCP1700
 1 - GND
