@@ -307,7 +307,7 @@ impl Display for Sh1122Device<'_> {
             DisplayEvent::Startup(stage) => render_startup(self, *stage),
             DisplayEvent::Update(totals) => {
                 info!(
-                    "display: session update: {}min({}steps)",
+                    "display: session update: [{} min] [{} steps]",
                     totals.minutes, totals.steps
                 );
                 render_time(self, totals.minutes);
@@ -315,7 +315,7 @@ impl Display for Sh1122Device<'_> {
             }
             DisplayEvent::History(totals) => {
                 info!(
-                    "display: session history: {}min({}steps)",
+                    "display: session history: [{} min] [{} steps]",
                     totals.minutes, totals.steps
                 );
                 render_time(self, totals.minutes);

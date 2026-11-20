@@ -2,7 +2,7 @@
 edition      = "2024"
 name         = "habits-stepper"
 rust-version = "1.96"
-version      = "1.4.1"
+version      = "1.4.2"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

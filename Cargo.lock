@@ -1623,7 +1623,7 @@ dependencies = [
 
 [[package]]
 name = "habits-stepper"
-version = "1.4.1"
+version = "1.4.2"
 dependencies = [
  "critical-section",
  "defmt 1.1.0",

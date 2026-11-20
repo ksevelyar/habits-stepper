@@ -46,7 +46,7 @@ JWT_TOKEN="<jwt-token>" SSID="skynet-2" PASS="<pass>" METRICS_URL="https://api.h
 22:40:17.0 [INFO ] time: synced (-9466s)
 22:40:17.0 [INFO ] time: Europe/Moscow 2026-11-20 22:40:17
 22:40:17.0 [INFO ] time: NTP sync complete
-22:40:17.0 [INFO ] display: session update: 125min(5231steps)
+22:40:17.0 [INFO ] display: session update: [125 min] [5231 steps]
 ```
 
 ## Logs
