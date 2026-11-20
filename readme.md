@@ -37,25 +37,18 @@ cargo test
 ```
 nix develop
 
-cargo run --release
-    Finished `release` profile [optimized + debuginfo] target(s) in 0.10s
-     Running `probe-rs run --chip=esp32c3 --preverify --always-print-stacktrace --no-location target/riscv32imc-unknown-none-elf/release/habits-stepper`
-    Verifying ✔ 100% [####################] 360.25 KiB @  74.20 KiB/s (took 5s)           Finished in 5.09s
-03:00:00 [INFO ] init: embassy initialized
-03:00:00 [INFO ] storage: flash capacity: 4194304B
-03:00:00 [INFO ] storage: loaded 18 sessions from flash (head=18)
-13:57:03 [INFO ] time: rtc seeded: Europe/Moscow 2026-06-13 13:57:03
-13:57:03 [INFO ] wifi: connecting to "fellowship-of-the-ring-2"
-13:57:04 [INFO ] wifi: connected to "fellowship-of-the-ring-2"
-13:57:18 [INFO ] time: synced (+4s)
-13:57:18 [INFO ] time: Europe/Moscow 2026-06-13 13:57:18
-13:57:18 [INFO ] time: waiting 90s for inactivity
-13:57:26 [INFO ] input: reed closed
-13:57:26 [INFO ] time: activity before timeout, resetting
-13:57:26 [INFO ] time: waiting 90s for inactivity
-13:57:26 [INFO ] display: session update: today=50min(1036steps) week=50min
-13:57:29 [INFO ] input: reed closed
-13:57:29 [INFO ] time: activity before timeout, resetting
-13:57:29 [INFO ] time: waiting 90s for inactivity
-13:57:29 [INFO ] display: session update: today=50min(1037steps) week=50min
+JWT_TOKEN="<jwt-token>" SSID="skynet-2" PASS="<pass>" METRICS_URL="https://api.habits.rusty-cluster.net/metrics" cargo run --release
+
+03:00:00.0 [INFO ] init: embassy initialized
+01:18:02.0 [INFO ] time: rtc seeded: Europe/Moscow 2026-11-21 01:18:02
+01:18:02.0 [INFO ] storage: flash capacity: 4194304B
+01:18:02.0 [INFO ] storage: loaded 144 sessions from flash (head=144)
+01:18:02.0 [INFO ] time: waiting 120s for inactivity
+01:18:02.0 [INFO ] wifi: connecting to "skynet-2"
+01:18:03.9 [INFO ] wifi: connected to "skynet-2"
+01:18:03.0 [INFO ] sync: task started (chain_id=19)
+22:40:17.0 [INFO ] time: synced (-9466s)
+22:40:17.0 [INFO ] time: Europe/Moscow 2026-11-20 22:40:17
+22:40:17.0 [INFO ] time: NTP sync complete
+22:40:17.0 [INFO ] display: session update: 125min(5231steps)
 ```
