@@ -56,7 +56,7 @@
             websocat
             probe-rs-tools
             esp-generate
-            cargo-udeps
+            cargo-outdated
           ];
         };
       }
