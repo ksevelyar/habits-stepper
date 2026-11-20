@@ -57,18 +57,24 @@ pub fn get_epoch_seconds() -> Option<u32> {
     Some(base + delta)
 }
 
-pub fn calculate_week_start(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
-    let zoned = timestamp.to_zoned(TIMEZONE);
-    let since_monday = zoned.weekday().since(Weekday::Monday);
-    let monday = zoned.saturating_sub(jiff::Span::new().days(i64::from(since_monday)));
-    let midnight = monday.saturating_sub(
-        jiff::Span::new()
-            .hours(i64::from(monday.hour()))
-            .minutes(i64::from(monday.minute()))
-            .seconds(i64::from(monday.second())),
-    );
-    midnight.timestamp().as_second() as u32
+pub fn calculate_week_range(now: u32) -> core::ops::Range<u32> {
+    let timestamp =
+        jiff::Timestamp::new(i64::from(now), 0).expect("epoch fits in a Jiff timestamp");
+    let local_time = timestamp.to_zoned(TIMEZONE);
+    let days_since_monday = local_time.weekday().since(Weekday::Monday);
+    let monday = local_time
+        .saturating_sub(jiff::Span::new().days(i64::from(days_since_monday)))
+        .start_of_day()
+        .expect("Monday has a start of day");
+    let next_monday = monday
+        .saturating_add(jiff::Span::new().days(7))
+        .start_of_day()
+        .expect("next Monday has a start of day");
+    let start = u32::try_from(monday.timestamp().as_second()).expect("week start fits in an epoch");
+    let end =
+        u32::try_from(next_monday.timestamp().as_second()).expect("week end fits in an epoch");
+
+    start..end
 }
 
 pub fn calculate_day_start(now: u32) -> u32 {

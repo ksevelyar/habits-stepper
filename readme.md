@@ -9,7 +9,7 @@ Automatically tracks workouts and sends them to a JSON backend over Wi-Fi. NTP s
 * deep sleep after 120 seconds of inactivity and approximately two weeks of battery life with an 18650 battery
 * firmware upload, logs, and battery charging over a single USB-C port
 * persistent workout storage in NOR flash that survives deep sleep and reboots
-* 3D-printed case with an 256x64 OLED display
+* 3D-printed case with a 256x64 OLED display
 
 ## Documentation
 * [Project boundaries](doc/boundaries.md)

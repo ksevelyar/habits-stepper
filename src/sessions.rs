@@ -12,7 +12,6 @@ use storage::{FlashRing, SLOT_COUNT};
 
 const MAX_SESSIONS: usize = SLOT_COUNT as usize;
 const TICK_INTERVAL: Duration = Duration::from_secs(1);
-const WEEK_SECONDS: u32 = 604_800;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Session {
@@ -114,14 +113,13 @@ pub struct WeekTotals {
 }
 
 pub fn make_week_totals(sessions: &Sessions, now: u32) -> WeekTotals {
-    let week_start = crate::time::calculate_week_start(now);
-    let week_end = week_start + WEEK_SECONDS;
+    let week = crate::time::calculate_week_range(now);
     let mut minutes: u32 = 0;
     let mut steps: u32 = 0;
 
     for session in sessions.history.iter().chain(sessions.current.as_ref()) {
-        minutes += calculate_minutes_in_range(session, week_start, week_end);
-        if session.end_epoch.min(week_end) >= session.start_epoch.max(week_start) {
+        minutes += calculate_minutes_in_range(session, week.start, week.end);
+        if session.end_epoch.min(week.end) >= session.start_epoch.max(week.start) {
             steps += session.steps;
         }
     }
@@ -164,7 +162,9 @@ pub async fn run_sessions(sessions: &mut Sessions, flash: &mut FlashRing<'static
                 }
                 Ok(GpioEvent::HistoryPressed) => {
                     if crate::time::TIME_SYNCHRONIZED.load(Ordering::Acquire) {
-                        let totals = make_week_totals(sessions, now.saturating_sub(WEEK_SECONDS));
+                        let current_week = crate::time::calculate_week_range(now);
+                        let previous_week = current_week.start.saturating_sub(1);
+                        let totals = make_week_totals(sessions, previous_week);
                         DISPLAY_CHANNEL.send(DisplayEvent::History(totals)).await;
                     }
                 }

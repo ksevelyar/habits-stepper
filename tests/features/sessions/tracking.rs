@@ -34,7 +34,7 @@ mod tests {
 
     fn initialize_history() -> Application {
         let now = get_monday_noon();
-        let week_start = habits_stepper::time::calculate_week_start(now);
+        let week_start = habits_stepper::time::calculate_week_range(now).start;
         let sessions = [
             Session {
                 start_epoch: week_start - 1860,
@@ -52,7 +52,7 @@ mod tests {
 
     fn initialize_monday() -> Application {
         let now = get_monday_noon();
-        let week_start = habits_stepper::time::calculate_week_start(now);
+        let week_start = habits_stepper::time::calculate_week_range(now).start;
         let sessions = [Session {
             start_epoch: week_start - 7200,
             end_epoch: week_start - 3600,
