@@ -106,7 +106,8 @@ where
     };
 
     let bytes = format_date_bytes(total.date);
-    let date = core::str::from_utf8(&bytes).unwrap();
+    let date = core::str::from_utf8(&bytes)
+        .expect("formatted date contains only ASCII digits and hyphens");
 
     let mut body: heapless::Vec<u8, 128> = heapless::Vec::new();
     let _ = write!(

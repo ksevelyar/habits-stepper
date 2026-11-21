@@ -66,7 +66,7 @@ impl Sessions {
         });
 
         if timed_out {
-            let session = self.current.take().unwrap();
+            let session = self.current.take().expect("a timed-out session is present");
             info!(
                 "session: ended: {} steps, {}min duration",
                 session.steps,

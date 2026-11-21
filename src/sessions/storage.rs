@@ -70,9 +70,13 @@ impl<'a> FlashRing<'a> {
             .read(offset, &mut buf)
             .expect("stored session should be readable");
         Session {
-            start_epoch: u32::from_le_bytes(buf[0..4].try_into().unwrap()),
-            end_epoch: u32::from_le_bytes(buf[4..8].try_into().unwrap()),
-            steps: u32::from_le_bytes(buf[8..12].try_into().unwrap()),
+            start_epoch: u32::from_le_bytes(
+                buf[0..4].try_into().expect("session field is four bytes"),
+            ),
+            end_epoch: u32::from_le_bytes(
+                buf[4..8].try_into().expect("session field is four bytes"),
+            ),
+            steps: u32::from_le_bytes(buf[8..12].try_into().expect("session field is four bytes")),
         }
     }
 

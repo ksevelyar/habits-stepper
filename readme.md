@@ -29,7 +29,7 @@ nix develop
 cargo test
 ```
 
-## Build & Flash
+## Build and flash
 ```
 nix develop
 

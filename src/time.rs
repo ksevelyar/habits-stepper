@@ -78,13 +78,15 @@ pub fn calculate_week_range(now: u32) -> core::ops::Range<u32> {
 }
 
 pub fn calculate_day_start(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0)
+        .expect("u32 epoch seconds are within Jiff's timestamp range");
     let midnight = timestamp.to_zoned(TIMEZONE).start_of_day().unwrap();
     midnight.timestamp().as_second() as u32
 }
 
 pub fn calculate_next_day_start(day_start: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(i64::from(day_start), 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(day_start), 0)
+        .expect("u32 epoch seconds are within Jiff's timestamp range");
     let next = timestamp
         .to_zoned(TIMEZONE)
         .saturating_add(jiff::Span::new().days(1));
@@ -92,7 +94,8 @@ pub fn calculate_next_day_start(day_start: u32) -> u32 {
 }
 
 pub fn calculate_previous_day_start(now: u32) -> u32 {
-    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0)
+        .expect("u32 epoch seconds are within Jiff's timestamp range");
     let yesterday = timestamp
         .to_zoned(TIMEZONE)
         .saturating_sub(jiff::Span::new().days(1));
@@ -100,7 +103,8 @@ pub fn calculate_previous_day_start(now: u32) -> u32 {
 }
 
 pub fn format_date_bytes(now: u32) -> [u8; 10] {
-    let timestamp = jiff::Timestamp::new(i64::from(now), 0).unwrap();
+    let timestamp = jiff::Timestamp::new(i64::from(now), 0)
+        .expect("u32 epoch seconds are within Jiff's timestamp range");
     let zoned = timestamp.to_zoned(TIMEZONE);
     let mut buf = [0u8; 10];
     write_digits(&mut buf[0..4], zoned.year() as u32);
@@ -147,16 +151,17 @@ impl defmt::Format for LocalTime {
 }
 
 fn get_local_time() -> jiff::Zoned {
-    let epoch_secs = get_epoch_seconds().unwrap_or(0);
-    let timestamp = jiff::Timestamp::new(i64::from(epoch_secs), 0).unwrap();
+    let epoch_seconds = get_epoch_seconds().unwrap_or(0);
+    let timestamp = jiff::Timestamp::new(i64::from(epoch_seconds), 0)
+        .expect("epoch seconds fit in a timestamp");
 
     timestamp.to_zoned(crate::time::TIMEZONE)
 }
 
-fn set_epoch(epoch_secs: u32) {
+fn set_epoch(epoch_seconds: u32) {
     INSTANT_BASE.store(Instant::now().as_secs() as u32, Ordering::Relaxed);
     INSTANT_MILLIS_BASE.store(Instant::now().as_millis() as u32, Ordering::Relaxed);
-    EPOCH_BASE.store(epoch_secs, Ordering::Release);
+    EPOCH_BASE.store(epoch_seconds, Ordering::Release);
 }
 
 pub fn seed_from_rtc(rtc: &Rtc) {
@@ -164,7 +169,8 @@ pub fn seed_from_rtc(rtc: &Rtc) {
     let secs = (us / USEC_IN_SEC) as u32;
     if secs > MIN_VALID_EPOCH {
         set_epoch(secs);
-        let ts = Timestamp::new(i64::from(secs), 0).unwrap();
+        let ts = Timestamp::new(i64::from(secs), 0)
+            .expect("u32 epoch seconds are within Jiff's timestamp range");
         let z = ts.to_zoned(TIMEZONE);
         info!(
             "time: rtc seeded: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
@@ -188,7 +194,8 @@ fn log_sync(correction: Option<i64>) {
     }
 
     if let Some(epoch) = get_epoch_seconds() {
-        let ts = Timestamp::new(i64::from(epoch), 0).unwrap();
+        let ts = Timestamp::new(i64::from(epoch), 0)
+            .expect("u32 epoch seconds are within Jiff's timestamp range");
         let z = ts.to_zoned(TIMEZONE);
         info!(
             "time: {=str} {=i16}-{=i8:02}-{=i8:02} {=i8:02}:{=i8:02}:{=i8:02}",
