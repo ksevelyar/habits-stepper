@@ -18,8 +18,12 @@ Automatically tracks workouts and sends them to a JSON backend over Wi-Fi. NTP s
 * [Permanent session storage](doc/features/sessions/permanent-storage.md)
 * [Backend sync](doc/features/sessions/backend-sync.md)
 * [Mechanical maintenance](doc/hardware/mechanical-maintenance.md)
-* [Wiring](doc/hardware/wiring.md)
+* [Schematic](doc/hardware/schematic.md)
 * [Project boundaries](doc/boundaries.md)
+
+## Schematic
+
+![Schematic](doc/hardware/schematic.svg)
 
 ## Tests
 Tests require a connected MCU.

@@ -1,0 +1,1057 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="391.202mm" height="100.542mm"
+ viewBox="0 0 9241 2375"
+ xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2" baseProfile="tiny">
+<title>Habits stepper</title>
+<desc>Generated with Qt</desc>
+<defs>
+</defs>
+<g fill="none" stroke="black" stroke-width="1" fill-rule="evenodd" stroke-linecap="square" stroke-linejoin="bevel" >
+
+<g fill="none" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="#25252e" fill-opacity="1" stroke="none" transform="matrix(1,0,0,1,0,0)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="0" width="9241" height="2375"/>
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M561.6,-201.6 L727.2,-201.6 L727.2,-43.2 L561.6,-43.2 L561.6,-201.6 Z "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-64.8 727.2,-64.8 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-64.6719" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO10</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-64.6719" y="-12.25" width="64.6719" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="540,-122.4 561.6,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GND</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="39.8906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="540,-151.2 561.6,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >3V3</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="31.3594" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-151.2 727.2,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-54.3906" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO6</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-54.3906" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-93.6 727.2,-93.6 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-54.3906" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO9</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-54.3906" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="540,-64.8 561.6,-64.8 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO2</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-122.4 727.2,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-54.3906" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO7</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-54.3906" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="540,-180 561.6,-180 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >5V</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="21.0781" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="540,-93.6 561.6,-93.6 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO1</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,6024.44,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-180 727.2,-180 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-54.3906" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GPIO5</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,7342.66,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-54.3906" y="-12.25" width="54.3906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M0,-201.6 L144,-201.6 L144,-72 L0,-72 L0,-201.6 Z "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="-21.6,-151.2 0,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >BAT+</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="42.2031" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="165.6,-93.6 144,-93.6 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-42.2656" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >OUT-</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-42.2656" y="-12.25" width="42.2656" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="165.6,-122.4 144,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-25.5469" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >IN-</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-25.5469" y="-12.25" width="25.5469" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="165.6,-151.2 144,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-47.4844" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >OUT+</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-47.4844" y="-12.25" width="47.4844" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="165.6,-180 144,-180 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-30.0469" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >IN+</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,-2.03833e-15,2.03833e-15,6.1142,2489.21,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="-30.0469" y="-12.25" width="30.0469" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="-21.6,-122.4 0,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >BAT-</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1350.75,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="36.9844" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="#34343e" fill-opacity="1" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M410.4,-104.4 L439.2,-104.4 C445.165,-104.4 450,-99.5647 450,-93.6 C450,-87.6353 445.165,-82.8 439.2,-82.8 L410.4,-82.8 C404.435,-82.8 399.6,-87.6353 399.6,-93.6 C399.6,-99.5647 404.435,-104.4 410.4,-104.4 Z "/>
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M439.2,-93.6 L410.4,-100.8 "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="453.6,-93.6 439.2,-93.6 " />
+<polyline fill="none" vector-effect="none" points="396,-93.6 410.4,-93.6 " />
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M396,-64.8 L410.4,-64.8 "/>
+<path vector-effect="none" fill-rule="evenodd" d="M410.4,-64.8 L439.2,-72 "/>
+<path vector-effect="none" fill-rule="evenodd" d="M439.2,-64.8 L453.6,-64.8 "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="374.4,-64.8 396,-64.8 " />
+<polyline fill="none" vector-effect="none" points="475.2,-64.8 453.6,-64.8 " />
+</g>
+
+<g fill="#34343e" fill-opacity="1" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M230.4,-165.6 L316.8,-165.6 L316.8,-122.4 L230.4,-122.4 L230.4,-165.6 Z "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="331.2,-151.2 316.8,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,-2.03833e-15,2.03833e-15,5.82603,3897.31,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,-2.03833e-15,2.03833e-15,5.82603,3897.31,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="-35.125" y="6.60938" font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+ >OUT</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,-2.03833e-15,2.03833e-15,5.82603,3897.31,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<rect x="-36.125" y="-11.5703" width="36.125" height="23.1406"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="216,-151.2 230.4,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,0,0,5.82603,3298.12,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,0,0,5.82603,3298.12,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.60938" font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+ >IN</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(5.82603,0,0,5.82603,3298.12,748.925)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-11.5703" width="18.6563" height="23.1406"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="273.6,-108 273.6,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(0,-5.82603,5.82603,0,3597.71,928.683)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(0,-5.82603,5.82603,0,3597.71,928.683)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.60938" font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+ >GND</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(0,-5.82603,5.82603,0,3597.71,928.683)"
+font-family="Noto Sans" font-size="17" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-11.5703" width="37.6875" height="23.1406"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M-129.6,-144 L-100.8,-144 "/>
+<path vector-effect="none" fill-rule="evenodd" d="M-122.4,-129.6 L-108,-129.6 "/>
+<path vector-effect="none" fill-rule="evenodd" d="M-115.2,-144 L-115.2,-151.2 L-86.4,-151.2 "/>
+<path vector-effect="none" fill-rule="evenodd" d="M-115.2,-129.6 L-115.2,-122.4 L-86.4,-122.4 "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="-64.8,-151.2 -86.4,-151.2 " />
+<polyline fill="none" vector-effect="none" points="-64.8,-122.4 -86.4,-122.4 " />
+</g>
+
+<g fill="none" stroke="#f5a9d0" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<path vector-effect="none" fill-rule="evenodd" d="M792,-201.6 L936,-201.6 L936,28.8 L792,28.8 L792,-201.6 Z "/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-21.6 792,-21.6 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1827.47)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1827.47)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >VDD</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1827.47)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="37.0469" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-93.6 792,-93.6 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >DC</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1228.28)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="24.5" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-64.8 792,-64.8 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >CS</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,1467.95)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="21.25" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-122.4 792,-122.4 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >RST</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="31.0625" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,7.2 792,7.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,2067.15)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,2067.15)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >GND</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,2067.15)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="39.8906" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-151.2 792,-151.2 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >SDA</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="34.1406" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="770.4,-180 792,-180 " />
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="6.98438" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >SCL</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7941.85,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-12.25" width="30.6719" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5994.48,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5994.48,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >ESP32-C3 SuperMini</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5994.48,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="169.734" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1320.79,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1320.79,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >TP4057 charger</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,1320.79,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="133.359" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5095.69,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5095.69,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >Reed switch</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,5095.69,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="100.813" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4616.34,1647.71)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4616.34,1647.71)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >History button</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4616.34,1647.71)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="122.328" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3657.63,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3657.63,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >1</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3657.63,1168.36)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="10.2813" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4136.99,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4136.99,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >3</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,4136.99,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="10.2813" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3058.44,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3058.44,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >2</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3058.44,689.006)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="10.2813" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3238.2,389.411)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3238.2,389.411)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >MCP1700</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,3238.2,389.411)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="79.6875" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >+</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,748.925)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="10.2813" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >-</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,988.602)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="5.78125" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >18650 battery</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,122.405,509.249)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="117.938" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7911.89,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+</g>
+
+<g fill="none" stroke="#e8e3f1" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7911.89,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<text fill="#e8e3f1" fill-opacity="1" stroke="none" xml:space="preserve" x="0" y="-5.26563" font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+ >SH1122 display</text>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="0" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(6.1142,0,0,6.1142,7911.89,269.572)"
+font-family="Noto Sans" font-size="18" font-weight="400" font-style="normal" 
+>
+<rect x="0" y="-24.5" width="129.281" height="24.5"/>
+</g>
+
+<g fill="none" stroke="#cba6f7" stroke-opacity="1" stroke-width="1.70079" stroke-linecap="round" stroke-linejoin="round" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<polyline fill="none" vector-effect="none" points="748.8,-122.4 770.4,-122.4 " />
+<polyline fill="none" vector-effect="none" points="540,-64.8 475.2,-64.8 " />
+<polyline fill="none" vector-effect="none" points="-21.6,-122.4 -64.8,-122.4 " />
+<polyline fill="none" vector-effect="none" points="331.2,-151.2 345.6,-151.2 " />
+<polyline fill="none" vector-effect="none" points="770.4,-21.6 345.6,-21.6 " />
+<polyline fill="none" vector-effect="none" points="345.6,-151.2 345.6,-21.6 " />
+<polyline fill="none" vector-effect="none" points="540,-151.2 345.6,-151.2 " />
+<polyline fill="none" vector-effect="none" points="748.8,-93.6 770.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="165.6,-151.2 216,-151.2 " />
+<polyline fill="none" vector-effect="none" points="748.8,-180 770.4,-180 " />
+<polyline fill="none" vector-effect="none" points="540,-93.6 453.6,-93.6 " />
+<polyline fill="none" vector-effect="none" points="165.6,-93.6 194.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="374.4,-93.6 374.4,-122.4 " />
+<polyline fill="none" vector-effect="none" points="194.4,-122.4 194.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="273.6,-93.6 273.6,7.2 " />
+<polyline fill="none" vector-effect="none" points="374.4,-64.8 374.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="273.6,-108 273.6,-93.6 " />
+<polyline fill="none" vector-effect="none" points="273.6,-93.6 374.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="396,-93.6 374.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="540,-122.4 374.4,-122.4 " />
+<polyline fill="none" vector-effect="none" points="770.4,7.2 273.6,7.2 " />
+<polyline fill="none" vector-effect="none" points="273.6,-93.6 194.4,-93.6 " />
+<polyline fill="none" vector-effect="none" points="165.6,-122.4 194.4,-122.4 " />
+<polyline fill="none" vector-effect="none" points="540,-180 165.6,-180 " />
+<polyline fill="none" vector-effect="none" points="-21.6,-151.2 -64.8,-151.2 " />
+<polyline fill="none" vector-effect="none" points="748.8,-151.2 770.4,-151.2 " />
+<polyline fill="none" vector-effect="none" points="748.8,-64.8 770.4,-64.8 " />
+</g>
+
+<g fill="#cba6f7" fill-opacity="1" stroke="none" transform="matrix(8.3221,0,0,8.3221,1320.79,2007.23)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+<circle cx="345.6" cy="-151.2" r="1.70079"/>
+<circle cx="273.6" cy="-93.6" r="1.70079"/>
+<circle cx="194.4" cy="-93.6" r="1.70079"/>
+<circle cx="374.4" cy="-93.6" r="1.70079"/>
+</g>
+
+<g fill="none" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,0,0)"
+font-family="CaskaydiaMono Nerd Font" font-size="125" font-weight="400" font-style="normal" 
+>
+</g>
+</g>
+</svg>

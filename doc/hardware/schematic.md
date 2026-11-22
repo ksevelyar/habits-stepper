@@ -1,6 +1,8 @@
-# Wiring
+# Schematic
 
-## Charging (TP4057)
+## Requirements
+
+### Charging (TP4057)
 ```
 5 V from ESP32 to IN+
 GND from ESP32 to IN-
@@ -12,14 +14,14 @@ OUT- to GND from ESP32
 OUT+ to MCP1700 pin 2
 ```
 
-## MCP1700
+### MCP1700
 ```
 1 - GND
 2 - TP4057 OUT+
 3 - ESP32 3.3 V
 ```
 
-## SH1122 display, SPI
+### SH1122 display, SPI
 ```
 GND - GND
 VDD - 3V3
@@ -30,8 +32,20 @@ DC - GPIO9
 CS - GPIO10
 ```
 
-## Buttons
+### Buttons
 ```
 Reed - GPIO1 + GND
 History - GPIO2 + GND
+```
+
+## Implementation
+
+![Schematic](schematic.svg)
+
+The [LibrePCB project](librepcb/habits-stepper.lpp) is the source. From the repository root:
+
+```sh
+nix develop
+open-schematic
+render-schematic
 ```
